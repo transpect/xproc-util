@@ -67,7 +67,7 @@
   </p:documentation>
 
   <p:pipeinfo>
-    <depends-on xmlns="http://www.le-tex.de/namespace/transpect">
+    <depends-on xmlns="http://transpect.io">
       <module href="http://transpect.io/xslt-util/xslt-based-catalog-resolver/" min-version="r1688"/>
     	<module href="http://transpect.io/xslt-util/resolve-uri/" min-version="r3504"/>
     </depends-on>
@@ -113,16 +113,16 @@
       <p>You have to supply an XSLT-based catalog resolver on the resolver port in order to use catalog resolution. That is
         because native catalog resolution is not available for p:http-request or by XPath function. This means that you can’t
         programmatically decide whether to retrieve a file via <span class="step">p:http-request</span> or use the local file.</p>
-      <p>You may use the <a href="https://github.com/transpect/xslt-util/xslt-based-catalog-resolver/resolve-uri-by-catalog.xsl"
+      <p>You may use the <a href="https://github.com/transpect/xslt-util/xslt-based-catalog-resolver/xsl/resolve-uri-by-catalog.xsl"
           >repository version</a> of the XSLT-based resolver. However, in order to avoid network traffic, you should consider
         using a local copy. In order to avoid importing it via its absolute or relative file system path, you should use the
         transpect appoach of importing the resolver’s XML catalog via <code>&lt;nextCatalog</code> from your project catalog.
-        Then you can import the XSLT-based resolver by its <a href="https://github.com/transpect/xslt-util/xslt-based-catalog-resolver/resolve-uri-by-catalog.xsl">canonical
+        Then you can import the XSLT-based resolver by its <a href="https://github.com/transpect/xslt-util/xslt-based-catalog-resolver/xsl/resolve-uri-by-catalog.xsl">canonical
         URI</a>.</p>
     </p:documentation>
     <p:inline>
       <xsl:stylesheet version="2.0">
-      	<xsl:import href="http://transpect.io/xslt-util/resolve-uri/resolve-uri.xsl"/>
+      	<xsl:import href="http://transpect.io/xslt-util/resolve-uri/xsl/resolve-uri.xsl"/>
         <xsl:param name="uri" as="xs:string?"/>
         <xsl:template name="resolve">
           <result>
