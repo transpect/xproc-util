@@ -43,7 +43,7 @@
       <p:with-param name="hub-version" select="$hub-version"/>
       <p:input port="stylesheet">
         <!-- inlining caused problems-->
-        <p:document href="prepend-xml-model.xsl"/>
+        <p:document href="../xsl/prepend-xml-model.xsl"/>
       </p:input>
       <p:input port="parameters">
         <p:empty/>
