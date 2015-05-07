@@ -59,7 +59,7 @@
         * well-formed. Otherwise the input is cloned in the otherwise branch
         * -->
   <p:choose>
-    <p:variable name="absolute-file-uri-href" select="/*/@xml:base"/>
+    <p:variable name="absolute-file-uri-href" select="/*/@local-href"/>
     <p:when test="/c:errors">
             
       <!--  * 

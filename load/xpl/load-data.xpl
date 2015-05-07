@@ -20,6 +20,20 @@
     </p:documentation>
   </p:option>
   
+  <p:option name="content-type-override" select="''">
+    <p:documentation xmlns="http://www.w3.org/1999/xhtml">
+      <h3>Option: <code>content-type-override</code></h3>
+      <p>You can use this option to submit a content-type override.</p>
+    </p:documentation>
+  </p:option>
+  
+  <p:option name="encoding" select="'base64'">
+    <p:documentation xmlns="http://www.w3.org/1999/xhtml">
+      <h3>Option: <code>encoding</code></h3>
+      <p>Encoding of the file to be loaded.</p>
+    </p:documentation>
+  </p:option>
+  
   <p:option name="fail-on-error" select="'false'">
     <p:documentation xmlns="http://www.w3.org/1999/xhtml">
       <h3>Option: <code>fail-on-error</code></h3>
@@ -51,24 +65,39 @@
             * construct HTTP request 
             * -->
       <p:add-attribute attribute-name="href" match="/c:request" name="construct-http-request">
-        <p:with-option name="attribute-value" select="/*/@xml:base"/>
+        <p:with-option name="attribute-value" select="/*/@local-href"/>
         <p:input port="source">
           <p:inline>
-            <c:request method="GET" detailed="true" />
+            <c:request method="GET" detailed="true"/>
           </p:inline>
         </p:input>
       </p:add-attribute>
+
+      <!--  * 
+            * conditionally force content-type
+            * -->
+      <p:choose>
+        <p:when test="string-length($content-type-override) gt 0">
+          <p:add-attribute attribute-name="override-content-type" match="/c:request">
+            <p:with-option name="attribute-value" select="$content-type-override"/>
+          </p:add-attribute>
+        </p:when>
+        <p:otherwise>
+          <p:identity/>
+        </p:otherwise>
+      </p:choose>
+      
+      <p:identity name="http-request"/>
       
       <!--  * 
             * perform HTTP request to load file 
             * -->
       <p:http-request>
+        <p:with-option name="encoding" select="$encoding"/>
         <p:input port="source">
-          <p:pipe port="result" step="construct-http-request"/>
+          <p:pipe port="result" step="http-request"/>
         </p:input>
       </p:http-request>
-      
-      <p:wrap-sequence wrapper="data" wrapper-prefix="c" wrapper-namespace="http://www.w3.org/ns/xproc-step"/>
       
     </p:group>
     <!--  *
