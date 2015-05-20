@@ -53,13 +53,15 @@
                 <element name="c:param">
                   <interleave>
                     <attribute name="name">
-                      <data type="NCName"/>
+                      <text/>
                     </attribute>
                     <attribute name="value">
-                      <data type="anyURI"/>
+                      <text/>
                     </attribute>
                     <optional>
-                      <attribute name="namespace"/>
+                      <attribute name="namespace">
+                        <data type="anyURI"/>
+                      </attribute>
                     </optional>
                   </interleave>
                 </element>
