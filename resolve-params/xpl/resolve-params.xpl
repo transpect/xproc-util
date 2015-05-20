@@ -31,42 +31,6 @@
       <h3>Input port: <code>source</code></h3>
       <p>The source port expects a c:param-set document.</p>
     </p:documentation>
-    <p:inline>
-      <c:param-set xmlns:c="http://www.w3.org/ns/xproc-step">
-        <!--  *
-        * books
-        * -->
-        <c:param name="isbn" value="(97[89]){1}\d{9}(\d|X)"/>
-        <c:param name="eisbn-pdf" value="{$isbn}"/>
-        <c:param name="eisbn-epub" value="{$isbn}"/>
-        <c:param name="isbn-original_epub" value="{$isbn}"/>
-        
-        <c:param name="chapter-suffix" value="{$isbn}-\w*"/>
-        <c:param name="book-delivery-id" value="epub_dgo_{$doi-suffix-book}\.zip"/>
-        <c:param name="doi-suffix-book" value="{$eisbn-pdf}"/>
-        <c:param name="doi-suffix-book-part" value="{$eisbn-pdf}-{$chapter-suffix}"/>  
-        <!--  *
-        * journals
-        * -->
-        <!-- common -->
-        <c:param name="journal-code" value="[a-z]+"/>
-        <c:param name="journal-code-online" value="[a-z]+"/>
-        <c:param name="doi-code" value="[a-z]+"/>
-        <c:param name="time-stamp" value="\d{4}(-\d{2}){2}-(-\d{2}){3}"/>
-        <!-- article -->
-        <c:param name="article-system-creation-date-year" value="\d{4}"/>
-        <c:param name="article-counter-id" value="\d{4}"/>
-        <c:param name="article-delivery-type" value="(ja|aop)"/>
-        <c:param name="article-id" value="{$doi-code}-{$article-system-creation-date-year}-{$article-counter-id}"/>
-        <c:param name="article-delivery-id" value="{$journal-code-online}_{$article-id}_{$article-delivery-type}_{$time-stamp}\.zip"/>
-        <!-- issue -->
-        <c:param name="cover-date-year" value="\d{4}"/>
-        <c:param name="volume-number" value="\d+"/>
-        <c:param name="issue-number" value="\d+"/>
-        <c:param name="issue-id" value="{$journal-code-online}\.{$cover-date-year}\.{$volume-number}\.issue-{$issue-number}"/>
-        <c:param name="issue-delivery-id" value="{$journal-code-online}_{$issue-id}_{$time-stamp}\.zip"/>
-      </c:param-set>
-    </p:inline>
   </p:input>
   
   <p:output port="result">
