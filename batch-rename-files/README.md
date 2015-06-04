@@ -43,7 +43,7 @@ Renames XML file references and corresponding files.
   
   <tr:batch-rename-files name="batch-rename">
     <p:with-option name="attribute-name" select="'fileref'"/>
-    <p:with-option name="regex-match" select="'^(.+)\..+'"/>
+    <p:with-option name="regex-match" select="'^(.+)\..+$'"/>
     <p:with-option name="regex-replace" select="'$1.jpg'"/>
   </tr:batch-rename-files>
   
