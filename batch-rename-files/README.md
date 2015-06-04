@@ -1,6 +1,6 @@
 # batch-rename-files
 
-Renames XML file references and physical files that correspond to the file references.
+Renames XML file references and corresponding files.
 
 ## Ports
 
