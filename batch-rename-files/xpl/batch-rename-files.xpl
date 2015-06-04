@@ -5,11 +5,11 @@
   xmlns:cxf="http://xmlcalabash.com/ns/extensions/fileutils"
   xmlns:tr="http://transpect.io"
   version="1.0" 
-  name="mass-rename-files"
-  type="tr:mass-rename-files">
+  name="batch-rename-files"
+  type="tr:batch-rename-files">
   
   <p:documentation xmlns="http://www.w3.org/1999/xhtml">
-    <h1>tr:mass-rename-files</h1>
+    <h1>tr:batch-rename-files</h1>
     <h2>Description</h2>
     <p>Renames file references in a XML document and its physical manifestations. 
       The fileref attributes are matched by a regex pattern. The filerefs are 
@@ -17,19 +17,19 @@
     <h2>Usage</h2>
     <h3>Example: rename file extensions</h3>
     <pre><code class="xml">
-&lt;tr:mass-rename-files&gt;
+&lt;tr:batch-rename-files&gt;
   &lt;p:with-option name="attribute-name" select="'fileref'"/&gt;
   &lt;p:with-option name="regex-match" select="'^(.+)\.tif$'"/&gt;
   &lt;p:with-option name="regex-replace" select="'$1.jpg'"/&gt;
-&lt;/tr:mass-rename-files&gt;
+&lt;/tr:batch-rename-files&gt;
     </code></pre>
     <h3>Example: replace whitespace</h3>
     <pre><code class="xml">
-&lt;tr:mass-rename-files&gt;
+&lt;tr:batch-rename-files&gt;
   &lt;p:with-option name="attribute-name" select="'fileref'"/&gt;
   &lt;p:with-option name="regex-match" select="'\s'"/&gt;
   &lt;p:with-option name="regex-replace" select="''"/&gt;
-&lt;/tr:mass-rename-files&gt;
+&lt;/tr:batch-rename-files&gt;
     </code></pre>
   </p:documentation>
   
@@ -78,7 +78,7 @@
     <p:with-param name="regex-match" select="$regex-match"/>
     <p:with-param name="regex-replace" select="$regex-replace"/>
     <p:input port="stylesheet">
-      <p:document href="../xsl/mass-rename-files.xsl"/>
+      <p:document href="../xsl/batch-rename-files.xsl"/>
     </p:input>
   </p:xslt>
   
