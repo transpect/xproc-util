@@ -1,4 +1,4 @@
-# mass-rename-files
+# batch-rename-files
 
 Renames XML file references and physical files that correspond to the file references.
 
@@ -36,16 +36,16 @@ Renames XML file references and physical files that correspond to the file refer
   
   <p:output port="result" primary="true"/>
   <p:output port="report">
-    <p:pipe port="report" step="mass-rename"/>
+    <p:pipe port="report" step="batch-rename"/>
   </p:output>
   
-  <p:import href="mass-rename-files.xpl"/>
+  <p:import href="batch-rename-files.xpl"/>
   
-  <tr:mass-rename-files name="mass-rename">
+  <tr:batch-rename-files name="batch-rename">
     <p:with-option name="attribute-name" select="'fileref'"/>
     <p:with-option name="regex-match" select="'^(.+)\..+'"/>
     <p:with-option name="regex-replace" select="'$1.jpg'"/>
-  </tr:mass-rename-files>
+  </tr:batch-rename-files>
   
 </p:declare-step>
 ```
