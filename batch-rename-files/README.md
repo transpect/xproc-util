@@ -4,7 +4,7 @@ Renames XML file references and corresponding files.
 
 ## Ports
 
-* `input` a XML document
+* `input` an XML document
 * `result` the XML document with the patched file references
 * `report` a `c:result` document with a listing of the moved files and potential errors 
 
