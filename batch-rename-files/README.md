@@ -11,7 +11,7 @@ Renames XML file references and corresponding files.
 ## Options
 
 * `attribute-name` the name of the attribute containing the file references 
-* `regex-match` regular expression which matches the file reference 
+* `regex-match` regular expression which matches the file references 
 * `regex-replace` the replacement string
 
 ## Example
@@ -29,7 +29,7 @@ Renames XML file references and corresponding files.
     <p:inline>
       <images>
         <image fileref="file:/C:/home/Martin/images/myimage01.png"/>
-        <image fileref="file:/C:/home/Martin/images/myimage02.png"/>
+        <image fileref="images/myimage02.png"/>
       </images>
     </p:inline>
   </p:input>
