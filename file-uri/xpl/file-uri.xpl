@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <p:declare-step xmlns:p="http://www.w3.org/ns/xproc" 
   xmlns:c="http://www.w3.org/ns/xproc-step"
-  xmlns:cx="http://xmlcalabash.com/ns/extensions"
-  xmlns:pos="http://exproc.org/proposed/steps/os"
+  xmlns:cx="http://xmlcalabash.com/ns/extensions" 
   xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
-  xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+  xmlns:tr="http://transpect.io" 
+  xmlns:pos="http://exproc.org/proposed/steps/os"
   xmlns:cat="urn:oasis:names:tc:entity:xmlns:xml:catalog" 
-  xmlns:tr="http://transpect.io"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema" 
   version="1.0" 
-  type="tr:file-uri"
-  name="file-uri">
+  name="file-uri" 
+  type="tr:file-uri">
 
   <p:documentation xmlns="http://www.w3.org/1999/xhtml">
     <p>This step accepts either a file system path or a URL in its 'filename' option. It will normalize them so that both a file
@@ -39,7 +39,7 @@
       <code>$(readlink -f subdir/file.docx)</code> or <code>$(cygpath -ma subdir/file.docx)</code>.</p>
     <h4>XML Catalogs</h4>
     <p>If a catalog is provided on the catalog port and an <a
-      href="https://github.com/transpect/xslt-util/xslt-based-catalog-resolver/">XSLT stylesheet for catalog resolution</a> is supplied on the 
+      href="https://github.com/transpect/xslt-util/blob/master/xslt-based-catalog-resolver/">XSLT stylesheet for catalog resolution</a> is supplied on the 
       resolver port, http:/https: URIs will be catalog-resolved first, see below.</p>
     <h4>Storage Location for HTTP Downloads</h4>
     <p>It is possible to specify a temporary directory in the 'tmpdir' option. By default, it will be the subdir 'tmp' of the
@@ -109,34 +109,20 @@
           <code>$uri</code> and produces a document <code>&lt;result unresolved="{$uri}"/></code>. If the URI could be resolved
         to another URI, the result will take the form <code>&lt;result unresolved="{$uri}"
         resolved="{$resolved-uri}"/></code>.</p>
-      <p>By default, this step only provides trivial (i.e., identity) catalog resolution.</p>
+      <p>By default, this step only provides trivial (i.e., identity plus URL escaping) catalog resolution.</p>
       <p>You have to supply an XSLT-based catalog resolver on the resolver port in order to use catalog resolution. That is
         because native catalog resolution is not available for p:http-request or by XPath function. This means that you can’t
         programmatically decide whether to retrieve a file via <span class="step">p:http-request</span> or use the local file.</p>
-      <p>You may use the <a href="https://github.com/transpect/xslt-util/xslt-based-catalog-resolver/xsl/resolve-uri-by-catalog.xsl"
+      <p>You may use the <a
+          href="https://subversion.le-tex.de/common/letex-util/xslt-based-catalog-resolver/resolve-uri-by-catalog.xsl"
           >repository version</a> of the XSLT-based resolver. However, in order to avoid network traffic, you should consider
         using a local copy. In order to avoid importing it via its absolute or relative file system path, you should use the
         transpect appoach of importing the resolver’s XML catalog via <code>&lt;nextCatalog</code> from your project catalog.
-        Then you can import the XSLT-based resolver by its <a href="https://github.com/transpect/xslt-util/xslt-based-catalog-resolver/xsl/resolve-uri-by-catalog.xsl">canonical
+        Then you can import the XSLT-based resolver by its <a
+          href="http://transpect.le-tex.de/xslt-util/xslt-based-catalog-resolver/resolve-uri-by-catalog.xsl">canonical
         URI</a>.</p>
     </p:documentation>
-    <p:inline>
-      <xsl:stylesheet version="2.0">
-      	<xsl:import href="http://transpect.io/xslt-util/resolve-uri/xsl/resolve-uri.xsl"/>
-        <xsl:param name="uri" as="xs:string?"/>
-        <xsl:template name="resolve">
-          <result>
-            <xsl:if test="$uri">
-              <xsl:attribute name="href" 
-			     select="tr:uri-composer(if(matches($uri, '^/[^/]')) 
-				                        then concat('file:', $uri) 
-							else $uri, 
-							'')"/>
-            </xsl:if>
-          </result>
-        </xsl:template>
-      </xsl:stylesheet>
-    </p:inline>
+    <p:document href="../xsl/without-resolver.xsl"/>
   </p:input>
 
   <p:output port="result" primary="true">
@@ -144,8 +130,13 @@
   </p:output>
 
   <p:import href="http://xmlcalabash.com/extension/steps/library-1.0.xpl"/>
+  <p:import href="unescape-for-os-path.xpl"/>
 
   <pos:info name="info"/>
+
+  <!--<cx:message>
+    <p:with-option name="message" select="'pos:info ', for $a in /*/@* return concat(name($a), '=', $a, ' ')"></p:with-option>
+  </cx:message>-->
 
   <p:xslt name="catalog-resolve" template-name="resolve">
     <p:input port="stylesheet">
@@ -155,11 +146,14 @@
       <p:document href=""></p:document>
       <p:pipe port="catalog" step="file-uri"/>
     </p:input>
-    <p:with-param name="uri" select="if (/*/@file-separator = '\\') then replace($filename, '\\', '/') else $filename">
-    </p:with-param>
+    <p:with-param name="uri" select="if (/*/@file-separator = '\') then replace($filename, '\\', '/') else $filename"/>
+    
     <p:with-param name="cat:missing-next-catalogs-warning" select="'no'"/>
   </p:xslt>
 
+  <!--<cx:message>
+    <p:with-option name="message" select="'cr ', for $a in /*/@* return concat(name($a), '=', $a, ' ')"></p:with-option>
+  </cx:message>-->
   <p:sink/>
 
   <p:add-attribute name="empty-result" attribute-name="cwd" match="/*">
@@ -168,7 +162,14 @@
         <c:result/>
       </p:inline>
     </p:input>
-    <p:with-option name="attribute-value" select="if (/*/@file-separator = '/') then replace(/*/@cwd, '\\', '/') else /*/@cwd">
+    <p:with-option name="attribute-value" 
+      select="replace(
+                if (/*/@file-separator = '\') 
+                then replace(/*/@cwd, '\\', '/') 
+                else /*/@cwd,
+                '([^/])$',
+                '$1/'
+              )">
       <p:pipe port="result" step="info"/>
     </p:with-option>
   </p:add-attribute>
@@ -206,11 +207,20 @@
       
       <p:when test="matches($catalog-resolved-uri, '^file:/')">
         <p:documentation>Unix file URI or Windows file: URI containing a drive letter.</p:documentation>
-        <p:add-attribute match="/*" attribute-name="local-href">
+        <p:add-attribute match="/*" attribute-name="local-href" name="local-href">
           <p:with-option name="attribute-value" select="$catalog-resolved-uri"/>
         </p:add-attribute>
+        <p:sink/>
+        <tr:unescape-uri name="unescape-uri">
+          <p:with-option name="uri" select="replace($catalog-resolved-uri, '^file:/+(([a-z]:)/)?', '$2/', 'i')"/>
+        </tr:unescape-uri>
         <p:add-attribute match="/*" attribute-name="os-path">
-          <p:with-option name="attribute-value" select="replace($catalog-resolved-uri, '^file:/+(([a-z]:)/)?', '$2/', 'i')"/>
+          <p:input port="source">
+            <p:pipe port="result" step="local-href"/>
+          </p:input>
+          <p:with-option name="attribute-value" select="/c:result">
+            <p:pipe port="result" step="unescape-uri"/>
+          </p:with-option>
         </p:add-attribute>
       </p:when>
 
