@@ -66,9 +66,7 @@
       <p:inline>
         <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="2.0">
           <xsl:template match="/*">
-            <xsl:copy copy-namespaces="no">
-              <xsl:copy-of select="@*, node()" copy-namespaces="no"/>
-            </xsl:copy>
+            <xsl:copy-of select="." copy-namespaces="no"/>
           </xsl:template>
         </xsl:stylesheet>
       </p:inline>
