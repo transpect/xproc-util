@@ -14,7 +14,8 @@
         files. Scan reports are retrieved with <code>p:http-request</code> and 
         validated with Schematron.</p>
       <p>Note: requires a Virus Total account, please see option <code>api-key</code>.</p>
-      <pre>$ sh calabash/calabash.sh -o report=svrl.xml virustotal.xpl href=test.txt api-key=myRandomKey</pre>
+      <pre>$ sh calabash/calabash.sh -Xtransparent-json -Xjson-flavor=marklogic \
+        -o report=svrl.xml virustotal.xpl href=test.txt api-key=myRandomKey</pre>
       <p>Get more information on Virus Total at https://www.virustotal.com</p>
     </p:documentation>
   </p:documentation>
