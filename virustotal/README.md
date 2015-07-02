@@ -26,6 +26,6 @@ elements for each scanner and successful virus detection
 
 * `api-key` your personal VirusTotal API key
 * `href` the file to be checked
-* `scan-url` URL for VirusTotal-Scan-Request, default: `https://www.virustotal.com/vtapi/v2/file/scan`
-* `report-url` URL for VirusTotal-Scan-Request, default: `https://www.virustotal.com/vtapi/v2/file/report`
+* `scan-url` URL for VirusTotal scan request, default: `https://www.virustotal.com/vtapi/v2/file/scan`
+* `report-url` URL for VirusTotal scan request, default: `https://www.virustotal.com/vtapi/v2/file/report`
 
