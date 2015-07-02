@@ -14,6 +14,7 @@ validated with Schematron.
 * XML Calabash including transparent JSON extension enabled
   * Transparent JSON can be enabled with `-Xtransparent-json -Xjson-flavor=marklogic` command-line option
   * A pipeline can test whether the extension is enabled or not with the `p:system-property` function using `cx:transparent-json`.
+  * find more information about transparent JSON in the [XML Calabash Reference](http://xmlcalabash.com/docs/reference/langext.html#ext.transparent-json)
 
 ## Ports
 
