@@ -2,7 +2,8 @@
 <p:declare-step xmlns:p="http://www.w3.org/ns/xproc" version="1.0"
 		xmlns:c="http://www.w3.org/ns/xproc-step"
                 xmlns:l="http://xproc.org/library"
-                type="l:recursive-directory-list">
+                xmlns:tr="http://transpect.io"
+                type="tr:recursive-directory-list">
   
   <p:documentation>Copied verbatim (except for this comment) from http://xproc.org/library/recursive-directory-list.xpl
   Copyright situation unclear.</p:documentation>
