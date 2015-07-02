@@ -53,35 +53,35 @@
         <p:choose>
           <p:when test="p:value-available('include-filter')
                         and p:value-available('exclude-filter')">
-            <l:recursive-directory-list>
+            <tr:recursive-directory-list>
               <p:with-option name="path" select="concat($path,'/',$name)"/>
               <p:with-option name="include-filter" select="$include-filter"/>
               <p:with-option name="exclude-filter" select="$exclude-filter"/>
               <p:with-option name="depth" select="$depth - 1"/>
-            </l:recursive-directory-list>
+            </tr:recursive-directory-list>
           </p:when>
 
           <p:when test="p:value-available('include-filter')">
-            <l:recursive-directory-list>
+            <tr:recursive-directory-list>
               <p:with-option name="path" select="concat($path,'/',$name)"/>
               <p:with-option name="include-filter" select="$include-filter"/>
               <p:with-option name="depth" select="$depth - 1"/>
-            </l:recursive-directory-list>
+            </tr:recursive-directory-list>
           </p:when>
 
           <p:when test="p:value-available('exclude-filter')">
-            <l:recursive-directory-list>
+            <tr:recursive-directory-list>
               <p:with-option name="path" select="concat($path,'/',$name)"/>
               <p:with-option name="exclude-filter" select="$exclude-filter"/>
               <p:with-option name="depth" select="$depth - 1"/>
-            </l:recursive-directory-list>
+            </tr:recursive-directory-list>
           </p:when>
 
           <p:otherwise>
-            <l:recursive-directory-list>
+            <tr:recursive-directory-list>
               <p:with-option name="path" select="concat($path,'/',$name)"/>
               <p:with-option name="depth" select="$depth - 1"/>
-            </l:recursive-directory-list>
+            </tr:recursive-directory-list>
           </p:otherwise>
         </p:choose>
       </p:when>
