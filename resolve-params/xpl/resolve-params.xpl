@@ -53,14 +53,9 @@
           <start>
             <element name="c:param-set">
               <oneOrMore>
-                <choice>
-                  <element name="c:param">
-                    <ref name="param.content"/>
-                  </element>
-                  <element name="tr:param">
-                    <ref name="param.content"/>
-                  </element>
-                </choice>
+                <element name="c:param">
+                  <ref name="param.content"/>
+                </element>
               </oneOrMore>
             </element>
           </start>
