@@ -6,7 +6,7 @@
   exclude-result-prefixes="xs"
   version="2.0">
   
-  <xsl:variable name="params" select="//c:param" as="element(c:param)+"/>
+  <xsl:variable name="params" select="//*:param" as="element()+"/>
   
   <xsl:template match="/c:param-set">
     <xsl:copy>
@@ -14,7 +14,7 @@
     </xsl:copy>
   </xsl:template>
   
-  <xsl:template match="c:param">
+  <xsl:template match="*:param">
     <xsl:copy>
       <xsl:copy-of select="@name"/>
       <xsl:attribute name="value" select="string-join(tr:resolve-params(@value, /c:param-set), '')"/>

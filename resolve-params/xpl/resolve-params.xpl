@@ -46,28 +46,39 @@
   <p:validate-with-relax-ng assert-valid="true">
     <p:input port="schema">
       <p:inline>
-        <grammar xmlns:c="http://www.w3.org/ns/xproc-step" xmlns="http://relaxng.org/ns/structure/1.0" datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+        <grammar xmlns:c="http://www.w3.org/ns/xproc-step" 
+          xmlns:tr="http://transpect.io"
+          xmlns="http://relaxng.org/ns/structure/1.0" 
+          datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
           <start>
             <element name="c:param-set">
               <oneOrMore>
-                <element name="c:param">
-                  <interleave>
-                    <attribute name="name">
-                      <text/>
-                    </attribute>
-                    <attribute name="value">
-                      <text/>
-                    </attribute>
-                    <optional>
-                      <attribute name="namespace">
-                        <data type="anyURI"/>
-                      </attribute>
-                    </optional>
-                  </interleave>
-                </element>
+                <choice>
+                  <element name="c:param">
+                    <ref name="param.content"/>
+                  </element>
+                  <element name="tr:param">
+                    <ref name="param.content"/>
+                  </element>
+                </choice>
               </oneOrMore>
             </element>
           </start>
+          <define name="param.content">
+            <interleave>
+              <attribute name="name">
+                <text/>
+              </attribute>
+              <attribute name="value">
+                <text/>
+              </attribute>
+              <optional>
+                <attribute name="namespace">
+                  <data type="anyURI"/>
+                </attribute>
+              </optional>
+            </interleave>
+          </define>
         </grammar>
       </p:inline>
     </p:input>
