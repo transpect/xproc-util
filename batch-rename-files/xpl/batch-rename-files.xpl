@@ -55,7 +55,7 @@
   
   <p:option name="attribute-name" select="'fileref'">
     <p:documentation xmlns="http://www.w3.org/1999/xhtml">
-      <p>A XPath matching the filerefs that should be renamed.</p>
+      <p>The name of the attribute containing the file references.</p>
     </p:documentation>
   </p:option>
   
