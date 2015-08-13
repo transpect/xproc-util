@@ -16,7 +16,8 @@
     </xsl:copy>
   </xsl:template>
   
-  <xsl:template match="*[not(name() = $exclude-elements or ($exclude-descendants eq 'yes' and ancestor::*/name() = $exclude-elements))]">
+  <xsl:template match="*[not(name() = tokenize($exclude-elements, '\s') 
+                             or ($exclude-descendants eq 'yes' and ancestor::*/name() = tokenize($exclude-elements, '\s')))]">
     <xsl:copy>
       <xsl:attribute name="srcpath" select="functx:path-to-node-with-pos(.)"/>
       <xsl:apply-templates select="@*, node()" mode="#current"/>

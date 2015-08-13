@@ -16,7 +16,7 @@
   <p:output port="result"/>
 
   <p:option name="insert-srcpaths" select="'yes'"/>
-  <p:option name="exclude-elements" select="''"/>       <!-- sequence of element names, e.g. <p:option name="exclude-elements" select="('quote', 'image')"/> -->  
+  <p:option name="exclude-elements" select="''"/>       <!-- white-space separated list of element names"/> -->  
   <p:option name="exclude-descendants" select="'yes'"/> <!-- whether the descendants of the excluded elements should be processed -->
   
   <p:xslt>
