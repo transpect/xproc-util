@@ -1,7 +1,7 @@
 # html-embed-resources
 
 This step takes an HTML file and embeds the referenced files
-via data URI or style element into the HTML.
+via data URI or style element into the HTML. This facilitates the generation of offline readable HTML.
 
 The step also tries to load external HTTP file references. 
 
@@ -10,7 +10,7 @@ If a file reference cannot be loaded or embedded, the original file reference re
 ## Ports
 
 * `input` expects an XHTML document
-* `result` provides the XML document with the patched file references
+* `result` provides the XHTML document with the patched file references
 
 ## Options
 
