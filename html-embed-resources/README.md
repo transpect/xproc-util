@@ -7,7 +7,7 @@ via data URI or style element into the HTML.
 ## Ports
 
 * `input` expects an XHTML document
-* `result` the XML document with the patched file references
+* `result` provides the XML document with the patched file references
 
 ## Options
 
@@ -30,14 +30,19 @@ This HTML file includes external an external CSS and JavaScript file.
     <link type="text/css" rel="stylesheet" href="stylesheet.css"/>
   </head>
   <body>
-    <p class="red" id="myPara">This paragraph should be red-colored and you should see a popup with the message "it works!"</p>
+    <p class="red" id="myPara">This paragraph should be 
+      red-colored and you should see a popup with the message "it works!"</p>
   </body>
 </html>
 ```
 
+stylesheet.css
+
 ```css
 .red{color:red}
 ```
+
+example.js
 
 ```JavaScript
 alert("it works!");
@@ -58,7 +63,8 @@ The XProc step loads CSS and JavaScript and embeds them into the HTML file.
     </style>
   </head>
   <body>
-    <p class="red" id="myPara">This paragraph should be red-colored and you should see a popup with the message "it works!"</p>
+    <p class="red" id="myPara">This paragraph should be 
+      red-colored and you should see a popup with the message "it works!"</p>
   </body>
 </html>
 ```
