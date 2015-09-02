@@ -17,11 +17,11 @@
   <xsl:template match="c:param">
     <xsl:copy>
       <xsl:copy-of select="@name"/>
-      <xsl:attribute name="value" select="string-join(tr:resolve-params(@value, /c:param-set), '')"/>
+      <xsl:attribute name="value" select="string-join(tr:resolve-param(@value, /c:param-set), '')"/>
     </xsl:copy>
   </xsl:template>
   
-  <xsl:function name="tr:resolve-params" as="xs:string+">
+  <xsl:function name="tr:resolve-param" as="xs:string*">
     <!--  *
           * This function expects a parameter value and a parameter-set. It resolves inline 
           parameters which follow the syntax ${name} with matching parameters in the 
@@ -29,6 +29,7 @@
           * -->
     <xsl:param name="value" as="xs:string"/>
     <xsl:param name="param-set" as="element(c:param-set)"/>
+    <xsl:message select="'##', $value"></xsl:message>
     <xsl:variable name="param-regex" select="'\{\$(.+?)\}'" as="xs:string"/>
     <xsl:analyze-string select="$value" regex="{$param-regex}">
       <xsl:matching-substring>
@@ -45,7 +46,8 @@
               '&#xa;~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~&#xa;')" terminate="yes"/>
           </xsl:when>
           <xsl:when test="matches($result, $param-regex)">
-            <xsl:value-of select="string-join(tr:resolve-params($params[@name eq regex-group(1)]/@value, $param-set), '')"/>
+            <xsl:message select="'## 2nd time'"></xsl:message>
+            <xsl:value-of select="string-join(tr:resolve-param($params[@name eq regex-group(1)]/@value, $param-set), '')"/>
           </xsl:when>
           <xsl:otherwise>
             <xsl:value-of select="$result"/>
