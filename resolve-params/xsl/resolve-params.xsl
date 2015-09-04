@@ -45,7 +45,6 @@
               '&#xa;~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~&#xa;')" terminate="yes"/>
           </xsl:when>
           <xsl:when test="matches($result, $param-regex)">
-            <xsl:message select="'## 2nd time'"></xsl:message>
             <xsl:value-of select="string-join(tr:resolve-param($params[@name eq regex-group(1)]/@value, $param-set), '')"/>
           </xsl:when>
           <xsl:otherwise>
