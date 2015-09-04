@@ -29,7 +29,6 @@
           * -->
     <xsl:param name="value" as="xs:string"/>
     <xsl:param name="param-set" as="element(c:param-set)"/>
-    <xsl:message select="'##', $value"></xsl:message>
     <xsl:variable name="param-regex" select="'\{\$(.+?)\}'" as="xs:string"/>
     <xsl:analyze-string select="$value" regex="{$param-regex}">
       <xsl:matching-substring>
