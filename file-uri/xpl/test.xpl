@@ -8,7 +8,7 @@
     <h4>Sample results for <code class="step">tr:file-uri</code></h4>
   </p:documentation>
 
-  <p:option name="filename" required="false" select="'http://transpect.le-tex.de/xproc-util/file-uri/file-uri.xpl'"/>
+  <p:option name="filename" required="false" select="'http://transpect.io/xproc-util/file-uri/xpl/file-uri.xpl'"/>
   
   <p:output port="result" primary="true"/>
   
@@ -52,16 +52,16 @@
     
     <p:with-option name="filename" select="$filename"/>
     <p:input port="catalog">
-      <p:document href="xmlcatalog/catalog.xml"/>
+      <p:document href="../xmlcatalog/catalog.xml"/>
     </p:input>
     <p:input port="resolver">
-      <p:document href="http://transpect.io/xslt-util/xslt-based-catalog-resolver/xsl/resolve-uri-by-catalog.xsl"/>
+      <p:document href="http://rawgit.com/transpect/xslt-util/master/xslt-based-catalog-resolver/xsl/resolve-uri-by-catalog.xsl"/>
     </p:input>
   </tr:file-uri>
  
   <p:sink/>
  
-  <tr:file-uri name="via-http-request" filename="https://github.com/transpect/xproc-util/blob/master/file-uri/xpl/file-uri.xpl">
+  <tr:file-uri name="via-http-request" filename="http://rawgit.com/transpect/xproc-util/master/file-uri/xpl/file-uri.xpl">
     <p:documentation xmlns="http://www.w3.org/1999/xhtml">
       <p>Unresolved, retrievable HTTP URL. Sample output:</p> 
 <pre><code>&lt;c:result 
