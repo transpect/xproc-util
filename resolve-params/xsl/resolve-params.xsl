@@ -45,10 +45,12 @@
               '&#xa;~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~&#xa;')" terminate="yes"/>
           </xsl:when>
           <xsl:when test="matches($result, $param-regex)">
-            <xsl:value-of select="string-join(tr:resolve-param($params[@name eq regex-group(1)]/@value, $param-set), '')"/>
+            <xsl:value-of select="concat( '(', 
+                                              string-join(tr:resolve-param($params[@name eq regex-group(1)]/@value, $param-set), ''),
+                                         ')' )"/>
           </xsl:when>
           <xsl:otherwise>
-            <xsl:value-of select="$result"/>
+            <xsl:value-of select="concat( '(', $result, ')' )"/>
           </xsl:otherwise>
         </xsl:choose>
       </xsl:matching-substring>
