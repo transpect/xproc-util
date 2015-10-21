@@ -11,7 +11,7 @@
   <p:serialization port="result" method="xhtml" omit-xml-declaration="false"/>
   
   <p:documentation xmlns:html="http://www.w3.org/1999/xhtml">
-    <h1>tr:get-offline-html</h1>
+    <h1>tr:html-embed-resources</h1>
     <p>Collect all resources of an XHTML document and make them inline available</p>
   </p:documentation>
   
@@ -27,15 +27,17 @@
     </p:documentation>
   </p:output>
   
-  <p:option name="fail-on-error" select="'false'"/>
+  <p:option name="fail-on-error" select="'true'"/>
   
   <p:import href="http://xmlcalabash.com/extension/steps/library-1.0.xpl"/>
   
+  <p:variable name="base-uri" select="/*/@xml:base"/>
+  
   <p:viewport match="*[local-name() = ('img', 'audio', 'video', 'script')][@src]|html:object[@data]|html:link[@rel eq 'stylesheet'][@href]" name="viewport">
     <p:variable name="href-attribute" select="(*[local-name() = ('img', 'audio', 'video', 'script')]/@src, html:object/@data, html:link/@href)[1]"/>
-    <p:variable name="href" select="if(matches($href-attribute, '^(http[s]?|file)://')) 
+    <p:variable name="href" select="if(matches($href-attribute, '^(http[s]?|file)://?')) 
                                     then $href-attribute
-                                    else concat(replace(base-uri(*), '^(.+/).+$', '$1'), $href-attribute)"/>
+                                    else concat(replace($base-uri, '^(.+/).+$', '$1'), $href-attribute)"/>
     
     <p:try>
       <p:group>
