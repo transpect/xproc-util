@@ -35,9 +35,12 @@
   
   <p:viewport match="*[local-name() = ('img', 'audio', 'video', 'script')][@src]|html:object[@data]|html:link[@rel eq 'stylesheet'][@href]" name="viewport">
     <p:variable name="href-attribute" select="(*[local-name() = ('img', 'audio', 'video', 'script')]/@src, html:object/@data, html:link/@href)[1]"/>
-    <p:variable name="href" select="if(matches($href-attribute, '^(http[s]?|file)://?')) 
-                                    then $href-attribute
-                                    else concat(replace($base-uri, '^(.+/).+$', '$1'), $href-attribute)"/>
+    <p:variable name="href" 
+      select="resolve-uri(if(matches($href-attribute, '^(http[s]?|file)://?')) 
+                          then $href-attribute
+                          else concat(replace($base-uri, '^(.+/).+$', '$1'), $href-attribute),
+                          $base-uri)
+                          "/>
     
     <p:try>
       <p:group>
