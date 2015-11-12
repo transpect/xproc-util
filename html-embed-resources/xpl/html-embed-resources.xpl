@@ -31,7 +31,7 @@
   
   <p:import href="http://xmlcalabash.com/extension/steps/library-1.0.xpl"/>
   
-  <p:variable name="base-uri" select="/*/@xml:base"/>
+  <p:variable name="base-uri" select="( /*/@xml:base, base-uri(/*) )[1]"/>
   
   <p:viewport match="*[local-name() = ('img', 'audio', 'video', 'script')][@src]|html:object[@data]|html:link[@rel eq 'stylesheet'][@href]" name="viewport">
     <p:variable name="href-attribute" select="(*[local-name() = ('img', 'audio', 'video', 'script')]/@src, html:object/@data, html:link/@href)[1]"/>
