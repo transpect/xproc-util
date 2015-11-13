@@ -84,6 +84,11 @@
   <p:option name="fetch-http" required="false" select="'true'">
     <p:documentation>Whether to fetch files referenced by URIs matching '^https?:'.</p:documentation>
   </p:option>
+  <p:option name="check-http" required="false" select="'true'">
+    <p:documentation>Whether to check that the HTTP status of '^https?:' URIs matches '2\d\d'.
+    check-http and fetch-http should be made mutually exclusive. For the time being, if both are
+    given, fetch-http has precedence.</p:documentation>
+  </p:option>
   <p:option name="tmpdir" required="false" select="''">
     <p:documentation>URI or OS name of a directory for storing files retrieved via HTTP.</p:documentation>
   </p:option>
@@ -302,7 +307,22 @@
             <p:with-option name="attribute-value" select="$catalog-resolved-uri"/>
           </p:add-attribute>
 
-          <p:http-request name="http-request"/>
+          <p:try name="http-request">
+            <p:group>
+              <p:output port="result" primary="true"/>
+              <p:http-request />
+            </p:group>
+            <p:catch>
+              <p:output port="result" primary="true"/>
+              <p:identity>
+                <p:input port="source">
+                  <p:inline>
+                    <c:response status="999"/>
+                  </p:inline>
+                </p:input>
+              </p:identity>
+            </p:catch>
+          </p:try>
 
           <p:choose name="store-http-resource">
             <p:when test="not(starts-with(/c:response/@status, '2'))">
@@ -363,6 +383,81 @@
           </p:add-attribute>
         </p:group>
       </p:when>
+      
+      <p:when test="matches($catalog-resolved-uri, '^https?:') and $check-http = 'true'">
+        <p:documentation>HTTP URL, check only return status Ok.</p:documentation>
+
+        <p:identity>
+          <p:input port="source">
+            <p:inline>
+              <c:request method="GET" detailed="true" status-only="true"/>
+            </p:inline>
+          </p:input>
+        </p:identity>
+
+        <p:add-attribute match="/c:request" attribute-name="href">
+          <p:with-option name="attribute-value" select="escape-html-uri($catalog-resolved-uri)"/>
+        </p:add-attribute>
+        
+        <!--<cx:message>
+                <p:with-option name="message"
+                  select="'GGGGGGGGGGGG ', string-join(for $n in /* return (name($n), for $a in $n/@* return concat(name($a), '=', $a)), ' ')"
+                />
+              </cx:message>-->
+
+        <p:try name="http-request-check">
+          <p:group>
+            <p:output port="result" primary="true"/>
+            <p:http-request />
+          </p:group>
+          <p:catch>
+            <p:output port="result" primary="true"/>
+            <p:identity>
+              <p:input port="source">
+                <p:inline>
+                  <c:response status="999"/>
+                </p:inline>
+              </p:input>
+            </p:identity>
+          </p:catch>
+        </p:try>
+
+        <p:sink/>
+        
+        <p:identity>
+          <p:input port="source">
+            <p:inline>
+              <c:result/>
+            </p:inline>
+          </p:input>
+        </p:identity>
+
+        <p:choose name="attach-error-status">
+          <p:xpath-context>
+            <p:pipe port="result" step="http-request-check"/>
+          </p:xpath-context>
+          <p:when test="not(starts-with(/c:response/@status, '2'))">
+            <p:add-attribute attribute-name="error-status" match="/c:result">
+              <p:with-option name="attribute-value" select="/c:response/@status">
+                <p:pipe port="result" step="http-request-check"/>
+              </p:with-option>
+            </p:add-attribute>
+          </p:when>
+          <p:otherwise>
+            <p:identity/>
+          </p:otherwise>
+        </p:choose>
+
+        <p:add-attribute match="/c:result" attribute-name="href">
+          <p:with-option name="attribute-value" select="$catalog-resolved-uri"/>
+        </p:add-attribute>
+        <!--<cx:message>
+                <p:with-option name="message"
+                  select="'GGGGGGGGGGGG ', string-join(for $n in /* return (name($n), for $a in $n/@* return concat(name($a), '=', $a)), ' ')"
+                />
+              </cx:message>-->
+      </p:when>
+      
       <p:when test="matches($catalog-resolved-uri, '^\\\\[^\\]')">
         <p:documentation>Windows UNC path. \\ → file:///// .</p:documentation>
         <p:add-attribute attribute-name="os-path" match="/*">
