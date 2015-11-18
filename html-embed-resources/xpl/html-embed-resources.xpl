@@ -2,8 +2,10 @@
 <p:declare-step xmlns:p="http://www.w3.org/ns/xproc"
   xmlns:c="http://www.w3.org/ns/xproc-step" 
   xmlns:cx="http://xmlcalabash.com/ns/extensions"
+  xmlns:xlink="http://www.w3.org/1999/xlink"
   xmlns:tr="http://transpect.io"
   xmlns:html="http://www.w3.org/1999/xhtml"
+  xmlns:svg="http://www.w3.org/2000/svg"
   version="1.0"
   name="html-embed-resources"
   type="tr:html-embed-resources">
@@ -34,8 +36,8 @@
   
   <p:variable name="base-uri" select="( /*/@xml:base, base-uri(/*) )[1]"/>
   
-  <p:viewport match="*[local-name() = ('img', 'audio', 'video', 'script')][@src]|html:object[@data]|html:link[@rel eq 'stylesheet'][@href]" name="viewport">
-    <p:variable name="href-attribute" select="(*[local-name() = ('img', 'audio', 'video', 'script')]/@src, html:object/@data, html:link/@href)[1]"/>
+  <p:viewport match="*[local-name() = ('img', 'audio', 'video', 'script')][@src]|html:object[@data]|html:link[@rel eq 'stylesheet'][@href]|svg:image[@xlink:href]" name="viewport">
+    <p:variable name="href-attribute" select="(*[local-name() = ('img', 'audio', 'video', 'script')]/@src, html:object/@data, html:link/@href, svg:image/@xlink:href)[1]"/>
     <p:variable name="href" 
       select="if(starts-with($href-attribute, 'data:'))  (: leave data URIs as-is :)
               then $href-attribute
@@ -82,16 +84,17 @@
              * -->
             
             <p:choose>
-              <p:when test="html:img|html:audio|html:video|html:script|html:object">
+              <p:when test="html:img|html:audio|html:video|html:script|html:object|svg:image">
                 <p:xpath-context>
                   <p:pipe port="current" step="viewport"/>
                 </p:xpath-context>
-                <p:variable name="content-type" select="if(matches(//c:body[1]/@xml:base, '\.svg$', 'i'))
-                  then 'image/svg+xml'
-                  else replace(//c:body[1]/@content-type, '^(.+/.+);.+$', '$1')"/>
+                <p:variable name="content-type" 
+                  select="if(matches(//c:body[1]/@xml:base, '\.svg$', 'i'))
+                          then 'image/svg+xml'
+                          else replace(//c:body[1]/@content-type, '^(.+/.+);.+$', '$1')"/>
                 <p:variable name="encoding" select="//c:body/@encoding"/>
                 
-                <p:string-replace match="*[local-name() = ('img', 'audio', 'video', 'script')]/@src|html:object/@data" cx:depends-on="add-xmlbase">
+                <p:string-replace match="*[local-name() = ('img', 'audio', 'video', 'script')]/@src|html:object/@data|svg:image/@xlink:href" cx:depends-on="add-xmlbase">
                   <p:input port="source">
                     <p:pipe port="current" step="viewport"/>
                   </p:input>
