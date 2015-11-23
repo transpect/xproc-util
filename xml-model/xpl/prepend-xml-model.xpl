@@ -3,7 +3,7 @@
   xmlns:c="http://www.w3.org/ns/xproc-step"
   xmlns:xs="http://www.w3.org/2001/XMLSchema" 
   xmlns:xsl="http://www.w3.org/1999/XSL/Transform" 
-  xmlns:idml2xml="http://www.le-tex.de/namespace/idml2xml"
+  xmlns:idml2xml="http://transpect.io/idml2xml"
   xmlns:tr="http://transpect.io"
   version="1.0"
   name="prepend-xml-model" 

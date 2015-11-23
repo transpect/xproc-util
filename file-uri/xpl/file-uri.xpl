@@ -119,12 +119,12 @@
         because native catalog resolution is not available for p:http-request or by XPath function. This means that you can’t
         programmatically decide whether to retrieve a file via <span class="step">p:http-request</span> or use the local file.</p>
       <p>You may use the <a
-          href="https://subversion.le-tex.de/common/letex-util/xslt-based-catalog-resolver/resolve-uri-by-catalog.xsl"
+        href="https://github.com/transpect/xslt-util/blob/master/xslt-based-catalog-resolver/"
           >repository version</a> of the XSLT-based resolver. However, in order to avoid network traffic, you should consider
         using a local copy. In order to avoid importing it via its absolute or relative file system path, you should use the
         transpect appoach of importing the resolver’s XML catalog via <code>&lt;nextCatalog</code> from your project catalog.
         Then you can import the XSLT-based resolver by its <a
-          href="http://transpect.le-tex.de/xslt-util/xslt-based-catalog-resolver/resolve-uri-by-catalog.xsl">canonical
+          href="http://transpect.io/xslt-util/xslt-based-catalog-resolver/xsl/resolve-uri-by-catalog.xsl">canonical
         URI</a>.</p>
     </p:documentation>
     <p:document href="../xsl/without-resolver.xsl"/>

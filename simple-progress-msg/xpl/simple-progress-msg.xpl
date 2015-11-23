@@ -5,8 +5,8 @@
   xmlns:xs="http://www.w3.org/2001/XMLSchema"
   xmlns:pkg="http://expath.org/ns/pkg" 
   xmlns:xsl="http://www.w3.org/1999/XSL/Transform" 
-  xmlns:epub="http://transpect.le-tex.de/epubtools" 
-  xmlns:idml2xml="http://www.le-tex.de/namespace/idml2xml"
+  xmlns:epub="http://transpect.io/epubtools" 
+  xmlns:idml2xml="http://transpect.io/idml2xml"
   xmlns:tr="http://transpect.io" 
   version="1.0">
 

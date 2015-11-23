@@ -47,7 +47,7 @@
       <pre><code>&lt;c:result 
   local-href="file:/C:/cygwin/home/gerrit/Dev/tmp/file-uri/xpl/file-uri.xpl"  
   os-path="C:/cygwin/home/gerrit/Dev/tmp/file-uri/xpl/file-uri.xpl"
-  orig-href="http://transpect.le-tex.de/xproc-util/file-uri/xpl/file-uri.xpl"/></code></pre>
+  orig-href="http://transpect.io/xproc-util/file-uri/xpl/file-uri.xpl"/></code></pre>
     </p:documentation>
     
     <p:with-option name="filename" select="$filename"/>

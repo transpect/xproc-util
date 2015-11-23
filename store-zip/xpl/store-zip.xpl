@@ -44,7 +44,7 @@
           <p:with-param name="default-compression-method" select="$default-compression-method"/>
           <p:with-param name="default-command" select="$default-command"/>
           <p:input port="stylesheet">
-            <p:document href="http://transpect.le-tex.de/xproc-util/store-zip/xsl/store-zip.xsl"/>
+            <p:document href="http://transpect.io/xproc-util/store-zip/xsl/store-zip.xsl"/>
           </p:input>
           <p:input port="parameters">
             <p:empty/>

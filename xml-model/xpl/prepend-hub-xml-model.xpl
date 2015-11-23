@@ -3,7 +3,7 @@
   xmlns:c="http://www.w3.org/ns/xproc-step"  
   xmlns:xs="http://www.w3.org/2001/XMLSchema"
   xmlns:xsl="http://www.w3.org/1999/XSL/Transform" 
-  xmlns:idml2xml="http://www.le-tex.de/namespace/idml2xml"
+  xmlns:idml2xml="http://transpect.io/idml2xml"
   xmlns:tr="http://transpect.io"
   version="1.0">
 
@@ -25,11 +25,11 @@
             <xsl:template match="/">
               <xsl:text>&#xa;</xsl:text>
               <xsl:processing-instruction name="xml-model" 
-                select="concat('href=&#x22;http://www.le-tex.de/resource/schema/hub/', $hub-version, 
+                select="concat('href=&#x22;http://transpect.io/resource/schema/hub/', $hub-version, 
                 '/hub.rng&#x22; type=&#x22;application/xml&#x22; schematypens=&#x22;http://relaxng.org/ns/structure/1.0&#x22;')"/>
               <xsl:text>&#xa;</xsl:text>
               <xsl:processing-instruction name="xml-model" 
-                select="concat('href=&#x22;http://www.le-tex.de/resource/schema/hub/', $hub-version, 
+                select="concat('href=&#x22;http://transpect.io/resource/schema/hub/', $hub-version, 
                 '/hub.rng&#x22; type=&#x22;application/xml&#x22; schematypens=&#x22;http://purl.oclc.org/dsdl/schematron&#x22;')"/>
               <xsl:text>&#xa;</xsl:text>
               <xsl:copy-of select="*"/>
