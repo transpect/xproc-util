@@ -56,7 +56,7 @@
       <dt><code>local-href</code></dt>
       <dd>file: URI. This is always present except when there is <code>error-status</code></dd>
       <dt><code>error-status</code></dt>
-      <dd>This may only happen if the 'filename' was an HTTP URI and if their was an error retrieving the resource</dd>
+      <dd>This may only happen if the 'filename' was an HTTP URI and if there was an error retrieving the resource</dd>
       <dt><code>href</code></dt>
       <dd>The post catalog-resolution URI of the resource (if it is an HTTP URI)</dd>
       <dt><code>orig-href</code></dt>
