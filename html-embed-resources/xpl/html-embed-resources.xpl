@@ -34,17 +34,18 @@
   
   <p:import href="http://xmlcalabash.com/extension/steps/library-1.0.xpl"/>
   
-  <p:variable name="base-uri" select="( /*/@xml:base, base-uri(/*) )[1]"/>
+  <p:variable name="top-level-base-uri" select="( /*/@xml:base, base-uri(/*) )[1]"/>
   
   <p:viewport match="*[local-name() = ('img', 'audio', 'video', 'script')][@src]|html:object[@data]|html:link[@rel eq 'stylesheet'][@href]|svg:image[@xlink:href]" name="viewport">
+    <p:variable name="local-base-uri" select="(base-uri(.), $top-level-base-uri)[1]"/>
     <p:variable name="href-attribute" select="(*[local-name() = ('img', 'audio', 'video', 'script')]/@src, html:object/@data, html:link/@href, svg:image/@xlink:href)[1]"/>
     <p:variable name="href" 
       select="if(starts-with($href-attribute, 'data:'))  (: leave data URIs as-is :)
               then $href-attribute
               else resolve-uri(if(matches($href-attribute, '^(http[s]?|file)://?')) (: resolve regular URIs :) 
                    then $href-attribute
-                   else concat(replace($base-uri, '^(.+/).+$', '$1'), $href-attribute),
-                   $base-uri)"/>
+                   else concat(replace($local-base-uri, '^(.+/).+$', '$1'), $href-attribute),
+                   $local-base-uri)"/>
     
     <p:choose>
       <p:when test="not(starts-with($href-attribute, 'data:'))">
