@@ -85,7 +85,7 @@
              * -->
             
             <p:choose>
-              <p:when test="html:img|html:audio|html:video|html:script|html:object|svg:image">
+              <p:when test="html:img|html:audio|html:audio/html:source|html:video|html:video/html:source|html:script|html:object|svg:image">
                 <p:xpath-context>
                   <p:pipe port="current" step="viewport"/>
                 </p:xpath-context>
