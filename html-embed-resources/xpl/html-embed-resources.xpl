@@ -85,7 +85,7 @@
              * -->
             
             <p:choose>
-              <p:when test="html:img|html:audio|html:audio/html:source|html:video|html:video/html:source|html:script|html:object|svg:image">
+              <p:when test="html:img|html:audio|html:video|html:script|html:object|svg:image">
                 <p:xpath-context>
                   <p:pipe port="current" step="viewport"/>
                 </p:xpath-context>
@@ -95,7 +95,7 @@
                           else replace(//c:body[1]/@content-type, '^(.+/.+);.+$', '$1')"/>
                 <p:variable name="encoding" select="//c:body/@encoding"/>
                 
-                <p:string-replace match="*[local-name() = ('img', 'audio', 'video', 'script')]/@src|html:object/@data|svg:image/@xlink:href" cx:depends-on="add-xmlbase">
+                <p:string-replace match="*[local-name() = ('img', 'audio', 'video', 'script')]/@src|html:object/@data|svg:image/@xlink:href|html:video/html:source|html:audio/@src/html:source/@src" cx:depends-on="add-xmlbase">
                   <p:input port="source">
                     <p:pipe port="current" step="viewport"/>
                   </p:input>
