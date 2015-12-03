@@ -5,7 +5,7 @@
   xmlns:cx="http://xmlcalabash.com/ns/extensions" 
   xmlns:s="http://purl.oclc.org/dsdl/schematron" 
   xmlns:svrl="http://purl.oclc.org/dsdl/svrl" 
-  xmlns:hub="http://www.le-tex.de/namespace/hub" 
+  xmlns:hub="http://transpect.io/hub" 
   xmlns:css="http://www.w3.org/1996/css" 
   xmlns:csstmp="http://www.le-tex.de/namespace/csstmp"  
   xmlns:functx="http://www.functx.com"
