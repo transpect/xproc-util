@@ -7,7 +7,7 @@
   xmlns:svrl="http://purl.oclc.org/dsdl/svrl" 
   xmlns:hub="http://transpect.io/hub" 
   xmlns:css="http://www.w3.org/1996/css" 
-  xmlns:csstmp="http://www.le-tex.de/namespace/csstmp"  
+  xmlns:csstmp="http://transpect.io/csstmp"  
   xmlns:functx="http://www.functx.com"
   exclude-result-prefixes="xs" 
   xpath-default-namespace="http://docbook.org/ns/docbook" 
