@@ -16,6 +16,8 @@
   <p:option name="extension" required="false" select="'xml'"/>
   <p:option name="indent" required="false" select="'true'"/>
   
+  <p:import href="http://xmlcalabash.com/extension/steps/library-1.0.xpl"/>
+  
   <p:choose>
     <p:when test="$active = 'yes'">
       <p:for-each name="source-iteration">
