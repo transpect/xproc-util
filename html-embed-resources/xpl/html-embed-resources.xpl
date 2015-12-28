@@ -34,7 +34,6 @@
   <p:option name="fail-on-error" select="'true'"/>
   
   <p:import href="http://xmlcalabash.com/extension/steps/library-1.0.xpl"/>
-  <p:import href="http://transpect.io/xproc-util/store-debug/xpl/store-debug.xpl"/>
   
   <p:variable name="top-level-base-uri" select="( /*/@xml:base, base-uri(/*) )[1]"/>
   
@@ -156,11 +155,6 @@
                       </p:add-attribute>
                       
                       <p:http-request name="http-request-css-resource" cx:depends-on="construct-http-request-css"/>
-                      
-                      <tr:store-debug pipeline-step="debug/http">
-                        <p:with-option name="active" select="'yes'"/>
-                        <p:with-option name="base-uri" select="'file:/C:/cygwin64/home/kraetke/sc-books-fresh/DEBUG'"/>
-                      </tr:store-debug>
                       
                       <p:string-replace match="tr:data-uri/text()">
                         <p:input port="source">
