@@ -31,6 +31,7 @@
     </p:documentation>
   </p:output>
   
+  <p:option name="debug" select="'no'"/>
   <p:option name="fail-on-error" select="'true'"/>
   
   <p:import href="http://xmlcalabash.com/extension/steps/library-1.0.xpl"/>
@@ -51,16 +52,19 @@
     <p:choose>
       <p:when test="not(starts-with($href-attribute, 'data:'))">
         
-        <cx:message>
-          <p:with-option name="message" select="substring($href-attribute, 1, 20)"/>
-        </cx:message>
-        
         <p:try>
           <p:group>
             
-            <cx:message>
-              <p:with-option name="message" select="'embed: ', $href"/>
-            </cx:message>
+            <p:choose>
+              <p:when test="$debug eq 'yes'">
+                <cx:message>
+                  <p:with-option name="message" select="'embed: ', $href"/>
+                </cx:message>
+              </p:when>
+              <p:otherwise>
+                <p:identity/>
+              </p:otherwise>
+            </p:choose>
             
             <!-- * 
                  * construct and perform http-request
@@ -124,10 +128,6 @@
                       * process css resources
                       * -->
                 
-                <cx:message>
-                  <p:with-option name="message" select="'extract css references from: ', $href"/>
-                </cx:message>
-                
                 <p:try name="try-extract-references-from-css">
                   <p:group>
                     <p:xslt name="extract-references-from-css">
@@ -141,9 +141,16 @@
                       <p:variable name="data-uri" select="tr:data-uri/@href"/>
                       <p:variable name="mime-type" select="tr:data-uri/@mime-type"/>
                       
-                      <cx:message>
-                        <p:with-option name="message" select="'embed: ', $data-uri"></p:with-option>
-                      </cx:message>
+                      <p:choose>
+                        <p:when test="$debug eq 'yes'">
+                          <cx:message>
+                            <p:with-option name="message" select="'embed: ', $data-uri"/>
+                          </cx:message>
+                        </p:when>
+                        <p:otherwise>
+                          <p:identity/>
+                        </p:otherwise>
+                      </p:choose>
                       
                       <p:add-attribute attribute-name="href" match="/c:request" name="construct-http-request-css">
                         <p:with-option name="attribute-value" select="$data-uri"/>
@@ -213,9 +220,16 @@
                   </p:input>
                 </p:identity>
                 
-                <cx:message>
-                  <p:with-option name="message" select="'[WARNING] failed to embed file: ', $href"/>
-                </cx:message>
+                <p:choose>
+                  <p:when test="$debug eq 'yes'">
+                    <cx:message>
+                      <p:with-option name="message" select="'[WARNING] failed to embed file: ', $href"/>
+                    </cx:message>
+                  </p:when>
+                  <p:otherwise>
+                    <p:identity/>
+                  </p:otherwise>
+                </p:choose>
                 
               </p:otherwise>
             </p:choose>
