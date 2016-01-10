@@ -31,6 +31,10 @@
     </p:documentation>
   </p:output>
   
+  <p:option name="exclude" select="''">
+    <p:documentation>Space-separated list of tokens. Available tokens are: image video script style audio object #all.
+    (Question: support font as a category on its own?)</p:documentation>
+  </p:option>
   <p:option name="debug" select="'no'"/>
   <p:option name="fail-on-error" select="'true'"/>
   
@@ -38,7 +42,18 @@
   
   <p:variable name="top-level-base-uri" select="( /*/@xml:base, base-uri(/*) )[1]"/>
   
-  <p:viewport match="*[local-name() = ('img', 'audio', 'video', 'script')][@src]|html:object[@data]|html:link[@rel eq 'stylesheet'][@href]|svg:image[@xlink:href]" name="viewport">
+  <p:variable name="suppress-video" select="tokenize($exclude, '\s+')[. = ('#all', 'video')]" cx:type="xs:boolean"/>
+  <p:variable name="suppress-audio" select="tokenize($exclude, '\s+')[. = ('#all', 'audio')]" cx:type="xs:boolean"/>
+  <p:variable name="suppress-image" select="tokenize($exclude, '\s+')[. = ('#all', 'image')]" cx:type="xs:boolean"/>
+  <p:variable name="suppress-script" select="tokenize($exclude, '\s+')[. = ('#all', 'script')]" cx:type="xs:boolean"/>
+  <p:variable name="suppress-style" select="tokenize($exclude, '\s+')[. = ('#all', 'style')]" cx:type="xs:boolean"/>
+  <p:variable name="suppress-object" select="tokenize($exclude, '\s+')[. = ('#all', 'object')]" cx:type="xs:boolean"/>
+  
+  <p:viewport match="*[local-name() = ('img', 'audio', 'video', 'script')][@src]
+                     |html:object[@data]
+                     |html:link[@rel eq 'stylesheet'][@href]
+                     |svg:image[@xlink:href]" 
+              name="viewport">
     <p:variable name="local-base-uri" select="(base-uri(.), $top-level-base-uri)[1]"/>
     <p:variable name="href-attribute" select="(*[local-name() = ('img', 'audio', 'video', 'script')]/@src, html:object/@data, html:link/@href, svg:image/@xlink:href)[1]"/>
     <p:variable name="href" 
@@ -50,6 +65,19 @@
                    $local-base-uri)"/>
     
     <p:choose>
+      <p:when test="exists(
+                        /*[local-name() = ('img'[$suppress-image],
+                                           'audio'[$suppress-audio], 
+                                           'video'[$suppress-video], 
+                                           'script'[$suppress-script])][@src]
+                      | /html:object[@data][$suppress-object]
+                      | /html:link[@rel eq 'stylesheet'][@href][$suppress-style]
+                      | /svg:image[@xlink:href][$suppress-image]
+                    )">
+        <p:documentation>Suppress embedding for elements meeting these conditions. Unfortunately, the conditions could not
+        be specified in the p:viewport match attribute because options and variables seem to be inaccessible there.</p:documentation>
+        <p:identity/>
+      </p:when>
       <p:when test="not(starts-with($href-attribute, 'data:'))">
         
         <p:try>
