@@ -5,6 +5,7 @@
 	xmlns:cx="http://xmlcalabash.com/ns/extensions"
 	xmlns:tr="http://transpect.io"
 	xmlns:merge-hub="http://transpect.io/xproc-util/merge-hub"
+	xmlns:csstmp="http://transpect.io/csstmp"
 	version="1.0"
 	name="merge-hub"
 	type="tr:merge-hub">
@@ -72,7 +73,7 @@
     <p:with-option name="base-uri" select="$debug-dir-uri"/>
   </tr:store-debug>
 	
-  <p:xslt initial-mode="merge-hub:merge" name="merge">
+  <p:xslt initial-mode="merge-hub" name="merge">
 	  <p:input port="parameters">
 	    <p:empty/>
 	  </p:input>
