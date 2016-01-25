@@ -42,12 +42,12 @@
   
   <p:variable name="top-level-base-uri" select="( /*/@xml:base, base-uri(/*) )[1]"/>
   
-  <p:variable name="suppress-video" select="tokenize($exclude, '\s+')[. = ('#all', 'video')]" cx:type="xs:boolean"/>
-  <p:variable name="suppress-audio" select="tokenize($exclude, '\s+')[. = ('#all', 'audio')]" cx:type="xs:boolean"/>
-  <p:variable name="suppress-image" select="tokenize($exclude, '\s+')[. = ('#all', 'image')]" cx:type="xs:boolean"/>
-  <p:variable name="suppress-script" select="tokenize($exclude, '\s+')[. = ('#all', 'script')]" cx:type="xs:boolean"/>
-  <p:variable name="suppress-style" select="tokenize($exclude, '\s+')[. = ('#all', 'style')]" cx:type="xs:boolean"/>
-  <p:variable name="suppress-object" select="tokenize($exclude, '\s+')[. = ('#all', 'object')]" cx:type="xs:boolean"/>
+  <p:variable name="suppress-video" select="tokenize($exclude, '\s+')[. = ('#all', 'video')]"/>
+  <p:variable name="suppress-audio" select="tokenize($exclude, '\s+')[. = ('#all', 'audio')]"/>
+  <p:variable name="suppress-image" select="tokenize($exclude, '\s+')[. = ('#all', 'image')]" />
+  <p:variable name="suppress-script" select="tokenize($exclude, '\s+')[. = ('#all', 'script')]"/>
+  <p:variable name="suppress-style" select="tokenize($exclude, '\s+')[. = ('#all', 'style')]"/>
+  <p:variable name="suppress-object" select="tokenize($exclude, '\s+')[. = ('#all', 'object')]"/>
   
   <p:viewport match="*[local-name() = ('img', 'audio', 'video', 'script')][@src]
                      |html:object[@data]
@@ -163,6 +163,7 @@
                       <p:input port="stylesheet">
                         <p:document href="../xsl/css-embed-resources.xsl"/>
                       </p:input>
+                      <p:with-param name="suppress-image" select="$suppress-image"/>
                     </p:xslt>
                     
                     <p:viewport match="tr:data-uri" cx:depends-on="extract-references-from-css" name="viewport-data-uri">

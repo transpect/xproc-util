@@ -8,14 +8,23 @@
   <xsl:import href="http://transpect.io/xslt-util/mime-type/xsl/mime-type.xsl"/>
 
   <xsl:param name="base-uri"/>
+  <xsl:param name="suppress-image" as="xs:string?"/>
 
   <xsl:template match="text()">
     <xsl:analyze-string select="." regex="url\((.+?)\)">
       <xsl:matching-substring>
         <xsl:variable name="href" select="resolve-uri(replace(regex-group(1), '''|&quot;', ''), $base-uri)" as="xs:anyURI"/>
-        <xsl:text>url('</xsl:text>
-        <tr:data-uri href="{$href}" mime-type="{tr:fileext-to-mime-type($href)}">tobereplaced</tr:data-uri>
-        <xsl:text>')</xsl:text>
+        <xsl:variable name="mime-type" as="xs:string" select="tr:fileext-to-mime-type($href)"/>
+        <xsl:choose>
+          <xsl:when test="starts-with($mime-type, 'image') and $suppress-image"><!-- don’t embed images -->
+            <xsl:value-of select="."/>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:text>url('</xsl:text>
+            <tr:data-uri href="{$href}" mime-type="{tr:fileext-to-mime-type($href)}">tobereplaced</tr:data-uri>
+            <xsl:text>')</xsl:text>
+          </xsl:otherwise>
+        </xsl:choose>
       </xsl:matching-substring>
       <xsl:non-matching-substring>
         <xsl:value-of select="."/>
