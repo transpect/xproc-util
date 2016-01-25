@@ -38,7 +38,7 @@
   <p:option name="debug-dir-uri" select="'debug'"/>
 
   <p:import href="http://xmlcalabash.com/extension/steps/library-1.0.xpl" />
-  <p:import href="http://transpect.io/xproc-util/store-debug/store-debug.xpl"/>
+  <p:import href="http://transpect.io/xproc-util/store-debug/xpl/store-debug.xpl"/>
 
   <p:load name="load-stylesheet" 
     href="http://http://transpect.io/xproc-util/copy-files/xsl/copy-files.xsl"/>
