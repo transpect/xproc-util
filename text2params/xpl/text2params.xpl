@@ -4,7 +4,7 @@
   xmlns:cx="http://xmlcalabash.com/ns/extensions"
   xmlns:xs="http://www.w3.org/2001/XMLSchema"
   xmlns:xsl="http://www.w3.org/1999/XSL/Transform" 
-  xmlns:tr="http://www.le-tex.de/namespace/transpect"
+  xmlns:tr="http://transpect.io"
   version="1.0"
   name="text2params"
   type="tr:text2params"
