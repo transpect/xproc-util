@@ -458,6 +458,11 @@
               </cx:message>-->
       </p:when>
       
+      <p:when test="matches($catalog-resolved-uri, '^https?:')">
+        <p:documentation>HTTP URL, do not fetch content or check availability.</p:documentation>
+        <p:identity/>
+      </p:when>
+      
       <p:when test="matches($catalog-resolved-uri, '^\\\\[^\\]')">
         <p:documentation>Windows UNC path. \\ → file:///// .</p:documentation>
         <p:add-attribute attribute-name="os-path" match="/*">
