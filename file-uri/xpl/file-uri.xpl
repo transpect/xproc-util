@@ -87,7 +87,8 @@
   <p:option name="check-http" required="false" select="'true'">
     <p:documentation>Whether to check that the HTTP status of '^https?:' URIs matches '2\d\d'.
     check-http and fetch-http should be made mutually exclusive. For the time being, if both are
-    given, fetch-http has precedence.</p:documentation>
+    given, fetch-http has precedence. With the given default values, this means that you need to specify
+    both check-http=true and fetch-http=false if you only want to check.</p:documentation>
   </p:option>
   <p:option name="tmpdir" required="false" select="''">
     <p:documentation>URI or OS name of a directory for storing files retrieved via HTTP.</p:documentation>
