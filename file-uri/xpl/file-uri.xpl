@@ -390,7 +390,7 @@
         <p:identity>
           <p:input port="source">
             <p:inline>
-              <c:request method="GET" detailed="true" status-only="true"/>
+              <c:request method="HEAD" detailed="true" status-only="true"/>
             </p:inline>
           </p:input>
         </p:identity>
