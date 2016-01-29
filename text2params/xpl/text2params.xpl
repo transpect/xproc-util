@@ -42,10 +42,10 @@
             <c:param-set>
               <xsl:choose>
                 <xsl:when test="unparsed-text-available(@local-href, 'UTF-8')">
-                  <xsl:sequence select="transpect:parse-textfile(@local-href, 'UTF-8')"/>
+                  <xsl:sequence select="tr:parse-textfile(@local-href, 'UTF-8')"/>
                 </xsl:when>
                 <xsl:when test="unparsed-text-available(@local-href, 'ISO-8859-1')">
-                  <xsl:sequence select="transpect:parse-textfile(@local-href, 'ISO-8859-1')"/>
+                  <xsl:sequence select="tr:parse-textfile(@local-href, 'ISO-8859-1')"/>
                 </xsl:when>
                 <xsl:otherwise>
                   <c:param name="could-not-load-text-file" value="{@local-href}"/>
@@ -53,7 +53,7 @@
               </xsl:choose>
             </c:param-set>
           </xsl:template>
-          <xsl:function name="transpect:parse-textfile" as="element(c:param)*">
+          <xsl:function name="tr:parse-textfile" as="element(c:param)*">
             <xsl:param name="href" as="xs:string"/>
             <xsl:param name="charset" as="xs:string"/>
             <xsl:variable name="lines" as="xs:string*" 
@@ -66,14 +66,14 @@
             <xsl:variable name="colon-lines" as="xs:integer" select="count($colons[. = 1])"/>
             <xsl:choose>
               <xsl:when test="$colon-lines gt $equals-lines">
-                <xsl:sequence select="transpect:parse-lines($lines, ':')"/>
+                <xsl:sequence select="tr:parse-lines($lines, ':')"/>
               </xsl:when>
               <xsl:when test="$equals-lines gt 0">
-                <xsl:sequence select="transpect:parse-lines($lines, '=')"/>
+                <xsl:sequence select="tr:parse-lines($lines, '=')"/>
               </xsl:when>
             </xsl:choose>
           </xsl:function>
-          <xsl:function name="transpect:parse-lines" as="element(c:param)*">
+          <xsl:function name="tr:parse-lines" as="element(c:param)*">
             <xsl:param name="lines" as="xs:string*"/>
             <xsl:param name="sep" as="xs:string"/>
             <xsl:for-each select="$lines">
