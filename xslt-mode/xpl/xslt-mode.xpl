@@ -27,6 +27,7 @@
   <p:option name="msg" required="false" select="'no'"/>
   <p:option name="debug" required="false" select="'no'"/>
   <p:option name="debug-dir-uri" required="true"/>
+  <p:option name="status-dir-uri" select="concat($debug-dir-uri, '/status')"/>
   <p:option name="hub-version" required="false" select="''"/>
   
   <p:input port="source" primary="true" sequence="true"/>
@@ -38,70 +39,122 @@
   <p:input port="parameters" kind="parameter" primary="true"/>
   <p:output port="result" primary="true" sequence="true"/>
   <p:output port="secondary" sequence="true">
-    <p:pipe port="secondary" step="xslt"/>
+    <p:pipe port="secondary" step="try"/>
   </p:output>
 
   <p:import href="http://xmlcalabash.com/extension/steps/library-1.0.xpl"/>
   <p:import href="http://transpect.io/xproc-util/store-debug/xpl/store-debug.xpl" />
   <p:import href="http://transpect.io/xproc-util/xml-model/xpl/prepend-xml-model.xpl" />
+  <p:import href="http://transpect.io/xproc-util/simple-progress-msg/xpl/simple-progress-msg.xpl"/>
   
   <p:variable name="debug-file-name" select="concat($prefix, '.', replace($mode, ':', '_'))"><p:empty/></p:variable>
   
-  <p:choose>
-    <p:xpath-context><p:empty/></p:xpath-context>
-    <p:when test="$msg = 'yes'">
+  <!-- try wrapper to revover pipelines from errors and proceed with input -->
+  
+  <p:try name="try">
+    <p:group>
+      <p:output port="result" primary="true" sequence="true"/>
+      <p:output port="report" primary="false" sequence="true"/>
+      <p:output port="secondary" primary="false" sequence="true">
+        <p:pipe port="secondary" step="xslt"/>
+      </p:output>
+      
+      <p:choose>
+        <p:xpath-context><p:empty/></p:xpath-context>
+        <p:when test="$msg = 'yes'">
+          <cx:message>
+            <p:with-option name="message" 
+              select="concat('Mode: ', $mode, 
+              if ($prefix and $debug = 'yes') 
+              then concat('  debugs into ', $debug-dir-uri, '/', replace($debug-file-name, '//+', '/'), '.xml') 
+              else ''
+              )"><p:empty/></p:with-option>
+          </cx:message>
+        </p:when>
+        <p:otherwise>
+          <p:identity/>
+        </p:otherwise>
+      </p:choose>
+      
+      <p:xslt name="xslt">
+        <p:with-option name="initial-mode" select="$mode">
+          <p:pipe port="stylesheet" step="xslt-mode"/>
+        </p:with-option>
+        <p:input port="parameters">
+          <p:pipe port="parameters" step="xslt-mode"/>
+        </p:input>
+        <p:input port="stylesheet">
+          <p:pipe port="stylesheet" step="xslt-mode"/>
+        </p:input>
+        <p:with-param name="debug" select="$debug"><p:empty/></p:with-param>
+      </p:xslt>
+      
+      <p:sink/>
+      
+      <p:for-each>
+        <p:iteration-source>
+          <p:pipe step="xslt" port="secondary"/>
+        </p:iteration-source>
+        <p:store indent="true" omit-xml-declaration="false">
+          <p:with-option name="href" select="base-uri()"/>
+        </p:store>
+      </p:for-each>
+      
+      <tr:prepend-xml-model>
+        <p:input port="source">
+          <p:pipe port="result" step="xslt"/>
+        </p:input>
+        <p:input port="models">
+          <p:pipe port="models" step="xslt-mode"/>
+        </p:input>
+        <p:with-option name="hub-version" select="$hub-version"/>
+      </tr:prepend-xml-model>
+      
+      <tr:store-debug>
+        <p:with-option name="pipeline-step" select="$debug-file-name"/>
+        <p:with-option name="active" select="$debug" />
+        <p:with-option name="base-uri" select="$debug-dir-uri" />
+      </tr:store-debug>
+      
+    </p:group>
+    <p:catch name="catch">
+      <p:output port="result" primary="true" sequence="true">
+        <p:pipe port="source" step="xslt-mode"/>
+      </p:output>
+      <p:output port="report" primary="false">
+        <p:pipe port="result" step="forward-error"/>
+      </p:output>
+      <p:output port="secondary" primary="false" sequence="true"/>
+            
+      <tr:propagate-caught-error name="forward-error" fail-on-error="no">
+        <p:input port="source">
+          <p:pipe port="error" step="catch"/>
+        </p:input>
+        <p:with-option name="rule-family" select="'Internal'"/>
+        <p:with-option name="code" select="$mode"/>
+        <p:with-option name="severity" select="'fatal-error'"/>
+        <p:with-option name="msg-file" select="concat($mode, '.error.txt')"/>
+        <p:with-option name="status-dir-uri" select="$status-dir-uri"/>
+      </tr:propagate-caught-error>
+      
+      <tr:store-debug>
+        <p:with-option name="pipeline-step" select="concat($debug-file-name, '.ERROR')"/>
+        <p:with-option name="active" select="$debug"/>
+        <p:with-option name="base-uri" select="$debug-dir-uri" />
+      </tr:store-debug>
+          
       <cx:message>
-        <p:with-option name="message" 
-          select="concat('Mode: ', $mode, 
-                         if ($prefix and $debug = 'yes') 
-                         then concat('  debugs into ', $debug-dir-uri, '/', replace($debug-file-name, '//+', '/'), '.xml') 
-                         else ''
-                        )"><p:empty/></p:with-option>
+        <p:with-option name="message" select="concat('[FATAL ERROR]: Mode ', $mode, 
+          ' failed due to conversion errors. Recovering from errors and proceeding with original input. ',
+          if ($prefix and $debug = 'yes') 
+          then concat(' Please see ', $debug-dir-uri, '/', replace($debug-file-name, '//+', '/'), '.ERROR.xml for detailed debugging information.') 
+          else ''
+          )"/>
       </cx:message>
-    </p:when>
-    <p:otherwise>
-      <p:identity/>
-    </p:otherwise>
-  </p:choose>
-  
-  <p:xslt name="xslt">
-    <p:with-option name="initial-mode" select="$mode">
-      <p:pipe port="stylesheet" step="xslt-mode"/>
-    </p:with-option>
-    <p:input port="parameters">
-      <p:pipe port="parameters" step="xslt-mode"/>
-    </p:input>
-    <p:input port="stylesheet">
-      <p:pipe port="stylesheet" step="xslt-mode"/>
-    </p:input>
-    <p:with-param name="debug" select="$debug"><p:empty/></p:with-param>
-  </p:xslt>
-
-  <p:sink/>
-
-  <p:for-each>
-    <p:iteration-source>
-      <p:pipe step="xslt" port="secondary"/>
-    </p:iteration-source>
-    <p:store indent="true" omit-xml-declaration="false">
-      <p:with-option name="href" select="base-uri()"/>
-    </p:store>
-  </p:for-each>
-  
-  <tr:prepend-xml-model>
-    <p:input port="source">
-      <p:pipe port="result" step="xslt"/>
-    </p:input>
-    <p:input port="models">
-      <p:pipe port="models" step="xslt-mode"/>
-    </p:input>
-    <p:with-option name="hub-version" select="$hub-version"/>
-  </tr:prepend-xml-model>
-  
-  <tr:store-debug>
-    <p:with-option name="pipeline-step" select="$debug-file-name"/>
-    <p:with-option name="active" select="$debug" />
-    <p:with-option name="base-uri" select="$debug-dir-uri" />
-  </tr:store-debug>
+      
+      <p:sink/>
+      
+    </p:catch>
+  </p:try>
   
 </p:declare-step>

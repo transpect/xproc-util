@@ -1,5 +1,4 @@
-<p:library 
-  xmlns:p="http://www.w3.org/ns/xproc" 
+<p:library xmlns:p="http://www.w3.org/ns/xproc" 
   xmlns:c="http://www.w3.org/ns/xproc-step"
   xmlns:cx="http://xmlcalabash.com/ns/extensions" 
   xmlns:xs="http://www.w3.org/2001/XMLSchema"
@@ -106,6 +105,7 @@
     <p:store method="text">
       <p:with-option name="href" select="concat($status-dir-uri, '/', concat(p:system-property('p:episode'), '_', $file))"/>
     </p:store>
+    
   </p:declare-step>
 
   <p:declare-step type="tr:propagate-caught-error" name="propagate-caught-error">
@@ -139,6 +139,13 @@
   			<p>If this option is set to <code>true</code>, the pipeline fails with a <code>p:error</code>.</p>
   		</p:documentation>
   	</p:option>
+    
+    <p:option name="rule-family" required="false" select="'internal'">
+      <p:documentation xmlns="http://www.w3.org/1999/xhtml">
+        <h3>Option: <code>rule-family</code></h3>
+        <p>Specifies the category of the errors.</p>
+      </p:documentation>
+    </p:option>
 
     <p:option name="code" required="false" select="'tr:UNSP01'">
     	<p:documentation xmlns="http://www.w3.org/1999/xhtml">
@@ -196,21 +203,30 @@
       </p:input>
       <p:with-option name="status-dir-uri" select="$status-dir-uri"/>
     </tr:simple-progress-msg>
+    
     <cx:message name="output-error-msg" cx:depends-on="write-progress-msg">
       <p:with-option name="message" select="/c:errors">
         <p:pipe port="source" step="propagate-caught-error"/>
       </p:with-option>
     </cx:message>
+    
     <p:sink/>
-    <p:add-attribute name="add-code" attribute-name="code" match="/c:errors/c:error[last()]">
-      <p:with-option name="attribute-value" select="$code"/>
+    
+    <p:add-attribute name="add-family" attribute-name="tr:rule-family" match="/c:errors">
+      <p:with-option name="attribute-value" select="$rule-family"/>
       <p:input port="source">
         <p:pipe port="source" step="propagate-caught-error"/>
       </p:input>
     </p:add-attribute>
+    
+    <p:add-attribute name="add-code" attribute-name="code" match="/c:errors/c:error[last()]">
+      <p:with-option name="attribute-value" select="$code"/>
+    </p:add-attribute>
+    
     <p:add-attribute name="add-severity" attribute-name="type" match="/c:errors/c:error[last()]">
       <p:with-option name="attribute-value" select="$severity"/>
     </p:add-attribute>
+    
     <p:choose>
       <p:when test="$fail-on-error = 'true'">
         <p:error cx:depends-on="output-error-msg">
@@ -230,4 +246,5 @@
       </p:otherwise>
     </p:choose>
   </p:declare-step>
+  
 </p:library>
