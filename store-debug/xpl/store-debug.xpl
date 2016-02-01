@@ -14,7 +14,7 @@
   <p:option name="default-uri" required="false" select="resolve-uri('debug')"/>
   <p:option name="base-uri" required="false" select="''"/>
   <p:option name="extension" required="false" select="'xml'"/>
-  <p:option name="indent" required="false" select="'false'"/>
+  <p:option name="indent" required="false" select="'true'"/>
   
   <p:import href="http://xmlcalabash.com/extension/steps/library-1.0.xpl"/>
   
