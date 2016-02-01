@@ -41,8 +41,8 @@
     </p:documentation>
   </p:output>
   
-  <p:import href="http://transpect.io/cascaded/xpl/load-cascaded.xpl"/>
-  <p:import href="http://transpect.io/xproc-util/xslt-mode/xslt-mode.xpl"/>
+  <p:import href="http://transpect.io/cascade/xpl/load-cascaded.xpl"/>
+  <p:import href="http://transpect.io/xproc-util/xslt-mode/xpl/xslt-mode.xpl"/>
     
   <tr:load-cascaded name="load-stylesheet">
     <p:with-option name="filename" 
@@ -59,6 +59,7 @@
       <p:pipe port="paths" step="debug-single-mode"/>
     </p:input>
     <p:with-option name="debug" select="'no'"/>
+    <p:with-option name="debug-dir-uri" select="'debug'"/>
   </tr:load-cascaded>
 
   <p:sink/>
