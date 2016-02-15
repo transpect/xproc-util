@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<p:declare-step 
-  xmlns:p="http://www.w3.org/ns/xproc" 
+<p:declare-step xmlns:p="http://www.w3.org/ns/xproc" 
   xmlns:c="http://www.w3.org/ns/xproc-step"  
   xmlns:tr="http://transpect.io"
   version="1.0" 
@@ -15,12 +14,22 @@
   <p:input port="source"/>
   <p:output port="result"/>
 
-  <p:option name="insert-srcpaths" select="'yes'"/>
-  <p:option name="exclude-elements" select="''"/>       <!-- white-space separated list of element names"/> -->  
-  <p:option name="exclude-descendants" select="'yes'"/> <!-- whether the descendants of the excluded elements should be processed -->
+  <p:option name="schematron-like-paths" select="'no'">
+    <p:documentation>If this option is set to 'yes', the XPath includes the full 
+      namespace URI and always the position even if it equals 1. For example instead of 
+      '/html', the sourcepath will be expanded to '/*:html[namespace-uri()='http://www.w3.org/1999/xhtml'][1]'. 
+      This is necessary for htmlreports, if you want to use Schematron without adding srcpath spans. 
+    </p:documentation>
+  </p:option>
+  <p:option name="exclude-elements" select="''">
+    <p:documentation>White-space separated list of element names.</p:documentation>
+  </p:option>  
+  <p:option name="exclude-descendants" select="'yes'">
+    <p:documentation>Whether the descendants of the excluded elements should be processed.</p:documentation>
+  </p:option>
   
   <p:xslt>
-    <p:with-param name="insert-srcpaths" select="$insert-srcpaths"/>
+    <p:with-param name="schematron-like-paths" select="$schematron-like-paths"/>
     <p:with-param name="exclude-elements" select="$exclude-elements"/>
     <p:with-param name="exclude-descendants" select="$exclude-descendants"/>
     <p:input port="stylesheet">
