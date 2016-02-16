@@ -23,23 +23,33 @@
     And if you’re using namespace-prefixed modes, you’ll have to declare the namespaces
     here in this .xpl file. This is admittedly unfortunate.</p:documentation>
   </p:option>
-  <p:option name="prefix" required="false" select="''"/>
+  <p:option name="prefix" required="false" select="'default'"/>
   <p:option name="msg" required="false" select="'no'"/>
   <p:option name="debug" required="false" select="'no'"/>
   <p:option name="debug-dir-uri" required="true"/>
   <p:option name="status-dir-uri" select="concat($debug-dir-uri, '/status')"/>
+  <p:option name="fail-on-error" select="'no'"/>
   <p:option name="hub-version" required="false" select="''"/>
   
   <p:input port="source" primary="true" sequence="true"/>
+  
   <p:input port="stylesheet"/>
+  
   <p:input port="models" sequence="true">
     <p:empty/>
     <p:documentation>see prepend-xml-model.xpl</p:documentation>
   </p:input>
+  
   <p:input port="parameters" kind="parameter" primary="true"/>
+  
   <p:output port="result" primary="true" sequence="true"/>
-  <p:output port="secondary" sequence="true">
+  
+  <p:output port="secondary" sequence="true" primary="false">
     <p:pipe port="secondary" step="try"/>
+  </p:output>
+  
+  <p:output port="report" sequence="true" primary="false">
+    <p:pipe port="report" step="try"/>
   </p:output>
 
   <p:import href="http://xmlcalabash.com/extension/steps/library-1.0.xpl"/>
@@ -125,15 +135,15 @@
         <p:pipe port="result" step="forward-error"/>
       </p:output>
       <p:output port="secondary" primary="false" sequence="true"/>
-            
+      
       <tr:propagate-caught-error name="forward-error" fail-on-error="no">
         <p:input port="source">
           <p:pipe port="error" step="catch"/>
         </p:input>
         <p:with-option name="rule-family" select="'Internal'"/>
-        <p:with-option name="code" select="$mode"/>
+        <p:with-option name="code" select="replace($mode, ':', '_')"/>
         <p:with-option name="severity" select="'fatal-error'"/>
-        <p:with-option name="msg-file" select="concat($mode, '.error.txt')"/>
+        <p:with-option name="msg-file" select="concat($debug-file-name, '.error.txt')"/>
         <p:with-option name="status-dir-uri" select="$status-dir-uri"/>
       </tr:propagate-caught-error>
       
@@ -142,15 +152,43 @@
         <p:with-option name="active" select="$debug"/>
         <p:with-option name="base-uri" select="$debug-dir-uri" />
       </tr:store-debug>
+      
+      <!-- if option fail-on-error is set to 'yes', the step fails with the original error code -->
+      <p:choose>
+        
+        <p:when test="$fail-on-error eq 'yes'">
           
-      <cx:message>
-        <p:with-option name="message" select="concat('[FATAL ERROR]: Mode ', $mode, 
-          ' failed due to conversion errors. Recovering from errors and proceeding with original input. ',
-          if ($prefix and $debug = 'yes') 
-          then concat(' Please see ', $debug-dir-uri, '/', replace($debug-file-name, '//+', '/'), '.ERROR.xml for detailed debugging information.') 
-          else ''
-          )"/>
-      </cx:message>
+          <cx:message>
+            <p:with-option name="message" select="concat('[FATAL ERROR]: XSLT mode ''', $mode, 
+              ''' failed due to conversion errors. ',
+              if ($prefix and $debug = 'yes') 
+              then concat('Please see ', $debug-dir-uri, '/', replace($debug-file-name, '//+', '/'), '.ERROR.xml for detailed debugging information.') 
+              else ''
+              )"/>
+          </cx:message>
+          
+          <p:error>
+            <p:with-option name="code" select="concat('xslt-mode-', replace($mode, ':', '_'))"/>
+            <p:input port="source">
+              <p:pipe port="error" step="catch"/>
+            </p:input>
+          </p:error>
+        </p:when>
+        <p:otherwise>
+          
+          <cx:message>
+            <p:with-option name="message" select="concat('[FATAL ERROR]: XSLT mode ''', $mode, 
+              ''' failed due to conversion errors. Recovering from errors and proceeding with original input. ',
+              if ($prefix and $debug = 'yes') 
+              then concat('Please see ', $debug-dir-uri, '/', replace($debug-file-name, '//+', '/'), '.ERROR.xml for detailed debugging information.') 
+              else ''
+              )"/>
+          </cx:message>
+          
+          <p:identity/>
+          
+        </p:otherwise>
+      </p:choose>
       
       <p:sink/>
       
