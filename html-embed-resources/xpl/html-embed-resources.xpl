@@ -39,6 +39,7 @@
   <p:option name="fail-on-error" select="'true'"/>
   
   <p:import href="http://xmlcalabash.com/extension/steps/library-1.0.xpl"/>
+  <p:import href="http://transpect.io/xproc-util/file-uri/xpl/file-uri.xpl"/>
   
   <p:variable name="top-level-base-uri" select="( /*/@xml:base, base-uri(/*) )[1]"/>
   
@@ -95,11 +96,19 @@
             </p:choose>
             
             <!-- * 
-                 * construct and perform http-request
+                 * resolve URIs with tr:file-uri, construct and perform http-request
                  * -->
             
+            <tr:file-uri fetch-http="true" name="file-uri">
+              <p:with-option name="filename" select="$href"/>
+            </tr:file-uri>
+            
+            <p:sink/>
+            
             <p:add-attribute attribute-name="href" match="/c:request" name="construct-http-request">
-              <p:with-option name="attribute-value" select="$href"/>
+              <p:with-option name="attribute-value" select="/c:result/@href">
+                <p:pipe port="result" step="file-uri"/>
+              </p:with-option>
               <p:input port="source">
                 <p:inline>
                   <c:request method="GET" detailed="false"/>
