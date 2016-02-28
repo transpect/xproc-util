@@ -19,13 +19,22 @@
       CSS and JavaScript via data URI into the HTML document.</p>
   </p:documentation>
   
-  <p:input port="source">
+  <p:input port="source" primary="true">
     <p:documentation xmlns:html="http://www.w3.org/1999/xhtml">
       <p>expects an XHTML document</p>
     </p:documentation>
   </p:input>
   
-  <p:output port="result">
+  <p:input port="catalog">
+    <p:documentation>If it is a <code>&lt;catalog></code> document in the namespace
+        <code>urn:oasis:names:tc:entity:xmlns:xml:catalog</code>, it will be used for catalog resolution of URIs that start with
+      'http'.</p:documentation>
+    <p:inline>
+      <nodoc/>
+    </p:inline>
+  </p:input>
+  
+  <p:output port="result" primary="true">
     <p:documentation xmlns:html="http://www.w3.org/1999/xhtml">
       <p>provides the XHTML document with embedded resources</p>
     </p:documentation>
@@ -101,12 +110,18 @@
             
             <tr:file-uri fetch-http="true" name="file-uri">
               <p:with-option name="filename" select="$href"/>
+              <p:input port="catalog">
+                <p:pipe port="catalog" step="html-embed-resources"/>
+              </p:input>
+              <p:input port="resolver">
+                <p:document href="http://transpect.io/xslt-util/xslt-based-catalog-resolver/xsl/resolve-uri-by-catalog.xsl"/>
+              </p:input>
             </tr:file-uri>
             
             <p:sink/>
             
             <p:add-attribute attribute-name="href" match="/c:request" name="construct-http-request">
-              <p:with-option name="attribute-value" select="/c:result/@href">
+              <p:with-option name="attribute-value" select="/c:result/@local-href">
                 <p:pipe port="result" step="file-uri"/>
               </p:with-option>
               <p:input port="source">
