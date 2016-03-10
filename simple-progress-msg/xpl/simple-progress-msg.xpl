@@ -27,7 +27,7 @@
       &lt;/c:messages>
     &lt;/p:inline>
   &lt;/p:input>
-&lt;p:with-option name="status-dir-uri" select="$status-dir-uri"/>
+  &lt;p:with-option name="status-dir-uri" select="$status-dir-uri"/>
 &lt;/tr:simple-progress-msg></code></pre>
   	</p:documentation>
 
