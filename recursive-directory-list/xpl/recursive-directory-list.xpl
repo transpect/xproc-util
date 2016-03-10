@@ -6,11 +6,11 @@
   type="tr:recursive-directory-list">
   
   <p:documentation xmlns="http://www.w3.org/1999/xhtml">
-    <p>Copied from http://xproc.org/library/recursive-directory-list.xpl</p>
+    <p>Copied from <a href="http://xproc.org/library/">http://xproc.org/library/recursive-directory-list.xpl</a></p>
     <p>Copyright situation unclear.</p>
-    <p>Changed the namespace prefix from l to tr (and the namespaces accordingly).</p>
-    <p>Prepended a cxf:info step because the step would fail sometimes with Calabash 1.1.4 even if there was a try/catch around it.</p>
-    <p>In addition, in order to deal with a similar error, replaced p:value-available() with default values (empty strings) for include-filter and exclude-filter.</p>
+    <p>Changed the namespace prefix from <code>l</code> to <code>tr</code> (and the namespaces accordingly).</p>
+    <p>Prepended a <code>cxf:info</code> step because the step would fail sometimes with Calabash 1.1.4 even if there was a try/catch around it.</p>
+    <p>In addition, in order to deal with a similar error, replaced <code>p:value-available()</code> with default values (empty strings) for include-filter and exclude-filter.</p>
   </p:documentation>
 
   <p:output port="result"/>

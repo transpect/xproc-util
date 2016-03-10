@@ -7,8 +7,6 @@
   type="tr:load">
   
   <p:documentation xmlns="http://www.w3.org/1999/xhtml">
-    <h1>tr:load</h1>
-    <h2>Description</h2>
     <p>Replacement for <c:body>p:load</c:body>. Uses the file-uri util to load any file
       without using resolve-uri or other inconveniend ways. A relative
       file (param href) will be loaded relative to the current working directory. Please

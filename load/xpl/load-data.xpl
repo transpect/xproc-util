@@ -8,8 +8,6 @@
   type="tr:load-data">
   
   <p:documentation xmlns="http://www.w3.org/1999/xhtml">
-    <h1>tr:load-text</h1>
-    <h2>Description</h2>
     <p>This step loads a file via http-request</p>
   </p:documentation>
 

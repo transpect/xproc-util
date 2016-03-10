@@ -7,8 +7,6 @@
   type="tr:resolve-params">
   
   <p:documentation xmlns="http://www.w3.org/1999/xhtml">
-    <h1>tr:resolve-params</h1>
-    <h2>Description</h2>
     <p>This step takes a c:param-set document as input. Parameters which follow the syntax 
       <code><b>${name}</b></code> are resolved with matching parameters from this document. For 
       example the parameter <code>${isbn}</code> will be replaced with the <code>@value</code> 

@@ -23,7 +23,7 @@
       <li>if, after optional catalog resolution, the 'filename' URI is still http:/https:, <code>p:http-request</code> will be
         used to store the file locally.</li>
     </ul>
-    <h4>Examples for 'filename' values</h4>
+    <h5>Examples for 'filename' values</h5>
     <ul>
       <li><code>C:/temp/file.docx</code>,</li>
       <li><code>c:\temp\file.docx</code>,</li>
@@ -33,22 +33,22 @@
       <li><code>subdir/file.docx</code>,</li>
       <li><code>https://github.com/me/myrepo/blob/master/file.docx?raw=true</code></li>
     </ul>
-    <h4>Relative Paths</h4>
+    <h5>Relative Paths</h5>
     <p>Relative paths will be resolved against the current working directory, which is better than the static base uri most of the
       time but which might not always be what the user wants. It is a good idea to absolutize paths, as in 
       <code>$(readlink -f subdir/file.docx)</code> or <code>$(cygpath -ma subdir/file.docx)</code>.</p>
-    <h4>XML Catalogs</h4>
+    <h5>XML Catalogs</h5>
     <p>If a catalog is provided on the catalog port and an <a
       href="https://github.com/transpect/xslt-util/blob/master/xslt-based-catalog-resolver/">XSLT stylesheet for catalog resolution</a> is supplied on the 
       resolver port, http:/https: URIs will be catalog-resolved first, see below.</p>
-    <h4>Storage Location for HTTP Downloads</h4>
+    <h5>Storage Location for HTTP Downloads</h5>
     <p>It is possible to specify a temporary directory in the 'tmpdir' option. By default, it will be the subdir 'tmp' of the
       user’s home directory. The 'tmpdir' option accepts both a file: URL and an OS path, thanks to this normalization step.</p>
     <p>Please note that temporary files will not be deleted by this step.</p>
     <h4>Unique File Names for HTTP Downloads</h4>
     <p>If the option 'make-unique' is true (which it is by default), the files that are fetched by <code>p:http-request</code>
       will get a random string like <code>_0fa8d348</code> appended to their base name.</p>
-    <h4>Output format</h4>
+    <h5>Output format</h5>
     <p>The output is a <code>c:result</code> element with the following attributes:</p>
     <dl>
       <dt><code>os-path</code></dt>

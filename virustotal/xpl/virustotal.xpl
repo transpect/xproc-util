@@ -7,17 +7,15 @@
   name="virustotal" 
   type="tr:virustotal">
   
-  <p:documentation>
-    <p:documentation xmlns="http://www.w3.org/1999/xhtml">
-      <h1>Send local files to Virus Total and get a Schematron report</h1>
-      <p>This XProc step use the Total Virus API to upload and scan local 
-        files. Scan reports are retrieved with <code>p:http-request</code> and 
-        validated with Schematron.</p>
-      <p>Note: requires a Virus Total account, please see option <code>api-key</code>.</p>
-      <pre>$ sh calabash/calabash.sh -Xtransparent-json -Xjson-flavor=marklogic \
-        -o report=svrl.xml virustotal.xpl href=test.txt api-key=myRandomKey</pre>
-      <p>Get more information on Virus Total at https://www.virustotal.com</p>
-    </p:documentation>
+  <p:documentation xmlns="http://www.w3.org/1999/xhtml">
+    <p>Send local files to Virus Total and get a Schematron report.</p>
+    <p>This XProc step use the Total Virus API to upload and scan local 
+      files. Scan reports are retrieved with <code>p:http-request</code> and 
+      validated with Schematron.</p>
+    <p>Note: requires a Virus Total account, please see option <code>api-key</code>.</p>
+    <pre>$ sh calabash/calabash.sh -Xtransparent-json -Xjson-flavor=marklogic \
+      -o report=svrl.xml virustotal.xpl href=test.txt api-key=myRandomKey</pre>
+    <p>Get more information on Virus Total at https://www.virustotal.com</p>
   </p:documentation>
   
   <p:output port="result" primary="true">

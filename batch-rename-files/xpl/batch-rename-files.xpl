@@ -9,13 +9,10 @@
   type="tr:batch-rename-files">
   
   <p:documentation xmlns="http://www.w3.org/1999/xhtml">
-    <h1>tr:batch-rename-files</h1>
-    <h2>Description</h2>
     <p>Renames file references in a XML document and its physical manifestations. 
       The fileref attributes are matched by a regex pattern. The filerefs are 
       replaced with the value of the replace option.</p>
-    <h2>Usage</h2>
-    <h3>Example: rename file extensions</h3>
+    <h6>Example: rename file extensions</h6>
     <pre><code class="xml">
 &lt;tr:batch-rename-files&gt;
   &lt;p:with-option name="attribute-name" select="'fileref'"/&gt;
@@ -23,7 +20,7 @@
   &lt;p:with-option name="regex-replace" select="'$1.jpg'"/&gt;
 &lt;/tr:batch-rename-files&gt;
     </code></pre>
-    <h3>Example: replace whitespace</h3>
+    <h6>Example: replace whitespace</h6>
     <pre><code class="xml">
 &lt;tr:batch-rename-files&gt;
   &lt;p:with-option name="attribute-name" select="'fileref'"/&gt;

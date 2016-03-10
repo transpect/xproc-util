@@ -7,7 +7,6 @@
   type="tr:remove-ns-decl-and-xml-base">
   
   <p:documentation xmlns="http://www.w3.org/1999/xhtml">
-    <h1>tr:remove-ns-decl-and-xml-base</h1>
     <p>The purpose of this identity transformation is to remove all namespace declarations. 
       The step prevents that XProc writes all prefixes declared in the pipeline are written 
       into the output.</p>

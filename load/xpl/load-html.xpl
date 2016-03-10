@@ -8,8 +8,6 @@
   type="tr:load-html">
   
   <p:documentation xmlns="http://www.w3.org/1999/xhtml">
-    <h1>tr:load-html</h1>
-    <h2>Description</h2>
     <p>This step implements TagSoup to load even not well-formed HTML files. To use TagSoup with 
       Calabash, you must include the TagSoup JAR file in your Java classpath and use a Calabash configuration file.</p>
     <pre>

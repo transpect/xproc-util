@@ -14,9 +14,30 @@
   <p:serialization port="result" method="xhtml" omit-xml-declaration="false"/>
   
   <p:documentation xmlns:html="http://www.w3.org/1999/xhtml">
-    <h1>tr:html-embed-resources</h1>
     <p>This step tries to embed external resources such as images, 
-      CSS and JavaScript via data URI into the HTML document.</p>
+      CSS and JavaScript as data URI, as XML or as plain text into the HTML document.</p>
+    <p>Consider the example below.</p>
+    <pre>&lt;html xmlns="http://www.w3.org/1999/xhtml">
+  &lt;head>
+    &lt;title/>
+  &lt;/head>
+  &lt;body>
+    &lt;div>
+      &lt;img alt="a blue square" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAMAAAC6sdbXAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJ&#xA;bWFnZVJlYWR5ccllPAAAAyJpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdp&#xA;bj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6&#xA;eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMy1jMDExIDY2LjE0&#xA;NTY2MSwgMjAxMi8wMi8wNi0xNDo1NjoyNyAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJo&#xA;dHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlw&#xA;dGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAv&#xA;IiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RS&#xA;ZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpD&#xA;cmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENTNiAoV2luZG93cykiIHhtcE1NOkluc3RhbmNl&#xA;SUQ9InhtcC5paWQ6NjExNUU3Q0RFNkQ1MTFFNUE4MThFMjY3QjgwODYwQ0UiIHhtcE1NOkRvY3Vt&#xA;ZW50SUQ9InhtcC5kaWQ6NjExNUU3Q0VFNkQ1MTFFNUE4MThFMjY3QjgwODYwQ0UiPiA8eG1wTU06&#xA;RGVyaXZlZEZyb20gc3RSZWY6aW5zdGFuY2VJRD0ieG1wLmlpZDo2MTE1RTdDQkU2RDUxMUU1QTgx&#xA;OEUyNjdCODA4NjBDRSIgc3RSZWY6ZG9jdW1lbnRJRD0ieG1wLmRpZDo2MTE1RTdDQ0U2RDUxMUU1&#xA;QTgxOEUyNjdCODA4NjBDRSIvPiA8L3JkZjpEZXNjcmlwdGlvbj4gPC9yZGY6UkRGPiA8L3g6eG1w&#xA;bWV0YT4gPD94cGFja2V0IGVuZD0iciI/PjJf70IAAAAGUExURQCe4AAAAB0uYYYAAAAOSURBVHja&#xA;YmDABwACDAAAHgABzCCyiwAAAABJRU5ErkJggg==&#xA;" />
+    &lt;/div>
+  &lt;/body>
+&lt;/html></pre>
+    <p>After processing the HTML, the image is embedded as data URI.</p>
+    <pre>&lt;html xmlns="http://www.w3.org/1999/xhtml">
+  &lt;head>
+    &lt;title/>
+  &lt;/head>
+  &lt;body>
+    &lt;div>
+      &lt;img alt="a blue square" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAMAAAC6sdbXAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJ&#xA;bWFnZVJlYWR5ccllPAAAAyJpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdp&#xA;bj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6&#xA;eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMy1jMDExIDY2LjE0&#xA;NTY2MSwgMjAxMi8wMi8wNi0xNDo1NjoyNyAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJo&#xA;dHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlw&#xA;dGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAv&#xA;IiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RS&#xA;ZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpD&#xA;cmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENTNiAoV2luZG93cykiIHhtcE1NOkluc3RhbmNl&#xA;SUQ9InhtcC5paWQ6NjExNUU3Q0RFNkQ1MTFFNUE4MThFMjY3QjgwODYwQ0UiIHhtcE1NOkRvY3Vt&#xA;ZW50SUQ9InhtcC5kaWQ6NjExNUU3Q0VFNkQ1MTFFNUE4MThFMjY3QjgwODYwQ0UiPiA8eG1wTU06&#xA;RGVyaXZlZEZyb20gc3RSZWY6aW5zdGFuY2VJRD0ieG1wLmlpZDo2MTE1RTdDQkU2RDUxMUU1QTgx&#xA;OEUyNjdCODA4NjBDRSIgc3RSZWY6ZG9jdW1lbnRJRD0ieG1wLmRpZDo2MTE1RTdDQ0U2RDUxMUU1&#xA;QTgxOEUyNjdCODA4NjBDRSIvPiA8L3JkZjpEZXNjcmlwdGlvbj4gPC9yZGY6UkRGPiA8L3g6eG1w&#xA;bWV0YT4gPD94cGFja2V0IGVuZD0iciI/PjJf70IAAAAGUExURQCe4AAAAB0uYYYAAAAOSURBVHja&#xA;YmDABwACDAAAHgABzCCyiwAAAABJRU5ErkJggg==&#xA;" />
+    &lt;/div>
+  &lt;/body>
+&lt;/html></pre> 
   </p:documentation>
   
   <p:input port="source" primary="true">

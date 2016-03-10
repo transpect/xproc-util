@@ -7,8 +7,16 @@
   type="tr:insert-srcpaths">
   
   <p:documentation xmlns="http://www.w3.org/1999/xhtml">
-    <h1>tr:insert-srcpaths</h1>
     <p>This step inserts the XPath location of any element as attribute.</p>
+    <p>Consider this example:</p>
+    <pre>&lt;root>
+  &lt;element>Text&lt;/element>
+&lt;/root></pre>
+    <p>After applying the step, each element includes a <code>srcpath</code> 
+      attribute containing its XPath location.</p>
+    <pre>&lt;root srcpath="/root">
+  &lt;element srcpath="/root/element">Text&lt;/element>
+&lt;/root></pre>
   </p:documentation>
 
   <p:input port="source"/>

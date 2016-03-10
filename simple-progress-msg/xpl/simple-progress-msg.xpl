@@ -14,24 +14,20 @@
   <p:declare-step type="tr:simple-progress-msg" name="progress-msg">
   	
   	<p:documentation xmlns="http://www.w3.org/1999/xhtml">
-  		<h1>tr:simple-progress-msg</h1>
-  		<h2>Description</h2>
   		<p>This step stores status messages as plain text files and prints them to the standard output. The step can be used everywhere in your pipeline. The input will be simply forwarded to the output without any transformations.</p>
-  		<h2>Usage</h2>
   		<p>The input port entitled "msgs" expects a <code>c:message</code> XML document. The status messages must be wrapped in <code>c:message</code> elements.</p>
   		<p>For localized messages, you can use multiple <code>c:message</code> elements each including a <code>xml:lang</code> attribute. The attribute value must 
   			be a language code according to ISO 639-1.</p>
-  		<h3>Example</h3>
   		<pre><code>&lt;tr:simple-progress-msg file="trdemo-paths.txt">
-	&lt;p:input port="msgs">
-		&lt;p:inline>
-			&lt;c:messages>
-				&lt;c:message xml:lang="en">Generating File Paths&lt;/c:message>
-				&lt;c:message xml:lang="de">Generiere Dateisystempfade&lt;/c:message>
-			&lt;/c:messages>
-		&lt;/p:inline>
-	&lt;/p:input>
-	&lt;p:with-option name="status-dir-uri" select="$status-dir-uri"/>
+  &lt;p:input port="msgs">
+    &lt;p:inline>
+      &lt;c:messages>
+        &lt;c:message xml:lang="en">Generating File Paths&lt;/c:message>
+        &lt;c:message xml:lang="de">Generiere Dateisystempfade&lt;/c:message>
+      &lt;/c:messages>
+    &lt;/p:inline>
+  &lt;/p:input>
+&lt;p:with-option name="status-dir-uri" select="$status-dir-uri"/>
 &lt;/tr:simple-progress-msg></code></pre>
   	</p:documentation>
 
@@ -111,7 +107,6 @@
   <p:declare-step type="tr:propagate-caught-error" name="propagate-caught-error">
   	
   	<p:documentation xmlns="http://www.w3.org/1999/xhtml">
-  		<h1>propagate-caught-error</h1>
   		<p>This step redirects an error to a status text file and prints a <code>cx:message</code>. If option <code>fail-on-error</code> is set to <code>true</code>, the error is reproduced with an attached error code.</p>
   	</p:documentation>
   	

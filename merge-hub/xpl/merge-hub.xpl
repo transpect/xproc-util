@@ -13,19 +13,7 @@
   type="tr:merge-hub">
   
   <p:documentation xmlns="http://www.w3.org/1999/xhtml">
-		<h1>tr:merge-hub</h1>
 		<p>This step expects a sequence of Hub files and merges them to one single file.</p>
-	  <h2>Dependencies</h2>
-	  <ul>
-	    <li>
-	      <p><b>functx path-to-node-with-pos</b></p>
-	      <p>https://subversion.le-tex.de/common/functx/XML_Elements_and_Attributes/XML_Document_Structure/path-to-node-with-pos.xsl</p>
-	    </li>
-	    <li>
-	      <p><b>store-debug</b></p>
-	      <p>https://transpect.io/xproc-util/store-debug/xpl/store-debug.xpl</p>
-	    </li>
-	  </ul>
 	</p:documentation>
     
   <p:input port="source" primary="true" sequence="true">
