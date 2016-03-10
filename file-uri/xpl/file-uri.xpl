@@ -45,7 +45,7 @@
     <p>It is possible to specify a temporary directory in the 'tmpdir' option. By default, it will be the subdir 'tmp' of the
       user’s home directory. The 'tmpdir' option accepts both a file: URL and an OS path, thanks to this normalization step.</p>
     <p>Please note that temporary files will not be deleted by this step.</p>
-    <h4>Unique File Names for HTTP Downloads</h4>
+    <h5>Unique File Names for HTTP Downloads</h5>
     <p>If the option 'make-unique' is true (which it is by default), the files that are fetched by <code>p:http-request</code>
       will get a random string like <code>_0fa8d348</code> appended to their base name.</p>
     <h5>Output format</h5>
