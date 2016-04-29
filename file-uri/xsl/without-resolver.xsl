@@ -17,10 +17,10 @@
               <xsl:sequence select="tr:uri-composer(concat('file:', $uri), '')"/>
             </xsl:when>
             <xsl:when test="matches($uri, '^[a-z]+:', 'i')">
-              <xsl:sequence select="tr:uri-composer($uri, '')"/>
+              <xsl:sequence select="$uri"/>
             </xsl:when>
             <xsl:when test="matches($uri, '^//')">
-              <xsl:sequence select="tr:uri-composer($uri, '')"/>
+              <xsl:sequence select="$uri"/>
             </xsl:when>
             <xsl:otherwise>
               <xsl:sequence select="$uri"/>
