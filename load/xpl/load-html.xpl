@@ -84,7 +84,7 @@
       <!--  *
             * to read not well-formed HTML, the content-type of p:unescape-markup must 
             * be set to 'text/html' and TagSoup must be selected as HTML parser in the 
-            * Calabash configuration (usually in adaptions/common/calabash/xproc-config.xml)
+            * Calabash configuration (usually in a9s/common/calabash/xproc-config.xml)
             * -->
   
       <p:unescape-markup content-type="text/html"/>
