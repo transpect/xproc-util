@@ -85,8 +85,14 @@
                      |html:link[@rel eq 'stylesheet'][@href]
                      |svg:image[@xlink:href]" 
               name="viewport">
+    
     <p:variable name="local-base-uri" select="(base-uri(.), $top-level-base-uri)[1]"/>
-    <p:variable name="href-attribute" select="(*[local-name() = ('img', 'audio', 'video', 'script')]/@src, html:object/@data, html:link/@href, svg:image/@xlink:href)[1]"/>
+    <p:variable name="href-attribute" select="replace(
+                                                      (*[local-name() = ('img', 'audio', 'video', 'script')]/@src, 
+                                                       html:object/@data, 
+                                                       html:link/@href, 
+                                                       svg:image/@xlink:href)[1],
+                                                       '\\', '/')"/>
     <p:variable name="href" 
       select="if(starts-with($href-attribute, 'data:'))  (: leave data URIs as-is :)
               then $href-attribute
