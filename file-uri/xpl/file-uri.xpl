@@ -218,7 +218,15 @@
         </p:add-attribute>
         <p:sink/>
         <tr:unescape-uri name="unescape-uri">
+          <p:with-option name="uri" select="replace(replace($catalog-resolved-uri, '^file:/+([a-z]:/)', '$1', 'i'), '^file:/+', '/')"/>
+          <!-- Under strange conditions the following more compact replacement would not evaluate 
+            correctly with Calabash 1.1.5 and Saxon 9.6.0.7 or 9.6.0.9
+            Input: file:///C:/cygwin/home/gerrit/Dev/epubtools-xproc/
+            Output (incorrect): /cygwin/home/gerrit/Dev/epubtools-xproc/
+            Standalone invocation of file-uri was ok, but the step output-file-name in epub-convert.xpl yielded 
+            the wrong output.
           <p:with-option name="uri" select="replace($catalog-resolved-uri, '^file:/+(([a-z]:)/)?', '$2/', 'i')"/>
+          -->
         </tr:unescape-uri>
         <p:add-attribute match="/*" attribute-name="os-path">
           <p:input port="source">
