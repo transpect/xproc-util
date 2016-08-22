@@ -63,7 +63,10 @@
   
   <p:try name="try">
     <p:group>
-      <p:output port="result" primary="true" sequence="true"/>
+      <p:output port="result" primary="true" sequence="true">
+        <p:documentation>Although p:xslt produces exactly one result document, sequence must be true so that each branch 
+          has the same signature.</p:documentation>
+      </p:output>
       <p:output port="report" primary="false" sequence="true"/>
       <p:output port="secondary" primary="false" sequence="true">
         <p:pipe port="secondary" step="xslt"/>
@@ -131,7 +134,7 @@
       <p:output port="result" primary="true" sequence="true">
         <p:pipe port="source" step="xslt-mode"/>
       </p:output>
-      <p:output port="report" primary="false">
+      <p:output port="report" primary="false" sequence="true">
         <p:pipe port="result" step="forward-error"/>
       </p:output>
       <p:output port="secondary" primary="false" sequence="true"/>
