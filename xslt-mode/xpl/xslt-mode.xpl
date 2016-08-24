@@ -29,6 +29,12 @@
   <p:option name="debug-dir-uri" required="true"/>
   <p:option name="status-dir-uri" select="concat($debug-dir-uri, '/status')"/>
   <p:option name="fail-on-error" select="'no'"/>
+  <p:option name="adjust-doc-base-uri" select="'yes'">
+    <p:documentation>Whether to set the output base uri to what’s set as base-uri(/*) via @xml:base attribute.
+    Otherwise, the output base uri will be taken from the input. This was the defaul behavior before
+    this change that was introduced on 2016-08-24. Reason for this option: If people add /*/@xml:base attributes,
+    they most likely want their output document URI to reflect this change.</p:documentation>
+  </p:option>
   <p:option name="hub-version" required="false" select="''"/>
   
   <p:input port="source" primary="true" sequence="true"/>
@@ -101,7 +107,32 @@
         </p:input>
         <p:with-param name="debug" select="$debug"><p:empty/></p:with-param>
       </p:xslt>
+
+      <p:choose name="adjust-doc-base-uri">
+        <p:when test="$adjust-doc-base-uri = 'yes'">
+          <p:output port="result" primary="true"/>
+          <p:xslt name="adjust-doc-base-uri1">
+            <p:with-option name="output-base-uri" select="(base-uri(/*), base-uri())[1]"/>
+            <p:input port="parameters"><p:empty/></p:input>
+            <p:input port="stylesheet">
+              <p:inline>
+                <xsl:stylesheet version="2.0">
+                  <xsl:template match="/">
+                    <xsl:copy-of select="."/>
+                  </xsl:template>
+                </xsl:stylesheet>
+              </p:inline>
+            </p:input>
+          </p:xslt>    
+        </p:when>
+        <p:otherwise>
+          <p:output port="result" primary="true"/>
+          <p:identity name="adjust-doc-base-uri0"/>
+        </p:otherwise>
+      </p:choose>
+
       
+
       <p:sink/>
       
       <p:for-each>
@@ -115,7 +146,7 @@
       
       <tr:prepend-xml-model>
         <p:input port="source">
-          <p:pipe port="result" step="xslt"/>
+          <p:pipe port="result" step="adjust-doc-base-uri"/>
         </p:input>
         <p:input port="models">
           <p:pipe port="models" step="xslt-mode"/>
