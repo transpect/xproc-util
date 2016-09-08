@@ -27,7 +27,7 @@
   <p:option name="msg" required="false" select="'no'"/>
   <p:option name="debug" required="false" select="'no'"/>
   <p:option name="debug-dir-uri" required="true"/>
-  <p:option name="status-dir-uri" select="concat($debug-dir-uri, '/status')"/>
+  <p:option name="status-dir-uri" select="concat(replace($debug-dir-uri, '^(.+)\?.*$', '$1'), '/status')"/>
   <p:option name="fail-on-error" select="'no'"/>
   <p:option name="adjust-doc-base-uri" select="'yes'">
     <p:documentation>Whether to set the output base uri to what’s set as base-uri(/*) via @xml:base attribute.
@@ -64,6 +64,7 @@
   <p:import href="http://transpect.io/xproc-util/simple-progress-msg/xpl/simple-progress-msg.xpl"/>
   
   <p:variable name="debug-file-name" select="concat($prefix, '.', replace($mode, ':', '_'))"><p:empty/></p:variable>
+  <p:variable name="debug-dir-uri1" select="replace($debug-dir-uri, '^(.+)\?.*$', '$1')"/>
   
   <!-- try wrapper to revover pipelines from errors and proceed with input -->
   
@@ -85,7 +86,7 @@
             <p:with-option name="message" 
               select="concat('Mode: ', $mode, 
               if ($prefix and $debug = 'yes') 
-              then concat('  debugs into ', $debug-dir-uri, '/', replace($debug-file-name, '//+', '/'), '.xml') 
+              then concat('  debugs into ', $debug-dir-uri1, '/', replace($debug-file-name, '//+', '/'), '.xml') 
               else ''
               )"><p:empty/></p:with-option>
           </cx:message>
@@ -196,7 +197,7 @@
             <p:with-option name="message" select="concat('[FATAL ERROR]: XSLT mode ''', $mode, 
               ''' failed due to conversion errors. ',
               if ($prefix and $debug = 'yes') 
-              then concat('Please see ', $debug-dir-uri, '/', replace($debug-file-name, '//+', '/'), '.ERROR.xml for detailed debugging information.') 
+              then concat('Please see ', $debug-dir-uri1, '/', replace($debug-file-name, '//+', '/'), '.ERROR.xml for detailed debugging information.') 
               else ''
               )"/>
           </cx:message>
@@ -214,7 +215,7 @@
             <p:with-option name="message" select="concat('[FATAL ERROR]: XSLT mode ''', $mode, 
               ''' failed due to conversion errors. Recovering from errors and proceeding with original input. ',
               if ($prefix and $debug = 'yes') 
-              then concat('Please see ', $debug-dir-uri, '/', replace($debug-file-name, '//+', '/'), '.ERROR.xml for detailed debugging information.') 
+              then concat('Please see ', $debug-dir-uri1, '/', replace($debug-file-name, '//+', '/'), '.ERROR.xml for detailed debugging information.') 
               else ''
               )"/>
           </cx:message>

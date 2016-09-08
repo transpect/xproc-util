@@ -21,16 +21,19 @@
   <p:choose>
     <p:when test="$active = 'yes'">
       <p:for-each name="source-iteration">
+        <p:variable name="href0" select="replace($base-uri, '^(.+)\?.*$', '$1')"/>
         <p:variable name="href" 
-                    select="if ($base-uri != '') 
-                            then concat($base-uri, '/', $pipeline-step, '.', $extension)
+                    select="if ($href0 != '') 
+                            then concat($href0, '/', $pipeline-step, '.', $extension)
                             else concat($default-uri, '/', $pipeline-step, '.', $extension)"/>
-        
+        <p:variable name="actual-indent" select="if (matches($base-uri, '^.+\?.*indent=(true|false).*$'))
+                                                 then replace($base-uri, '^.+\?.*indent=(true|false).*$', '$1')
+                                                 else $indent"/>
         <p:try>
           <!-- try to store to the specified location -->
           <p:group>
             <p:store omit-xml-declaration="false">
-              <p:with-option name="indent" select="$indent"/>
+              <p:with-option name="indent" select="$actual-indent"/>
               <p:with-option name="href" select="$href"/>
               <p:with-option name="method" select="if (matches($extension, 'html')) then 'xhtml' else 'xml'"/>
             </p:store>
@@ -52,8 +55,8 @@
             
             <p:store omit-xml-declaration="false">
               <p:with-option name="indent" select="$indent"/>
-              <p:with-option name="href" select="if ($base-uri != '') 
-                then concat($base-uri, '/store-debug/store-debug-error.xml')
+              <p:with-option name="href" select="if ($href0 != '') 
+                then concat($href0, '/store-debug/store-debug-error.xml')
                 else concat($default-uri, '/store-debug/store-debug-error.xml')" />
             </p:store>
             
