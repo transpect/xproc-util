@@ -64,7 +64,7 @@
   <p:import href="http://transpect.io/xproc-util/simple-progress-msg/xpl/simple-progress-msg.xpl"/>
   
   <p:variable name="debug-file-name" select="concat($prefix, '.', replace($mode, ':', '_'))"><p:empty/></p:variable>
-  <p:variable name="debug-dir-uri1" select="replace($debug-dir-uri, '^(.+)\?.*$', '$1')"/>
+  <p:variable name="debug-dir-uri1" select="replace($debug-dir-uri, '^(.+)\?.*$', '$1')"><p:empty/></p:variable>
   
   <!-- try wrapper to revover pipelines from errors and proceed with input -->
   
