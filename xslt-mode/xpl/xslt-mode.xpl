@@ -12,6 +12,7 @@
   xmlns:hub="http://transpect.io/hub"
   xmlns:hub2app="http://transpect.io/hub2app"
   xmlns:hub2htm="http://transpect.io/hub2htm"
+  xmlns:tr3k2html="http://www.le-tex.de/namespace/tr3k2html"  
   xmlns:tr="http://transpect.io"
   version="1.0"
   name="xslt-mode"
