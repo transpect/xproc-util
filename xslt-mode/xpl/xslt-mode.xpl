@@ -172,15 +172,19 @@
       </p:output>
       <p:output port="secondary" primary="false" sequence="true"/>
       
-      <tr:propagate-caught-error name="forward-error" fail-on-error="no">
+      <tr:propagate-caught-error name="forward-error" fail-on-error="no" rule-family="Internal" severity="fatal-error">
         <p:input port="source">
           <p:pipe port="error" step="catch"/>
         </p:input>
-        <p:with-option name="rule-family" select="'Internal'"/>
-        <p:with-option name="code" select="replace($mode, ':', '_')"/>
-        <p:with-option name="severity" select="'fatal-error'"/>
-        <p:with-option name="msg-file" select="concat($debug-file-name, '.error.txt')"/>
-        <p:with-option name="status-dir-uri" select="$status-dir-uri"/>
+        <p:with-option name="code" select="replace($mode, ':', '_')">
+          <p:empty/>
+        </p:with-option>
+        <p:with-option name="msg-file" select="concat($debug-file-name, '.error.txt')">
+          <p:empty/>
+        </p:with-option>
+        <p:with-option name="status-dir-uri" select="$status-dir-uri">
+          <p:empty/>
+        </p:with-option>
       </tr:propagate-caught-error>
       
       <tr:store-debug>
