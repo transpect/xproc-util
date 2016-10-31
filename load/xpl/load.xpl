@@ -20,10 +20,10 @@
     </p:documentation>
   </p:option>
   
-  <p:option name="fail-on-error" select="'false'">
+  <p:option name="fail-on-error" select="'yes'">
     <p:documentation xmlns="http://www.w3.org/1999/xhtml">
       <h3>Option: <code>fail-on-error</code></h3>
-      <p>Optional, if set to 'true', the pipeline terminates on a load error.</p>
+      <p>Optional, if set to 'yes', the pipeline terminates on a load error.</p>
     </p:documentation>
   </p:option>
   
@@ -68,7 +68,7 @@
             * with an error message. Otherwise a c:errors document is generated.
             * -->
       <p:choose name="choose">
-        <p:when test="$fail-on-error eq 'true'">
+        <p:when test="$fail-on-error eq 'yes'">
           
           <p:error code="load-error">
             <p:input port="source">
