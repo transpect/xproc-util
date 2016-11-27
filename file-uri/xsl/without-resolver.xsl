@@ -23,7 +23,7 @@
               <xsl:sequence select="$uri"/>
             </xsl:when>
             <xsl:otherwise>
-              <xsl:sequence select="$uri"/>
+              <xsl:sequence select="tr:encode-for-uri($uri)"/>
             </xsl:otherwise>
           </xsl:choose>
         </xsl:attribute> 
