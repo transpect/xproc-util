@@ -23,7 +23,7 @@
               <xsl:sequence select="$uri"/>
             </xsl:when>
             <xsl:otherwise>
-              <xsl:sequence select="tr:encode-for-uri($uri)"/>
+              <xsl:sequence select="replace(tr:encode-for-uri($uri), '%2F', '/')"/>
             </xsl:otherwise>
           </xsl:choose>
         </xsl:attribute> 
