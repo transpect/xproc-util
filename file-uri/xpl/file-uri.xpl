@@ -487,6 +487,17 @@
         </p:add-attribute>
       </p:when>
 
+      <p:when test="matches($catalog-resolved-uri, '^(#|mailto:|ftp:)')">
+        <p:add-attribute attribute-name="href" match="/*">
+          <p:input port="source">
+            <p:inline>
+              <c:result local-href="" os-path=""/> 
+            </p:inline>
+          </p:input>
+          <p:with-option name="attribute-value" select="$catalog-resolved-uri"/>
+        </p:add-attribute>        
+      </p:when>
+
       <p:otherwise>
         <p:documentation>Other protocol or relative filename. We don’t support other protocols/notations, so we assume it to be
           a relative path.</p:documentation>
