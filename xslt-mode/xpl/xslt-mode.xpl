@@ -114,7 +114,7 @@
         <p:when test="$adjust-doc-base-uri = 'yes'">
           <p:output port="result" primary="true"/>
           <p:xslt name="adjust-doc-base-uri1">
-            <p:with-option name="output-base-uri" select="(base-uri(/*), base-uri())[1]"/>
+            <p:with-option name="output-base-uri" select="resolve-uri((base-uri(/*), base-uri())[1])"/>
             <p:input port="parameters"><p:empty/></p:input>
             <p:input port="stylesheet">
               <p:inline>
