@@ -98,7 +98,7 @@
               then $href-attribute
               else resolve-uri(if(matches($href-attribute, '^(http[s]?|file)://?')) (: resolve regular URIs :) 
                    then $href-attribute
-                   else concat('./', $href-attribute),
+                   else concat(replace($local-base-uri, '^(.+/).+$', '$1'), $href-attribute),
                    $local-base-uri)"/>
     
     <p:choose>
