@@ -62,7 +62,10 @@
       <dt><code>orig-href</code></dt>
       <dd>The pre catalog-resolution URI of the resource (if different from post catalog)</dd>
       <dt><code>lastpath</code></dt>
-      <dd>For ordinary files, the non-directory part including suffix. For directories, the last path component without trailing slash.</dd>
+      <dd>For ordinary files, the non-directory part including suffix. For directories, the last path component without trailing slash.
+      lastpath is URL-escaped, that is, it is taken from local-href.</dd>
+      <dt><code>lastpath-os</code></dt>
+      <dd>The same as <code>lastpath</code>, but without URL escaping.</dd>
     </dl>
   </p:documentation>
 
@@ -209,6 +212,7 @@
         <p:add-attribute match="/*" attribute-name="os-path">
           <p:with-option name="attribute-value" select="replace(replace($catalog-resolved-uri, '^file:///', ''), '/', '\\')"/>
         </p:add-attribute>
+        <tr:unescape-uri attribute-names="os-path"/>
       </p:when>
       
       <p:when test="matches($catalog-resolved-uri, '^file:/')">
@@ -216,26 +220,19 @@
         <p:add-attribute match="/*" attribute-name="local-href" name="local-href">
           <p:with-option name="attribute-value" select="$catalog-resolved-uri"/>
         </p:add-attribute>
-        <p:sink/>
-        <tr:unescape-uri name="unescape-uri">
-          <p:with-option name="uri" select="replace(replace($catalog-resolved-uri, '^file:/+([a-z]:/)', '$1', 'i'), '^file:/+', '/')"/>
+        <p:add-attribute match="/*" attribute-name="os-path">
+          <p:with-option name="attribute-value" 
+            select="replace(replace($catalog-resolved-uri, '^file:/+([a-z]:/)', '$1', 'i'), '^file:/+', '/')"/>
           <!-- Under strange conditions the following more compact replacement would not evaluate 
             correctly with Calabash 1.1.5 and Saxon 9.6.0.7 or 9.6.0.9
             Input: file:///C:/cygwin/home/gerrit/Dev/epubtools-xproc/
             Output (incorrect): /cygwin/home/gerrit/Dev/epubtools-xproc/
             Standalone invocation of file-uri was ok, but the step output-file-name in epub-convert.xpl yielded 
             the wrong output.
-          <p:with-option name="uri" select="replace($catalog-resolved-uri, '^file:/+(([a-z]:)/)?', '$2/', 'i')"/>
+          <p:with-option name="attribute-value" select="replace($catalog-resolved-uri, '^file:/+(([a-z]:)/)?', '$2/', 'i')"/>
           -->
-        </tr:unescape-uri>
-        <p:add-attribute match="/*" attribute-name="os-path">
-          <p:input port="source">
-            <p:pipe port="result" step="local-href"/>
-          </p:input>
-          <p:with-option name="attribute-value" select="/c:result">
-            <p:pipe port="result" step="unescape-uri"/>
-          </p:with-option>
         </p:add-attribute>
+        <tr:unescape-uri attribute-names="os-path"/>
       </p:when>
 
       <p:when test="matches($catalog-resolved-uri, '^/')">
@@ -246,6 +243,7 @@
         <p:add-attribute match="/*" attribute-name="os-path">
           <p:with-option name="attribute-value" select="$catalog-resolved-uri"/>
         </p:add-attribute>
+        <tr:unescape-uri attribute-names="os-path"/>
       </p:when>
 
       <p:when test="matches($catalog-resolved-uri, '^[a-z]:', 'i')">
@@ -256,6 +254,7 @@
         <p:add-attribute match="/*" attribute-name="os-path">
           <p:with-option name="attribute-value" select="$catalog-resolved-uri"/>
         </p:add-attribute>
+        <tr:unescape-uri attribute-names="os-path"/>
       </p:when>
 
       <p:when test="matches($catalog-resolved-uri, '^https?:') and $fetch-http = 'true'">
@@ -352,11 +351,6 @@
               </p:add-attribute>
             </p:when>
             <p:when test="/c:response/c:body/(.[normalize-space(.)] | c:data)">
-              <!--<cx:message>
-                <p:with-option name="message"
-                  select="'GGGGGGGGGGGG ', string-join(for $n in /c:response/c:body/* return (name($n), for $a in $n/@* return concat(name($a), '=', $a)), ' ')"
-                />
-              </cx:message>-->
               <p:store cx:decode="true">
                 <p:input port="source" select="/c:response/c:body">
                   <p:pipe port="result" step="http-request"/>
@@ -407,13 +401,6 @@
         <p:add-attribute match="/c:request" attribute-name="href">
           <p:with-option name="attribute-value" select="escape-html-uri($catalog-resolved-uri)"/>
         </p:add-attribute>
-        
-        <!--<cx:message>
-                <p:with-option name="message"
-                  select="'GGGGGGGGGGGG ', string-join(for $n in /* return (name($n), for $a in $n/@* return concat(name($a), '=', $a)), ' ')"
-                />
-              </cx:message>-->
-
         <p:try name="http-request-check">
           <p:group>
             <p:output port="result" primary="true"/>
@@ -509,6 +496,7 @@
         <tr:file-uri name="resolved-uri">
           <p:with-option name="filename" select="resolve-uri($catalog-resolved-uri, /c:result/@local-href)"/>
         </tr:file-uri>
+        <tr:unescape-uri attribute-names="os-path"/>
       </p:otherwise>
     </p:choose>
   </p:group>
@@ -516,5 +504,10 @@
   <p:add-attribute name="lastpath" attribute-name="lastpath" match="/*">
     <p:with-option name="attribute-value" select="replace(/*/@local-href, '^.+/([^/]+)/*$', '$1')"/>
   </p:add-attribute>
+  
+  <p:add-attribute name="lastpath-os" attribute-name="lastpath-os" match="/*">
+    <p:with-option name="attribute-value" select="replace(/*/@os-path, '^.+/([^/]+)/*$', '$1')"/>
+  </p:add-attribute>
+
 
 </p:declare-step>

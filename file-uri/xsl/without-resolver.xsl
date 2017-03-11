@@ -16,14 +16,13 @@
             <xsl:when test="matches($uri, '^/[^/]')">
               <xsl:sequence select="tr:uri-composer(concat('file:', $uri), '')"/>
             </xsl:when>
-            <xsl:when test="matches($uri, '^[a-z]+:', 'i')">
-              <xsl:sequence select="$uri"/>
-            </xsl:when>
             <xsl:when test="matches($uri, '^//')">
               <xsl:sequence select="$uri"/>
             </xsl:when>
             <xsl:otherwise>
-              <xsl:sequence select="replace(tr:encode-for-uri($uri), '%2F', '/')"/>
+              <!-- includes C:, file:, email: etc., but also relative paths.
+              This involves URL escaping that will be undone in order to calculate OS paths. -->
+              <xsl:sequence select="tr:uri-composer($uri, '')"/>
             </xsl:otherwise>
           </xsl:choose>
         </xsl:attribute> 

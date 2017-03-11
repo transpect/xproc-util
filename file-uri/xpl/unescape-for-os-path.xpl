@@ -8,16 +8,25 @@
   name="unescape-uri" 
   type="tr:unescape-uri">
 
-  <p:option name="uri"/>
+  <p:input port="source"><p:empty/></p:input>
+
+  <p:option name="uri" select="''"/>
+  <p:option name="attribute-names" select="''"/>
   
   <p:output port="result" primary="true">
-    <p:documentation>c:result element with the %HH-unescaped string as text content.</p:documentation>
+    <p:documentation>Dual use: If $uri is non-empty, a c:result element with the %HH-unescaped $uri string as text content.
+    If $uri is the empty string or if it contains only WS, then $attribute-names needs to be a space-separated string of attribute
+    names. In the latter case, there must also be a document on the source port. All attribute occurrences of the given names will 
+    be unescaped in this document.</p:documentation>
   </p:output>
   
   <p:xslt name="unescape" template-name="main">
-    <p:input port="source"><p:empty/></p:input>
+    <p:input port="source">
+      <p:pipe port="source" step="unescape-uri"/>
+    </p:input>
     <p:input port="parameters"><p:empty/></p:input>
     <p:with-param name="uri" select="$uri"/>
+    <p:with-param name="attribute-names" select="$attribute-names"/>
     <p:input port="stylesheet">
       <p:document href="../xsl/unescape-for-os-path.xsl"/>
     </p:input>
