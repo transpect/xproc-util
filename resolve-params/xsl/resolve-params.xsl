@@ -21,6 +21,12 @@
     </xsl:copy>
   </xsl:template>
   
+  <xsl:template match="*|@*">
+    <xsl:copy>
+      <xsl:apply-templates/>
+    </xsl:copy>
+  </xsl:template>
+  
   <xsl:function name="tr:resolve-param" as="xs:string*">
     <!--  *
           * This function expects a parameter value and a parameter-set. It resolves inline 
