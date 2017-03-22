@@ -50,6 +50,9 @@
           datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
           <start>
             <element name="c:param-set">
+              <optional>
+                <attribute name="xml:base"/>
+              </optional>
               <oneOrMore>
                 <element name="c:param">
                   <ref name="param.content"/>
