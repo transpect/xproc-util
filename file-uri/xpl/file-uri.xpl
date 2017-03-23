@@ -152,7 +152,6 @@
       <p:pipe port="resolver" step="file-uri"/>
     </p:input>
     <p:input port="source">
-      <p:document href=""></p:document>
       <p:pipe port="catalog" step="file-uri"/>
     </p:input>
     <p:with-param name="uri" select="if (/*/@file-separator = '\') then replace($filename, '\\', '/') else $filename"/>
