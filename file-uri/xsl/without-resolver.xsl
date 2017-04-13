@@ -13,6 +13,9 @@
       <xsl:if test="$uri">
         <xsl:attribute name="href">
           <xsl:choose>
+            <xsl:when test="matches($uri, '^xmldb:/')">
+              <xsl:sequence select="$uri"/>
+            </xsl:when>
             <xsl:when test="matches($uri, '^/[^/]')">
               <xsl:sequence select="tr:uri-composer(concat('file:', $uri), '')"/>
             </xsl:when>
