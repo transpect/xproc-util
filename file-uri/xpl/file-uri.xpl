@@ -248,7 +248,7 @@
       <p:when test="matches($catalog-resolved-uri, '^xmldb:', 'i')">
         <p:documentation>eXist db resource path</p:documentation>
         <p:add-attribute match="/*" attribute-name="local-href">
-          <p:with-option name="attribute-value" select="concat('xmldb:///', $catalog-resolved-uri)"/>
+          <p:with-option name="attribute-value" select="$catalog-resolved-uri"/>
         </p:add-attribute>
         <p:add-attribute match="/*" attribute-name="os-path">
           <p:with-option name="attribute-value" select="$catalog-resolved-uri"/>
