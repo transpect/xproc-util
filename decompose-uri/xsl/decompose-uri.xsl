@@ -13,11 +13,10 @@
         * -->
   
   <xsl:variable name="scheme-regex" select="'([\w\-\.]+):/?/?'" as="xs:string"/>
-  <xsl:variable name="user-regex" select="'([\w\-_\.]+@)?'" as="xs:string"/>
-  <xsl:variable name="host-regex" select="'([\w\-_\.]+)'" as="xs:string"/>
-  <xsl:variable name="port-regex" select="'(:\d+)?'" as="xs:string"/>
-  <xsl:variable name="authority-regex" select="concat('(', $user-regex, '', $host-regex, $port-regex, ')')" as="xs:string"/>
-  <xsl:variable name="path-regex" select="'(/[\w\-_\./]+)?'" as="xs:string"/>
+  <xsl:variable name="user-regex" select="'([\w\-_\.]+@)?'" as="xs:string?"/>
+  <xsl:variable name="host-regex" select="'([\w\-]+(\.[\w\-]+)+)?'" as="xs:string?"/>
+  <xsl:variable name="port-regex" select="'(:\d+)?'" as="xs:string?"/>
+  <xsl:variable name="path-regex" select="'([/\w\-_\./:]+)?'" as="xs:string?"/>
   <xsl:variable name="query-regex" select="'(\?[\w\-_\.&amp;=]+)?'" as="xs:string"/>
   <xsl:variable name="fragment-regex" select="'(#[\w\-_\.]+)?'" as="xs:string"/>
   
@@ -28,7 +27,8 @@
                                                 $port-regex, 
                                                 $path-regex, 
                                                 $query-regex, 
-                                                $fragment-regex)" as="xs:string"/>
+                                                $fragment-regex 
+                                                )" as="xs:string"/>
   
   <xsl:template name="main">
     <xsl:variable name="uri-components" select="tr:decompose-uri($href)"/>
@@ -48,17 +48,35 @@
     <xsl:param name="href"/>
     <xsl:analyze-string select="$href" regex="{$uri-regex}">
       <xsl:matching-substring>
-        <xsl:attribute name="scheme" select="regex-group(1)"/>
-        <xsl:attribute name="user" select="replace(regex-group(2), '@$', '')"/>
-        <xsl:attribute name="host" select="regex-group(3)"/>
-        <xsl:attribute name="port" select="replace(regex-group(4), '^:', '')"/>
-        <xsl:attribute name="path" select="regex-group(5)"/>
-        <xsl:attribute name="query" select="replace(regex-group(6), '^\?', '')"/>
-        <xsl:attribute name="fragment" select="replace(regex-group(7), '^#', '')"/>
-        <xsl:if test="regex-group(2) and regex-group(3) and regex-group(4)">
+      	<xsl:variable name="scheme" select="regex-group(1)" as="xs:string"/>
+      	<xsl:variable name="user" select="replace(regex-group(2), '@$', '')" as="xs:string?"/>
+      	<xsl:variable name="host" select="regex-group(3)" as="xs:string?"/>
+      	<xsl:variable name="port" select="replace(regex-group(5), '^:', '')" as="xs:string?"/>
+      	<xsl:variable name="path" select="regex-group(6)" as="xs:string?"/>
+        <xsl:variable name="query" select="replace(regex-group(7), '^\?', '')" as="xs:string?"/>
+        <xsl:variable name="fragment" select="replace(regex-group(8), '^#', '')" as="xs:string?"/>
+        <xsl:variable name="is-absolute" select="$scheme 
+                                                 and not($fragment) 
+                                                 and not(matches($path, '(/\.\./)|(/\./)|(//)'))" as="xs:boolean"/>
+        <xsl:variable name="is-opaque" select="$is-absolute 
+                                               and $scheme 
+                                               and not($path)" as="xs:boolean"/>
+        <xsl:attribute name="scheme" select="$scheme"/>
+        <xsl:attribute name="user" select="$user"/>
+        <xsl:attribute name="host" select="$host"/>
+        <xsl:attribute name="port" select="$port"/>
+        <xsl:attribute name="path" select="$path"/>
+        <xsl:attribute name="query" select="$query"/>
+        <xsl:attribute name="fragment" select="$fragment"/>
+        <xsl:attribute name="is-absolute" select="$is-absolute"/>
+        <xsl:attribute name="is-opaque" select="$is-opaque"/>
+        <xsl:if test="$user and $host and $port">
           <xsl:attribute name="authority" select="concat(regex-group(2), regex-group(3), regex-group(4))"/>
         </xsl:if>
       </xsl:matching-substring>
+      <xsl:non-matching-substring>
+        <xsl:message select="'## ', ."></xsl:message>
+      </xsl:non-matching-substring>
     </xsl:analyze-string>
   </xsl:function>
 </xsl:stylesheet>
