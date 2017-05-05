@@ -12,7 +12,7 @@
         * https://tools.ietf.org/html/rfc3986 
         * -->
   
-  <xsl:variable name="scheme-regex" select="'([\w\-\.]+)://'" as="xs:string"/>
+  <xsl:variable name="scheme-regex" select="'([\w\-\.]+):/?/?'" as="xs:string"/>
   <xsl:variable name="user-regex" select="'([\w\-_\.]+@)?'" as="xs:string"/>
   <xsl:variable name="host-regex" select="'([\w\-_\.]+)'" as="xs:string"/>
   <xsl:variable name="port-regex" select="'(:\d+)?'" as="xs:string"/>
