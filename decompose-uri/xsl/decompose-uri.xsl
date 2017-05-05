@@ -71,7 +71,7 @@
         <xsl:attribute name="is-absolute" select="$is-absolute"/>
         <xsl:attribute name="is-opaque" select="$is-opaque"/>
         <xsl:if test="$user and $host and $port">
-          <xsl:attribute name="authority" select="concat(regex-group(2), regex-group(3), regex-group(4))"/>
+          <xsl:attribute name="authority" select="concat(regex-group(2), regex-group(3), regex-group(5))"/>
         </xsl:if>
       </xsl:matching-substring>
       <xsl:non-matching-substring>
