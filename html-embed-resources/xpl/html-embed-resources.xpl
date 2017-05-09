@@ -44,6 +44,7 @@
     <p:documentation xmlns:html="http://www.w3.org/1999/xhtml">
       <p>expects an XHTML document</p>
     </p:documentation>
+    <p:empty/>
   </p:input>
   
   <p:input port="catalog">
@@ -65,6 +66,11 @@
     <p:documentation>Space-separated list of tokens. Available tokens are: image video script style audio object #all.
     (Question: support font as a category on its own?)</p:documentation>
   </p:option>
+  
+  <p:option name="unavailable-resource-message" select="'no'">
+    <p:documentation>When this option is set to 'yes', a message is inserted for each unavailable resource.</p:documentation>
+  </p:option>
+  
   <p:option name="debug" select="'no'"/>
   <p:option name="fail-on-error" select="'true'"/>
   
@@ -169,7 +175,7 @@
                  * -->
             
             <p:choose>
-              <p:when test="html:img|html:audio|html:video|html:script|html:object|svg:image">
+              <p:when test="html:img|html:audio|html:video|html:script|html:object|svg:image|html:picture">
                 <p:xpath-context>
                   <p:pipe port="current" step="viewport"/>
                 </p:xpath-context>
@@ -179,7 +185,12 @@
                           else replace(//c:body[1]/@content-type, '^(.+/.+);.+$', '$1')"/>
                 <p:variable name="encoding" select="//c:body/@encoding"/>
                 
-                <p:string-replace match="*[local-name() = ('img', 'audio', 'video', 'script')]/@src|html:object/@data|svg:image/@xlink:href|html:video/html:source|html:audio/@src/html:source/@src" cx:depends-on="add-xmlbase">
+                <p:string-replace match="*[local-name() = ('img', 'audio', 'video', 'script')]/@src
+                                         |html:object/@data
+                                         |svg:image/@xlink:href
+                                         |html:video/html:source/@src
+                                         |html:audio/@src
+                                         |html:picture/html:source/@srcset" cx:depends-on="add-xmlbase">
                   <p:input port="source">
                     <p:pipe port="current" step="viewport"/>
                   </p:input>
@@ -301,15 +312,28 @@
                 </p:identity>
                 
                 <p:choose>
-                  <p:when test="$debug eq 'yes'">
-                    <cx:message>
-                      <p:with-option name="message" select="'[WARNING] failed to embed file: ', $href"/>
-                    </cx:message>
+                  <p:when test="$unavailable-resource-message eq 'yes'">
+                    
+                    <p:xslt name="insert-unavailable-resource-message">
+                      <p:input port="stylesheet">
+                        <p:document href="../xsl/unavailable-resource-message.xsl"/>
+                      </p:input>
+                      <p:input port="parameters">
+                        <p:empty/>
+                      </p:input>
+                    </p:xslt>
+                    
                   </p:when>
                   <p:otherwise>
+                    
                     <p:identity/>
+                    
                   </p:otherwise>
                 </p:choose>
+                
+                <cx:message>
+                  <p:with-option name="message" select="'[WARNING] failed to embed file: ', $href"/>
+                </cx:message>
                 
               </p:otherwise>
             </p:choose>
