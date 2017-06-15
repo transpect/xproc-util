@@ -72,12 +72,9 @@
               <xsl:apply-templates mode="#current"/>
             </xsl:copy>
           </xsl:template>
-          <xsl:template match="@* | * | processing-instruction()" mode="#all" priority="-2">
+          <xsl:template match="@* | * | processing-instruction() | comment()" mode="#all" priority="-2">
             <xsl:copy>
-              <xsl:apply-templates mode="#current" select="@*">
-                <xsl:sort select="name()"/>
-              </xsl:apply-templates>
-              <xsl:apply-templates mode="#current"/>
+              <xsl:apply-templates mode="#current" select="@*, node()"/>
             </xsl:copy>
           </xsl:template>
           <xsl:template match="text()" mode="#all" priority="-1">
