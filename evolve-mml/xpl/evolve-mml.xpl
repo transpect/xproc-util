@@ -102,7 +102,7 @@
   <p:viewport match="mml:math" name="vp">
     <p:output port="result" primary="true"/>
     <p:variable name="outfile" select="'ltx-created-eq-', */@position"/>
-    <p:variable name="debug-uri" select="concat($debug-dir-uri, if (not(matches($debug-dir-uri, '/$'))) return '/', 'evolve-mml/formula', */@position)"></p:variable>
+    <p:variable name="debug-uri" select="concat($debug-dir-uri, if (matches($debug-dir-uri, '/$')) then '' else '/', 'evolve-mml/formula', */@position)"></p:variable>
     
     <tr:store-debug name="mml" pipeline-step="math">
       <p:with-option name="active" select="$debug"/>
