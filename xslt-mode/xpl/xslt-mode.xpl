@@ -30,6 +30,7 @@
   <p:option name="debug-dir-uri" required="true"/>
   <p:option name="status-dir-uri" select="concat(replace($debug-dir-uri, '^(.+)\?.*$', '$1'), '/status')"/>
   <p:option name="fail-on-error" select="'no'"/>
+  <p:option name="store-secondary" select="'yes'"/>
   <p:option name="adjust-doc-base-uri" select="'yes'">
     <p:documentation>Whether to set the output base uri to what’s set as base-uri(/*) via @xml:base attribute.
     Otherwise, the output base uri will be taken from the input. This was the defaul behavior before
@@ -133,18 +134,28 @@
         </p:otherwise>
       </p:choose>
 
-      
-
       <p:sink/>
       
-      <p:for-each>
-        <p:iteration-source>
-          <p:pipe step="xslt" port="secondary"/>
-        </p:iteration-source>
-        <p:store indent="true" omit-xml-declaration="false">
-          <p:with-option name="href" select="base-uri()"/>
-        </p:store>
-      </p:for-each>
+      <p:choose>
+        <p:when test="$store-secondary = ('yes', 'true')">
+          <p:for-each>
+            <p:iteration-source>
+              <p:pipe step="xslt" port="secondary"/>
+            </p:iteration-source>
+            <p:store indent="true" omit-xml-declaration="false">
+              <p:with-option name="href" select="base-uri()"/>
+            </p:store>
+          </p:for-each>    
+        </p:when>
+        <p:otherwise>
+          <p:identity>
+            <p:input port="source">
+              <p:empty/>
+            </p:input>
+          </p:identity>
+          <p:sink/>
+        </p:otherwise>
+      </p:choose>
       
       <tr:prepend-xml-model>
         <p:input port="source">
