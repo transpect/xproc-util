@@ -13,13 +13,13 @@
     Extends the pxp:zip step to check whether all in a manifest referenced items are available.
   </p:documentation>
   
-	<p:input port="source">
+	<p:input port="source" primary="true">
 	  <p:documentation>A zip manifest</p:documentation>
 	</p:input>
   
-   <p:output port="result">
- 	  <p:pipe port="result" step="zipping"/>
- 	</p:output>
+  <p:output port="result">
+    <p:pipe port="result" step="zipping"/>
+  </p:output>
   
  	<p:output port="report" sequence="true">
  	  <p:pipe port="result" step="wrap-missing-zip-file-errors"/>
