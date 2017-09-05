@@ -22,7 +22,7 @@
   
   <xsl:template name="analyze">
     <xsl:param name="string" as="xs:string"/>
-    <xsl:analyze-string select="$string" regex="&lt;\?(\i\c*)(\s+(.+?))?\?>">
+    <xsl:analyze-string select="$string" regex="&lt;\?(\i\c*)(\s+(.+?))?\?>" flags="s">
       <xsl:matching-substring>
         <xsl:if test="not(matches(regex-group(1), '^xml$', 'i'))">
           <xsl:processing-instruction name="{regex-group(1)}" select="regex-group(3)"/>  
