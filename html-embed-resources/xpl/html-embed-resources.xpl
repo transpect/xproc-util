@@ -121,7 +121,7 @@
         be specified in the p:viewport match attribute because options and variables seem to be inaccessible there.</p:documentation>
         <p:identity/>
       </p:when>
-      <p:when test="not(starts-with($href-attribute, 'data:'))">
+      <p:when test="normalize-space($href-attribute) and not(starts-with($href-attribute, 'data:'))">
         
         <p:try>
           <p:group>
