@@ -64,7 +64,7 @@
               <p:when test="not($include-filter = '')
                             and not($exclude-filter = '')">
                 <tr:recursive-directory-list>
-                  <p:with-option name="path" select="concat($path,'/',$name)"/>
+                  <p:with-option name="path" select="concat($path,'/'[not(ends-with($path, '/'))],$name)"/>
                   <p:with-option name="include-filter" select="$include-filter"/>
                   <p:with-option name="exclude-filter" select="$exclude-filter"/>
                   <p:with-option name="depth" select="$depth - 1"/>
@@ -73,7 +73,7 @@
 
               <p:when test="not($include-filter = '')">
                 <tr:recursive-directory-list>
-                  <p:with-option name="path" select="concat($path,'/',$name)"/>
+                  <p:with-option name="path" select="concat($path,'/'[not(ends-with($path, '/'))],$name)"/>
                   <p:with-option name="include-filter" select="$include-filter"/>
                   <p:with-option name="depth" select="$depth - 1"/>
                 </tr:recursive-directory-list>
@@ -81,7 +81,7 @@
 
               <p:when test="not($exclude-filter = '')">
                 <tr:recursive-directory-list>
-                  <p:with-option name="path" select="concat($path,'/',$name)"/>
+                  <p:with-option name="path" select="concat($path,'/'[not(ends-with($path, '/'))],$name)"/>
                   <p:with-option name="exclude-filter" select="$exclude-filter"/>
                   <p:with-option name="depth" select="$depth - 1"/>
                 </tr:recursive-directory-list>
@@ -89,7 +89,7 @@
 
               <p:otherwise>
                 <tr:recursive-directory-list>
-                  <p:with-option name="path" select="concat($path,'/',$name)"/>
+                  <p:with-option name="path" select="concat($path,'/'[not(ends-with($path, '/'))],$name)"/>
                   <p:with-option name="depth" select="$depth - 1"/>
                 </tr:recursive-directory-list>
               </p:otherwise>
