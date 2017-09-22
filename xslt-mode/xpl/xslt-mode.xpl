@@ -183,7 +183,8 @@
       </p:output>
       <p:output port="secondary" primary="false" sequence="true"/>
       
-      <tr:propagate-caught-error name="forward-error" fail-on-error="no" rule-family="Internal" severity="fatal-error">
+      <tr:propagate-caught-error name="forward-error" fail-on-error="no" rule-family="Internal" severity="fatal-error"
+        step-type="tr:xslt-mode">
         <p:input port="source">
           <p:pipe port="error" step="catch"/>
         </p:input>
