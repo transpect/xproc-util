@@ -106,9 +106,10 @@
 
   <p:declare-step type="tr:propagate-caught-error" name="propagate-caught-error">
   	
-  	<p:documentation xmlns="http://www.w3.org/1999/xhtml">
-  		<p>This step redirects an error to a status text file and prints a <code>cx:message</code>. If option <code>fail-on-error</code> is set to <code>true</code>, the error is reproduced with an attached error code.</p>
-  	</p:documentation>
+    <p:documentation xmlns="http://www.w3.org/1999/xhtml">
+      <p>This step redirects an error to a status text file and prints a <code>cx:message</code>. If option
+          <code>fail-on-error</code> is set to <code>true</code>, the error is reproduced with an attached error code.</p>
+    </p:documentation>
   	
     <p:input port="source" primary="true">
     	<p:documentation xmlns="http://www.w3.org/1999/xhtml">
@@ -122,7 +123,7 @@
     		<h3>Output port: <code>result</code></h3>
     		<p>If option <code>fail-on-error</code> is not set to <code>true</code>, then the output is a <code>c:errors</code> document. Additionally, two attributes are attached:</p>
     		<ul>
-    			<li><code>type</code>: severity of the error</li>
+    			<li><code>role</code>: severity of the error</li>
     			<li><code>code</code>: error code</li>
     		</ul>
     	</p:documentation>
@@ -148,12 +149,20 @@
     		<p>Sets the error code, that is attached as code attribute to the <code>c:errors</code> document.</p>
     	</p:documentation>
     </p:option>
+    
+    <p:option name="step-type" required="false">
+  		<p:documentation xmlns="http://www.w3.org/1999/xhtml">
+  			<h3>Option: <code>step-type</code></h3>
+  			<p>The name of the step in which the error occurred. More diagnostic information may be provided 
+  			in the message itself (that may contain almost arbitrary elements).</p>
+  		</p:documentation>
+  	</p:option>
   	
     <p:option name="severity" required="false" select="'fatal-error'">
-    	<p:documentation xmlns="http://www.w3.org/1999/xhtml">
-    		<h3>Option: <code>severity</code></h3>
-    		<p>Sets the severity, that is attached as type attribute to the <code>c:errors</code> document.</p>
-    	</p:documentation>
+      <p:documentation xmlns="http://www.w3.org/1999/xhtml">
+        <h3>Option: <code>severity</code></h3>
+        <p>Sets the severity, that is attached as role attribute to the <code>c:errors</code> document.</p>
+      </p:documentation>
     </p:option>
   	
     <p:option name="msg-file" required="false" select="'unspecified-error.txt'">
@@ -218,7 +227,18 @@
       <p:with-option name="attribute-value" select="$code"/>
     </p:add-attribute>
     
-    <p:add-attribute name="add-severity" attribute-name="type" match="/c:errors/c:error[last()]">
+    <p:choose>
+      <p:when test="p:value-available('step-type')">
+        <p:add-attribute name="add-step-type" attribute-name="type" match="/c:errors/c:error[last()]">
+          <p:with-option name="attribute-value" select="$step-type"/>
+        </p:add-attribute>    
+      </p:when>
+      <p:otherwise>
+        <p:identity/>
+      </p:otherwise>
+    </p:choose>
+    
+    <p:add-attribute name="add-severity" attribute-name="role" match="/c:errors/c:error[last()]">
       <p:with-option name="attribute-value" select="$severity"/>
     </p:add-attribute>
     
