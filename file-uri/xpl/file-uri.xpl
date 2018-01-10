@@ -96,6 +96,11 @@
   <p:option name="tmpdir" required="false" select="''">
     <p:documentation>URI or OS name of a directory for storing files retrieved via HTTP.</p:documentation>
   </p:option>
+  <p:option name="use-filename-from-http-response" required="false" select="'yes'">
+    <p:documentation>Use filename that is passed on from http request response instead of 
+    possible filename read from URL (for example when using Gdocs URLs:
+    https://docs.google.com/document/d/1Z5eYyjLoRhB24HYZ-d-wQKAFD3QDWZUsQH4cKHs2eiM/export?format=docx)</p:documentation>
+  </p:option>
 
   <p:input port="source" primary="true">
     <p:documentation>Just to prevent that the default readable port will be connected to the catalog or resolver
@@ -286,10 +291,46 @@
             <p:pipe port="result" step="info"/>
           </p:with-option>
         </tr:file-uri>
+        
+        <p:identity>
+            <p:input port="source">
+              <p:inline>
+                <c:request method="GET" detailed="true"/>
+              </p:inline>
+            </p:input>
+          </p:identity>
+
+        <p:add-attribute match="/c:request" attribute-name="href">
+          <p:with-option name="attribute-value" select="$catalog-resolved-uri"/>
+        </p:add-attribute>
+          
+
+        <p:try name="http-request">
+          <p:group>
+            <p:output port="result" primary="true"/>
+            <p:http-request />
+          </p:group>
+          <p:catch>
+            <p:output port="result" primary="true"/>
+            <p:identity>
+              <p:input port="source">
+                <p:inline>
+                  <c:response status="999"/>
+                </p:inline>
+              </p:input>
+            </p:identity>
+          </p:catch>
+        </p:try>
 
         <p:group>
           <p:variable name="tmp-dir-href" select="/c:result/@local-href">
             <p:pipe port="result" step="tmp-dir"/>
+          </p:variable>
+
+           <p:variable name="filename" select="replace(c:response/c:header[@name='Content-Disposition']/@value,
+                                             '^.*filename=&#34;(.*)&#34;;.*$',
+                                             '$1')">
+                  <p:pipe port="result" step="http-request"/>
           </p:variable>
 
           <p:add-attribute attribute-name="local-href" match="/*" name="local-href">
@@ -299,48 +340,28 @@
             <p:with-option name="attribute-value"
               select="concat(
                             $tmp-dir-href, 
-                            replace(
+                             if ($use-filename-from-http-response = 'yes') 
+                            then $filename
+                            else
+                            concat(replace(
                               replace($catalog-resolved-uri, '^.+/', ''),
                               '(.+?)([.?#].+)?', 
                               '$1'
                             ),
                             if ($make-unique = 'true') then concat('_', substring(/*/@uuid, 1, 8)) else '',
-                            replace(replace(replace($catalog-resolved-uri, '^.+/', ''), '^[^?#.]+', ''), '[?#].*$', '')
+                            replace(replace(replace($catalog-resolved-uri, '^.+/', ''), '^[^?#.]+', ''), '[?#].*$', ''))
                           )">
               <p:pipe port="result" step="uuid"/>
             </p:with-option>
           </p:add-attribute>
 
           <p:sink/>
-
+          
           <p:identity>
             <p:input port="source">
-              <p:inline>
-                <c:request method="GET" detailed="true"/>
-              </p:inline>
+              <p:pipe port="result" step="http-request"/>
             </p:input>
           </p:identity>
-
-          <p:add-attribute match="/c:request" attribute-name="href">
-            <p:with-option name="attribute-value" select="$catalog-resolved-uri"/>
-          </p:add-attribute>
-
-          <p:try name="http-request">
-            <p:group>
-              <p:output port="result" primary="true"/>
-              <p:http-request />
-            </p:group>
-            <p:catch>
-              <p:output port="result" primary="true"/>
-              <p:identity>
-                <p:input port="source">
-                  <p:inline>
-                    <c:response status="999"/>
-                  </p:inline>
-                </p:input>
-              </p:identity>
-            </p:catch>
-          </p:try>
 
           <p:choose name="store-http-resource">
             <p:when test="not(starts-with(/c:response/@status, '2'))">
@@ -361,17 +382,39 @@
               </p:add-attribute>
             </p:when>
             <p:when test="/c:response/c:body/(.[normalize-space(.)] | c:data)">
-              <p:store cx:decode="true">
+                
+              <p:add-attribute  match="/doc" attribute-name="filename" name="filename">
+                <p:with-option name="attribute-value" 
+                  select="replace(c:response/c:header[@name='Content-Disposition']/@value,
+                  '^.*filename=&#34;(.*)&#34;;.*$',
+                  '$1')">
+                  <p:pipe port="result" step="http-request"/>
+                </p:with-option>
+                <p:input port="source">
+                  <p:pipe port="result" step="local-href"/>
+                </p:input>
+              </p:add-attribute>
+              
+             <!--<p:store cx:decode="true">
+                <p:input port="source" select="/c:response">
+                  <p:pipe port="result" step="http-request"/>
+                </p:input>
+                <p:with-option name="href" select="'response.txt'">
+                  <p:pipe port="result" step="local-href"/>
+                </p:with-option>
+              </p:store>-->
+
+                <p:store cx:decode="true">
                 <p:input port="source" select="/c:response/c:body">
                   <p:pipe port="result" step="http-request"/>
                 </p:input>
                 <p:with-option name="href" select="/doc/@local-href">
-                  <p:pipe port="result" step="local-href"/>
+                     <p:pipe port="result" step="filename"/>
                 </p:with-option>
               </p:store>
               <tr:file-uri name="http-to-local-result_binary">
                 <p:with-option name="filename" select="/doc/@local-href">
-                  <p:pipe port="result" step="local-href"/>
+                    <p:pipe port="result" step="filename"/>
                 </p:with-option>
               </tr:file-uri>
             </p:when>
