@@ -96,7 +96,7 @@
   <p:option name="tmpdir" required="false" select="''">
     <p:documentation>URI or OS name of a directory for storing files retrieved via HTTP.</p:documentation>
   </p:option>
-  <p:option name="use-filename-from-http-response" required="false" select="'yes'">
+  <p:option name="use-filename-from-http-response" required="false" select="'no'">
     <p:documentation>Use filename that is passed on from http request response instead of 
     possible filename read from URL (for example when using Gdocs URLs:
     https://docs.google.com/document/d/1Z5eYyjLoRhB24HYZ-d-wQKAFD3QDWZUsQH4cKHs2eiM/export?format=docx)</p:documentation>
@@ -285,7 +285,7 @@
         </p:uuid>
 
         <p:sink/>
-
+        
         <tr:file-uri name="tmp-dir">
           <p:with-option name="filename" select="($tmpdir[normalize-space()], concat(/c:result/@user-home, '/tmp/'))[1]">
             <p:pipe port="result" step="info"/>
