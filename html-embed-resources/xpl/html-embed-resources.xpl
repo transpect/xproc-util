@@ -66,6 +66,10 @@
     <p:documentation>Space-separated list of tokens. Available tokens are: image video script style audio object #all.
     (Question: support font as a category on its own?)</p:documentation>
   </p:option>
+
+  <p:option name="max-base64-encoded-size-kb" select="1000">
+      <p:documentation>If this limit in KiloByte is exceeded, the resource will not be embedded.</p:documentation>
+  </p:option>
   
   <p:option name="unavailable-resource-message" select="'no'">
     <p:documentation>When this option is set to 'yes', a message is inserted for each unavailable resource.</p:documentation>
@@ -165,6 +169,32 @@
             </p:add-attribute>
             
             <p:http-request name="http-request"/>
+            
+            <p:choose name="test-for-max-file-size">
+              <p:variable name="base64-str-size" select="string-length(//c:body[1]) * 4 div 3 div 1000"/>
+              <p:when test="xs:float($base64-str-size) &gt; xs:float($max-base64-encoded-size-kb)">
+                
+                <cx:message>
+                  <p:with-option name="message" select="'[WARNING] base64 encoded string size (', 
+                                                        round-half-to-even($base64-str-size, 2) , 
+                                                        ') exceeds limit of ', $max-base64-encoded-size-kb, ' KB: ', $href"/>
+                </cx:message>
+                
+                <p:sink/>
+                
+                <p:identity>
+                  <p:input port="source">
+                    <p:pipe port="current" step="viewport"/>
+                  </p:input>
+                </p:identity>
+                
+              </p:when>
+              <p:otherwise>
+                
+                <p:identity/>
+                
+              </p:otherwise>
+            </p:choose>
             
             <p:add-attribute attribute-name="xml:base" name="add-xmlbase" match="//c:body" cx:depends-on="http-request">
               <p:with-option name="attribute-value" select="$href"/>
