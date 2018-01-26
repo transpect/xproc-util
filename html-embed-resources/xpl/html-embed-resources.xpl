@@ -175,7 +175,7 @@
               <p:when test="xs:float($base64-str-size) &gt; xs:float($max-base64-encoded-size-kb)">
                 
                 <cx:message>
-                  <p:with-option name="message" select="'[WARNING] base64 encoded string size (', 
+                  <p:with-option name="message" select="'[WARNING] File not embedded. Base64 encoded string size (', 
                                                         round-half-to-even($base64-str-size, 2) , 
                                                         ') exceeds limit of ', $max-base64-encoded-size-kb, ' KB: ', $href"/>
                 </cx:message>
