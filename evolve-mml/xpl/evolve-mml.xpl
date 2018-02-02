@@ -50,6 +50,8 @@
   <p:option name="fail-on-error" required="false" select="'no'"/>
   <p:option name="debug" required="false" select="'no'"/>
   <p:option name="debug-dir-uri" select="'debug'"/>
+  <p:option name="texmap" select="'http://transpect.io/mml2tex/texmap/texmap.xml'"/>
+  <p:option name="texmap-upgreek" select="'http://transpect.io/mml2tex/texmap/texmap-upgreek.xml'"/>
 
   <p:output port="result" primary="true"/>
   
@@ -111,6 +113,8 @@
       <p:input port="conf">
         <p:pipe port="conf" step="evolve-mml"/>
       </p:input>
+      <p:with-option name="texmap-uri" select="$texmap"/>
+      <p:with-option name="texmap-upgreek-uri" select="$texmap-upgreek"/>
       <p:with-option name="debug" select="$debug"/>
       <p:with-option name="debug-dir-uri" select="$debug-uri"/>
       <p:with-option name="preprocessing" select="'no'"/>
