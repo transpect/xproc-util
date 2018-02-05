@@ -48,6 +48,7 @@
     </p:documentation>
   </p:option>
   <p:option name="fail-on-error" required="false" select="'no'"/>
+  <p:option name="preprocessing" required="false" select="'no'"/>
   <p:option name="debug" required="false" select="'no'"/>
   <p:option name="debug-dir-uri" select="'debug'"/>
   <p:option name="texmap" select="'http://transpect.io/mml2tex/texmap/texmap.xml'"/>
@@ -117,7 +118,7 @@
       <p:with-option name="texmap-upgreek-uri" select="$texmap-upgreek"/>
       <p:with-option name="debug" select="$debug"/>
       <p:with-option name="debug-dir-uri" select="$debug-uri"/>
-      <p:with-option name="preprocessing" select="'no'"/>
+      <p:with-option name="preprocessing" select="$preprocessing"/>
       <p:with-option name="fail-on-error" select="$fail-on-error"/>
     </mml2tex:convert>
     <p:unwrap name="tex" match="tex"/>
