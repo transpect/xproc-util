@@ -1,0 +1,1 @@
+This step allows you to send mail. Plese note that the libraries that are distributed with [calabash-frontend](https://github.com/transpect/calabash-frontend/tree/master/extensions/calabash/lib), namely javax.mail.jar and xmlcalabash1-sendmail-1.1.4.jar, need to be on the classpath.
