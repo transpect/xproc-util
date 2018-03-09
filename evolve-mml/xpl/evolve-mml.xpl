@@ -39,13 +39,16 @@
         <dt>Output the input MathML without modifications.</dt>
         <dd>img</dd>
         <dt>
-          Output a (inline)mediaobject with imagedata/@fileref pointing to 'ltx-created-eq-1.gif', where 1 is the position of the math-element.
+          Output a (inline)mediaobject with imagedata/@fileref pointing to 'ltx-created-eq-1.gif' (or other declared file extension), where 1 is the position of the math-element.
           The .tex and .mml files will be written to the folder specified by 'output-dir' so the .gif can be created from them afterwards.
         </dt>
         <dd>tex</dd>
         <dt>Output a processing-instruction named mml2tex, containing the TeX-formula converted by mml2tex.</dt>
       </dl>
     </p:documentation>
+  </p:option>
+  <p:option name="extension" required="false" select="'gif'">
+    <p:documentation>Image extension for generated mediaobjects</p:documentation>
   </p:option>
   <p:option name="fail-on-error" required="false" select="'no'"/>
   <p:option name="preprocessing" required="false" select="'no'"/>
@@ -203,7 +206,7 @@
         <p:empty/>
       </p:input>
       <p:with-param name="type" select="$type"/>
-      <p:with-param name="outfile" select="$outfile, '.gif'"/>
+      <p:with-param name="outfile" select="$outfile, '.', $extension"/>
     </p:xslt>
     
     <tr:store-debug name="output" pipeline-step="converted">
