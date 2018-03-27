@@ -7,6 +7,7 @@
   xmlns:idml2xml="http://transpect.io/idml2xml"
   xmlns:docx2hub="http://transpect.io/docx2hub"
   xmlns:hub2tei="http://transpect.io/hub2tei"
+  xmlns:tei2hub="http://transpect.io/tei2hub"
   xmlns:html2hub="http://transpect.io/html2hub"
   xmlns:ttt="http://transpect.io/tokenized-to-tree"
   xmlns:hub="http://transpect.io/hub"
