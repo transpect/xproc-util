@@ -20,6 +20,15 @@
     </p:documentation>
   </p:option>
   
+  <p:option name="dtd-validate" select="'false'">
+    <p:documentation xmlns="http://www.w3.org/1999/xhtml">
+      <h3>Option: <code>dtd-validate</code></h3>
+      <p>Validate with the declared DTD. Please ensure that the XML DTD reference 
+        can be properly resolved. Use your XML catalog to rewrite either the system id 
+        or the public id of the DTD to a URI.</p>
+    </p:documentation>
+  </p:option>
+  
   <p:option name="fail-on-error" select="'yes'">
     <p:documentation xmlns="http://www.w3.org/1999/xhtml">
       <h3>Option: <code>fail-on-error</code></h3>
@@ -39,6 +48,7 @@
   <!--  *
         * retrieve the absolute URI from the file path
         * -->
+  
   <tr:file-uri name="retrieve-absolute-file-uri-href">
     <p:with-option name="filename" select="$href"/>
   </tr:file-uri>
@@ -55,7 +65,9 @@
         <p:with-option name="href" select="$absolute-file-uri-href">
           <p:pipe port="result" step="retrieve-absolute-file-uri-href"/>
         </p:with-option>
+        <p:with-option name="dtd-validate" select="$dtd-validate"/>
       </p:load>
+      
       
     </p:group>
     <!--  *
