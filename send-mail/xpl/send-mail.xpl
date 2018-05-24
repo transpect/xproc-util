@@ -11,6 +11,7 @@
   type="tr:mailing">
   
   <p:input port="source"><p:empty/></p:input>
+  <p:input port="attachments" sequence="true"><p:empty/></p:input>
   <p:output port="result" primary="true" sequence="true"/>
   
   <p:option name="from" required="true"/>
@@ -66,7 +67,13 @@
     </p:input>
   </p:xslt>
   
-  <cx:send-mail/>
+  <p:sink/>
   
+  <cx:send-mail>
+    <p:input port="source">
+      <p:pipe port="result" step="create-mail"/>
+      <p:pipe port="attachments" step="mailing"/>
+    </p:input>
+  </cx:send-mail>
   
 </p:declare-step>
