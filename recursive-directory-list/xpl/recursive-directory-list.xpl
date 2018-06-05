@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <p:declare-step xmlns:p="http://www.w3.org/ns/xproc" version="1.0"
   xmlns:cxf="http://xmlcalabash.com/ns/extensions/fileutils"
+  xmlns:cx="http://xmlcalabash.com/ns/extensions"
   xmlns:c="http://www.w3.org/ns/xproc-step"
   xmlns:tr="http://transpect.io"
   type="tr:recursive-directory-list">
@@ -27,6 +28,9 @@
 
   <p:choose>
     <p:when test="/c:directory">
+<!--<cx:message>
+<p:with-option name="message" select="/*/@*"/>
+</cx:message>-->
       <p:choose>
         <p:when test="not($include-filter = '')
                       and not($exclude-filter = '')">
@@ -80,6 +84,9 @@
               </p:when>
 
               <p:when test="not($exclude-filter = '')">
+<!-- <cx:message> -->
+<!-- <p:with-option name="message" select="'DDDD', concat($path,'/'[not(ends-with($path, '/'))],$name)"/> -->
+<!-- </cx:message> -->
                 <tr:recursive-directory-list>
                   <p:with-option name="path" select="concat($path,'/'[not(ends-with($path, '/'))],$name)"/>
                   <p:with-option name="exclude-filter" select="$exclude-filter"/>
