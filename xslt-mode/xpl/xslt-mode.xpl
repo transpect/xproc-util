@@ -29,6 +29,7 @@
   <p:option name="msg" required="false" select="'no'"/>
   <p:option name="debug" required="false" select="'no'"/>
   <p:option name="debug-dir-uri" required="true"/>
+  <p:option name="debug-indent" required="false" select="'true'"/>
   <p:option name="status-dir-uri" select="concat(replace($debug-dir-uri, '^(.+)\?.*$', '$1'), '/status')"/>
   <p:option name="fail-on-error" select="'no'"/>
   <p:option name="store-secondary" select="'yes'"/>
@@ -171,7 +172,8 @@
       <tr:store-debug>
         <p:with-option name="pipeline-step" select="$debug-file-name"/>
         <p:with-option name="active" select="$debug" />
-        <p:with-option name="base-uri" select="$debug-dir-uri" />
+        <p:with-option name="base-uri" select="$debug-dir-uri"/>
+        <p:with-option name="indent" select="$debug-indent"/>
       </tr:store-debug>
       
     </p:group>
