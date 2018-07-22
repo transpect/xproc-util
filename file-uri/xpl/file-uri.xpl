@@ -203,6 +203,22 @@
     <p:variable name="catalog-resolved-uri" select="/c:result/@href"/>
 
     <p:choose name="analyze-filename">
+      <p:when test="matches($catalog-resolved-uri, '^jar:')">
+        <p:documentation>We should analyze what comes next. Currently we just assume that a file: URI will follow.
+        What should be the content of @os-path? We skip @os-path altogether for the time being.</p:documentation>
+        <p:add-attribute attribute-name="local-href" match="/*">
+          <p:with-option name="attribute-value" select="$catalog-resolved-uri"/>
+          <p:input port="source">
+            <p:inline>
+              <c:result/>
+            </p:inline>
+          </p:input>
+        </p:add-attribute>
+        <p:add-attribute attribute-name="href" match="/*">
+          <p:with-option name="attribute-value" select="$catalog-resolved-uri"/>
+        </p:add-attribute>
+      </p:when>
+      
       <p:when test="matches($catalog-resolved-uri, '^file://///[^/]')">
         <p:documentation>Windows UNC path URI. file:///// → \\ .</p:documentation>
         <p:add-attribute attribute-name="local-href" match="/*">
