@@ -25,7 +25,7 @@
  	  <p:pipe port="result" step="wrap-missing-zip-file-errors"/>
  	</p:output>
   
-  <p:option name="debug" select="'yes'"/>
+  <p:option name="debug" select="'no'"/>
   <p:option name="debug-dir-uri" select="'debug'"/>
   <p:option name="command" select="'create'" required="false"/>
   <p:option name="compression-method" select="'deflated'" required="false"/>
