@@ -16,6 +16,9 @@
             <xsl:when test="matches($uri, '^xmldb:/')">
               <xsl:sequence select="$uri"/>
             </xsl:when>
+            <xsl:when test="matches($uri, '^jar:')">
+              <xsl:sequence select="$uri"/>
+            </xsl:when>
             <xsl:when test="matches($uri, '^/[^/]')">
               <xsl:sequence select="tr:uri-composer(concat('file:', $uri), '')"/>
             </xsl:when>
