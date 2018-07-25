@@ -163,7 +163,7 @@
               </p:with-option>
               <p:input port="source">
                 <p:inline>
-                  <c:request method="GET" detailed="false"/>
+                  <c:request method="GET" detailed="true"/>
                 </p:inline>
               </p:input>
             </p:add-attribute>
@@ -276,8 +276,11 @@
                       <p:add-attribute attribute-name="href" match="/c:request" name="construct-http-request-css">
                         <p:with-option name="attribute-value" select="$data-uri"/>
                         <p:input port="source">
+                          <p:documentation>We request it as application/octet-stream so that we are certain that it will be
+                            base64 encoded, even if it were SVG or the like. (When reading resources from a Jar, we received
+                          SVG as XML here, as opposed to when reading from file system – strange.))</p:documentation>
                           <p:inline>
-                            <c:request method="GET" detailed="false"/>
+                            <c:request method="GET" detailed="true" override-content-type="application/octet-stream"/>
                           </p:inline>
                         </p:input>
                       </p:add-attribute>
