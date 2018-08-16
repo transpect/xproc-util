@@ -60,8 +60,7 @@
       </p:choose>
 
       <p:viewport match="/c:directory/c:directory">
-        <p:variable name="name" select="/*/@name"/>
-
+        <p:variable name="name" select="encode-for-uri(/*/@name)"/>
         <p:choose>
           <p:when test="$depth != 0">
             <p:choose>
