@@ -7,8 +7,8 @@
   xmlns:tr="http://transpect.io"
   xmlns:xe="http://degruyter.com/xmlns/xml2epub"
   version="1.0"
-  name="imagemagick.xpl"
-  type="tr:imagemagick.xpl">
+  name="imagemagick"
+  type="tr:imagemagick">
   
   <p:documentation>
     This is an XProc wrapper for ImageMagick. The ImageMagick executable 
