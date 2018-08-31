@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <catalog xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog">
   
-  <rewriteURI uriStartString="http://transpect.io/unwrap-mml/" rewritePrefix="../"/>
   <rewriteURI uriStartString="http://transpect.io/xproc-util/unwrap-mml/" rewritePrefix="../"/>
     
 </catalog>
