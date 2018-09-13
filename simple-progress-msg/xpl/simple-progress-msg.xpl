@@ -82,6 +82,9 @@
         <p:variable name="lang" select="replace(p:system-property('p:language'), '[-].+$', '')">
           <p:empty/>
         </p:variable>
+        <p:variable name="status-dir-uri-without-query-string" select="replace($status-dir-uri, '\?.*$', '')">
+          <p:empty/>
+        </p:variable>
     
         <p:xslt>
           <p:input port="source">
@@ -111,7 +114,8 @@
         </p:xslt>
     
         <p:store method="text">
-          <p:with-option name="href" select="concat($status-dir-uri, '/', concat(p:system-property('p:episode'), '_', $file))"/>
+          <p:with-option name="href" 
+            select="concat($status-dir-uri-without-query-string, '/', concat(p:system-property('p:episode'), '_', $file))"/>
         </p:store>
         
       </p:otherwise>
