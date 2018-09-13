@@ -14,10 +14,13 @@
   <p:declare-step type="tr:simple-progress-msg" name="progress-msg">
   	
   	<p:documentation xmlns="http://www.w3.org/1999/xhtml">
-  		<p>This step stores status messages as plain text files and prints them to the standard output. The step can be used everywhere in your pipeline. The input will be simply forwarded to the output without any transformations.</p>
-  		<p>The input port entitled "msgs" expects a <code>c:message</code> XML document. The status messages must be wrapped in <code>c:message</code> elements.</p>
-  		<p>For localized messages, you can use multiple <code>c:message</code> elements each including a <code>xml:lang</code> attribute. The attribute value must 
-  			be a language code according to ISO 639-1.</p>
+  		<p>This step stores status messages as plain text files and prints them to the standard output (GI 2018-09-13: The 
+  		  latter doesn’t seem to be true). The step can be used everywhere in your pipeline. The input will be simply forwarded 
+  		  to the output without any transformations.</p>
+  		<p>The input port entitled "msgs" expects a <code>c:message</code> XML document. The status messages must be wrapped 
+  		  in <code>c:message</code> elements.</p>
+  		<p>For localized messages, you can use multiple <code>c:message</code> elements each including a <code>xml:lang</code> 
+  		  attribute. The attribute value must be a language code according to ISO 639-1.</p>
   		<pre><code>&lt;tr:simple-progress-msg file="trdemo-paths.txt">
   &lt;p:input port="msgs">
     &lt;p:inline>
@@ -29,6 +32,8 @@
   &lt;/p:input>
   &lt;p:with-option name="status-dir-uri" select="$status-dir-uri"/>
 &lt;/tr:simple-progress-msg></code></pre>
+  	  <p>Sometimes you might want to switch off storing of messages altogether. You can do this by appending
+  	  '?enabled=false' to the URI.</p>
   	</p:documentation>
 
     <p:input port="source" primary="true" sequence="true">
@@ -60,48 +65,58 @@
     	</p:documentation>
     </p:option>
   	
-    <p:option name="status-dir-uri" select="'status'">
+    <p:option name="status-dir-uri" select="'status?enabled=false'">
     	<p:documentation xmlns="http://www.w3.org/1999/xhtml">
     		<h3>Option: <code>status-dir-uri</code></h3>
-    		<p>This option expects an URI. The file (see option above) is saved to this URI.</p>    		
+    		<p>This option expects a file: URI. The localized message is saved to this URI as text.</p>
+    	  <p>Optionally add '?enabled=false' to the URI in order to deactivate this storage. It can be useful
+    	  for situations in which a writable directory cannot be taken for granted.</p>
     	</p:documentation>
     </p:option>
-
-    <p:variable name="lang" select="replace(p:system-property('p:language'), '[-].+$', '')">
-      <p:empty/>
-    </p:variable>
-
-    <p:xslt>
-      <p:input port="source">
-        <p:pipe port="msgs" step="progress-msg"/>
-      </p:input>
-      <p:input port="parameters">
-        <p:empty/>
-      </p:input>
-      <p:with-param name="lang" select="$lang">
-        <p:empty/>
-      </p:with-param>
-
-      <p:input port="stylesheet">
-        <p:inline>
-          <xsl:stylesheet version="2.0">
-            <xsl:param name="lang" as="xs:string"/>
-            <xsl:param name="basename" select="''"/>
-            <xsl:template match="/">
-              <c:message>
-                <xsl:value-of
-                  select="replace((//c:message[@xml:lang eq $lang], //c:message)[1], '(.)[&#xa;&#xd;]*$', '$1&#xa;')"/>
-              </c:message>
-            </xsl:template>
-          </xsl:stylesheet>
-        </p:inline>
-      </p:input>
-    </p:xslt>
-
-    <p:store method="text">
-      <p:with-option name="href" select="concat($status-dir-uri, '/', concat(p:system-property('p:episode'), '_', $file))"/>
-    </p:store>
     
+    <p:choose>
+      <p:when test="matches($status-dir-uri, '\?.*enabled=false')">
+        <p:sink/>
+      </p:when>
+      <p:otherwise>
+        <p:variable name="lang" select="replace(p:system-property('p:language'), '[-].+$', '')">
+          <p:empty/>
+        </p:variable>
+    
+        <p:xslt>
+          <p:input port="source">
+            <p:pipe port="msgs" step="progress-msg"/>
+          </p:input>
+          <p:input port="parameters">
+            <p:empty/>
+          </p:input>
+          <p:with-param name="lang" select="$lang">
+            <p:empty/>
+          </p:with-param>
+    
+          <p:input port="stylesheet">
+            <p:inline>
+              <xsl:stylesheet version="2.0">
+                <xsl:param name="lang" as="xs:string"/>
+                <xsl:param name="basename" select="''"/>
+                <xsl:template match="/">
+                  <c:message>
+                    <xsl:value-of
+                      select="replace((//c:message[@xml:lang eq $lang], //c:message)[1], '(.)[&#xa;&#xd;]*$', '$1&#xa;')"/>
+                  </c:message>
+                </xsl:template>
+              </xsl:stylesheet>
+            </p:inline>
+          </p:input>
+        </p:xslt>
+    
+        <p:store method="text">
+          <p:with-option name="href" select="concat($status-dir-uri, '/', concat(p:system-property('p:episode'), '_', $file))"/>
+        </p:store>
+        
+      </p:otherwise>
+    </p:choose>
+
   </p:declare-step>
 
   <p:declare-step type="tr:propagate-caught-error" name="propagate-caught-error">
@@ -172,7 +187,7 @@
     	</p:documentation>
     </p:option>
   	
-  	<p:option name="status-dir-uri" required="false" select="'debug/status'">
+  	<p:option name="status-dir-uri" required="false" select="'debug/status?enabled=false'">
   		<p:documentation xmlns="http://www.w3.org/1999/xhtml">
   			<h3>Option: <code>status-dir-uri</code></h3>
   			<p>URI of the directory, where the status message file is stored.</p>
