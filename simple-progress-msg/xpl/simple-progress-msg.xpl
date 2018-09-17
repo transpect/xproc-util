@@ -75,6 +75,9 @@
     </p:option>
     
     <p:choose>
+      <p:xpath-context>
+        <p:empty/>
+      </p:xpath-context>
       <p:when test="matches($status-dir-uri, '\?.*enabled=false')">
         <p:sink/>
       </p:when>
