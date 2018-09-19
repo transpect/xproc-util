@@ -30,7 +30,7 @@ when XML Calabash is invoked.
 
 Here is a brief example:
 
-````xml
+```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <p:declare-step xmlns:p="http://www.w3.org/ns/xproc"
   xmlns:c="http://www.w3.org/ns/xproc-step" 
