@@ -1,7 +1,7 @@
 # send-mail
 
 This step allows you to send mail. Basically it's a
-convenient wrapper for XML Calabashs `cx:send-mail`.
+convenient wrapper for XML Calabash's `cx:send-mail`.
 
 ## Prerequisites
 
