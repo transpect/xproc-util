@@ -17,7 +17,6 @@
     2. Provide a whitespace separated list of file URIs with option/@name=attachments. These files will be treated as binary data. 
   </p:documentation>
   
-  <p:input port="source"><p:empty/></p:input>
   <p:input port="attachments" sequence="true"><p:empty/></p:input>
   <p:output port="result" primary="true" sequence="true"/>
   
@@ -29,6 +28,8 @@
   <p:option name="attachments" select="''">
     <p:documentation>A whitespace separated list of attachment file URIs. Each file will be treated as binary.</p:documentation>
   </p:option>
+  
+  <p:import href="http://xmlcalabash.com/extension/steps/library-1.0.xpl"/>
   
   <p:xslt name="create-mail" template-name="main">
     <p:input port="parameters"><p:empty/></p:input>
