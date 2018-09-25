@@ -50,7 +50,7 @@
     <p:documentation>see prepend-xml-model.xpl</p:documentation>
   </p:input>
   
-  <p:input port="parameters" kind="parameter" primary="true"/>
+  <p:input port="parameters" kind="parameter" primary="true" sequence="true"/>
   
   <p:output port="result" primary="true" sequence="true"/>
   
@@ -70,7 +70,19 @@
   <p:variable name="debug-file-name" select="concat($prefix, '.', replace($mode, ':', '_'))"><p:empty/></p:variable>
   <p:variable name="debug-dir-uri1" select="replace($debug-dir-uri, '^(.+)\?.*$', '$1')"><p:empty/></p:variable>
   
-  <!-- try wrapper to revover pipelines from errors and proceed with input -->
+  <!-- try wrapper to recover from errors and proceed with input -->
+  
+  <p:parameters name="consolidate-params">
+    <p:input port="parameters">
+      <p:pipe port="parameters" step="xslt-mode"/>
+    </p:input>
+  </p:parameters>
+  
+  <p:identity>
+    <p:input port="source">
+      <p:pipe port="source" step="xslt-mode"/>
+    </p:input>
+  </p:identity>
   
   <p:try name="try">
     <p:group>
@@ -105,7 +117,7 @@
           <p:pipe port="stylesheet" step="xslt-mode"/>
         </p:with-option>
         <p:input port="parameters">
-          <p:pipe port="parameters" step="xslt-mode"/>
+          <p:pipe port="result" step="consolidate-params"/>
         </p:input>
         <p:input port="stylesheet">
           <p:pipe port="stylesheet" step="xslt-mode"/>
