@@ -128,8 +128,15 @@
       <p:choose name="adjust-doc-base-uri">
         <p:when test="$adjust-doc-base-uri = 'yes'">
           <p:output port="result" primary="true"/>
+          <p:variable name="xml-base-att" select="/*/@xml:base"/>
           <p:xslt name="adjust-doc-base-uri1">
-            <p:with-option name="output-base-uri" select="resolve-uri((base-uri(/*), base-uri())[1])"/>
+            <p:documentation>With Saxon 9.7 and 9.8, base-uri(/*) can have a value that is different from base-uri()
+            even when there is no xml:base attribute on /*. 
+            See https://github.com/ndw/xmlcalabash1/issues/281
+            Using p:variable here because (base-uri(/*)[/*/@xml:base] resulted in an error: 
+            "Leading '/' selects nothing: the context item is not a node"</p:documentation>
+            <p:with-option name="output-base-uri"
+              select="resolve-uri((base-uri(/*)[normalize-space($xml-base-att)], base-uri())[1])"/>
             <p:input port="parameters"><p:empty/></p:input>
             <p:input port="stylesheet">
               <p:inline>
