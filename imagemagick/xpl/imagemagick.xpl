@@ -60,7 +60,7 @@
   </tr:file-uri>
   
   <tr:store-debug>
-    <p:with-option name="pipeline-step" select="concat('xe-convert-image/', $basename, '/imagemagick-path.xml')"/>
+    <p:with-option name="pipeline-step" select="concat('xe-convert-image/', $basename, '/imagemagick-path')"/>
     <p:with-option name="active" select="$debug"/>
     <p:with-option name="base-uri" select="$debug-dir-uri"/>
   </tr:store-debug>
@@ -116,7 +116,7 @@
       </p:with-option>
     </cx:message>
     
-    <p:exec name="exec" wrap-error-lines="true" wrap-result-lines="true" result-is-xml="false">
+    <p:exec name="exec" wrap-error-lines="true" wrap-result-lines="true" result-is-xml="false" cx:depends-on="imagemagick-path">
       <p:with-option name="command" select="/c:result/@os-path">
         <p:pipe port="result" step="imagemagick-path"/>
       </p:with-option>
@@ -145,7 +145,7 @@
     </p:wrap-sequence>
     
     <tr:store-debug>
-      <p:with-option name="pipeline-step" select="concat('xe-convert-image/', $basename, '/imagemagick.xml')"/>
+      <p:with-option name="pipeline-step" select="concat('xe-convert-image/', $basename, '/imagemagick')"/>
       <p:with-option name="active" select="$debug"/>
       <p:with-option name="base-uri" select="$debug-dir-uri"/>
     </tr:store-debug>
