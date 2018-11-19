@@ -15,10 +15,14 @@
     <p:documentation>The URI of a file that can be read with unparsed-text(). Its processing instructions
     before and after the top-level element will be prepended or appended to the source port document.</p:documentation>
   </p:option>
+  <p:option name="separator" select="'&#xa;'">
+    <p:documentation>Will be inserted before the first PI, between individual PIs and after the last PI.</p:documentation>
+  </p:option>
   <p:output port="result" sequence="true" primary="true"/>
 
   <p:xslt>
     <p:with-param name="file-uri" select="$file-uri"/>
+    <p:with-param name="separator" select="$separator"/>
     <p:input port="stylesheet">
       <p:document href="../xsl/re-attach-out-of-doc-PIs.xsl"/>
     </p:input>
