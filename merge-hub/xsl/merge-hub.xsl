@@ -185,7 +185,7 @@
   
   <xsl:template match="@srcpath" mode="merge-hub">
     <xsl:param name="srcpath-prefix" as="xs:string" tunnel="yes"/>
-    <xsl:attribute name="{name()}" select="concat($srcpath-prefix, .)"/>
+    <xsl:attribute name="{name()}" select="for $i in tokenize(.,' ') return concat($srcpath-prefix, $i)"/>
   </xsl:template>
   
 </xsl:stylesheet>
