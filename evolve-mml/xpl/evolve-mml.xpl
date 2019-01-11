@@ -47,6 +47,9 @@
       </dl>
     </p:documentation>
   </p:option>
+  <p:option name="outfile-prefix" required="false" select="'ltx-created-eq-'">
+    <p:documentation>filename prefix for output equation files</p:documentation>
+  </p:option>
   <p:option name="extension" required="false" select="'gif'">
     <p:documentation>Image extension for generated mediaobjects</p:documentation>
   </p:option>
@@ -104,7 +107,7 @@
   
   <p:viewport match="mml:math" name="vp">
     <p:output port="result" primary="true"/>
-    <p:variable name="outfile" select="'ltx-created-eq-', */@position"/>
+    <p:variable name="outfile" select="concat($outfile-prefix, */@position)"/>
     <p:variable name="debug-uri" select="concat($debug-dir-uri, if (matches($debug-dir-uri, '/$')) then '' else '/', 'evolve-mml/formula', */@position)"></p:variable>
     
     <tr:store-debug name="mml" pipeline-step="math">
