@@ -154,4 +154,6 @@
     
   </p:group>
   
+  <p:sink/>
+  
 </p:declare-step>
