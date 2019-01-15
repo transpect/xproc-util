@@ -117,7 +117,8 @@
       </p:with-option>
     </cx:message>
     
-    <p:exec name="exec" wrap-error-lines="true" wrap-result-lines="true" result-is-xml="false" cx:depends-on="imagemagick-path">
+    <p:exec name="exec" wrap-error-lines="true" wrap-result-lines="true" 
+            result-is-xml="false" failure-threshold="0" cx:depends-on="imagemagick-path">
       <p:with-option name="command" select="/c:result/@os-path">
         <p:pipe port="result" step="imagemagick-path"/>
       </p:with-option>
