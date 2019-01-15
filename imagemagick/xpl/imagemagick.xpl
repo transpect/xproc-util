@@ -60,7 +60,7 @@
   </tr:file-uri>
   
   <tr:store-debug>
-    <p:with-option name="pipeline-step" select="concat('xe-convert-image/', $basename, '/imagemagick-path')"/>
+    <p:with-option name="pipeline-step" select="concat('imagemagick/', $basename, '/imagemagick-path')"/>
     <p:with-option name="active" select="$debug"/>
     <p:with-option name="base-uri" select="$debug-dir-uri"/>
   </tr:store-debug>
@@ -83,7 +83,7 @@
   </tr:file-uri>
   
   <tr:store-debug>
-    <p:with-option name="pipeline-step" select="concat('xe-convert-image/', $basename, '/outpath')"/>
+    <p:with-option name="pipeline-step" select="concat('imagemagick/', $basename, '/outpath')"/>
     <p:with-option name="active" select="$debug"/>
     <p:with-option name="base-uri" select="$debug-dir-uri"/>
   </tr:store-debug>
@@ -96,7 +96,7 @@
     <p:input port="source">
       <p:pipe port="result" step="file-path"/>
     </p:input>
-    <p:with-option name="pipeline-step" select="concat('xe-convert-image/', $basename, '/sourcefile')"/>
+    <p:with-option name="pipeline-step" select="concat('imagemagick/', $basename, '/sourcefile')"/>
     <p:with-option name="active" select="$debug"/>
     <p:with-option name="base-uri" select="$debug-dir-uri"/>
   </tr:store-debug>
@@ -145,7 +145,7 @@
     </p:wrap-sequence>
     
     <tr:store-debug>
-      <p:with-option name="pipeline-step" select="concat('xe-convert-image/', $basename, '/imagemagick')"/>
+      <p:with-option name="pipeline-step" select="concat('imagemagick/', $basename, '/imagemagick')"/>
       <p:with-option name="active" select="$debug"/>
       <p:with-option name="base-uri" select="$debug-dir-uri"/>
     </tr:store-debug>
