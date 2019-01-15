@@ -18,7 +18,8 @@
   <p:output port="result">
     <p:documentation xmlns="http://www.w3.org/1999/xhtml">
       Provides a c:result representation of the converted file.
-    </p:documentation>  
+    </p:documentation>
+    <p:pipe port="result" step="outfile-path"/>
   </p:output>
   
   <p:option name="href" required="true">
