@@ -15,11 +15,14 @@
     needs to be installed on your system.
   </p:documentation>
   
-  <p:output port="result">
+  <p:output port="result" primary="true">
     <p:documentation xmlns="http://www.w3.org/1999/xhtml">
       Provides a c:result representation of the converted file.
     </p:documentation>
-    <p:pipe port="result" step="outfile-path"/>
+  </p:output>
+  
+  <p:output port="report" primary="false" sequence="true">
+    <p:pipe port="report" step="exec-group"/>
   </p:output>
   
   <p:option name="href" required="true">
@@ -72,7 +75,6 @@
   
   <p:sink/>
   
-  
   <tr:file-uri name="file-path">
     <p:with-option name="filename" select="$href"/>
   </tr:file-uri>
@@ -83,7 +85,7 @@
     <p:with-option name="filename" select="$image-outpath"/>
   </tr:file-uri>
   
-  <tr:store-debug>
+  <tr:store-debug name="debug-outfile-path">
     <p:with-option name="pipeline-step" select="concat('imagemagick/', $basename, '/outpath')"/>
     <p:with-option name="active" select="$debug"/>
     <p:with-option name="base-uri" select="$debug-dir-uri"/>
@@ -93,7 +95,7 @@
     <p:with-option name="href" select="replace(/c:result/@href, '^(.+)/.+$', '$1')"/>
   </cxf:mkdir>
   
-  <tr:store-debug>
+  <tr:store-debug name="debug-sourcefile-path">
     <p:input port="source">
       <p:pipe port="result" step="file-path"/>
     </p:input>
@@ -102,58 +104,116 @@
     <p:with-option name="base-uri" select="$debug-dir-uri"/>
   </tr:store-debug>
   
-  <p:group name="exec-group" cxf:depends-on="mkdir">
-    <p:variable name="image-stripped-outpath" 
-                select="replace(/c:result/@os-path,
-                        '^[a-z]:/cygwin[\d]*(.+)$',
-                        '$1', 'i')">
-      <p:pipe port="result" step="outfile-path"/>
-    </p:variable>
-    <p:variable name="arg-separator" select="' '"/>
-    
-    <cx:message name="msg2">
-      <p:with-option name="message" select="'[info] ', /c:result/@os-path">
-        <p:pipe port="result" step="outfile-path"/>
-      </p:with-option>
-    </cx:message>
-    
-    <p:exec name="exec" wrap-error-lines="true" wrap-result-lines="true" 
-            result-is-xml="false" failure-threshold="0" cx:depends-on="imagemagick-path">
-      <p:with-option name="command" select="/c:result/@os-path">
-        <p:pipe port="result" step="imagemagick-path"/>
-      </p:with-option>
-      <p:with-option name="arg-separator" select="$arg-separator"/>
-      <p:with-option name="args" 
-                     select="string-join(('-verbose -format',
-                                          $format,
-                                          $imagemagick-options,
-                                          /c:result/@os-path, 
-                                          $image-stripped-outpath
-                                          ), 
-                                          $arg-separator)">
-        <p:pipe port="result" step="file-path"/>
-      </p:with-option>
-      <p:input port="source">
+  <p:try name="exec-group" cxf:depends-on="mkdir">
+    <p:group>
+      <p:output port="result" primary="true"/>
+      <p:output port="report" primary="false" sequence="true">
         <p:empty/>
-      </p:input>
-    </p:exec>
-    
-    <p:wrap-sequence wrapper="imagemagick" name="wrap-imagemagick-output-for-debugging">
-      <p:input port="source">
-        <p:pipe port="result" step="exec"/>
-        <p:pipe port="errors" step="exec"/>
-        <p:pipe port="exit-status" step="exec"/>
-      </p:input>
-    </p:wrap-sequence>
-    
-    <tr:store-debug>
-      <p:with-option name="pipeline-step" select="concat('imagemagick/', $basename, '/imagemagick')"/>
-      <p:with-option name="active" select="$debug"/>
-      <p:with-option name="base-uri" select="$debug-dir-uri"/>
-    </tr:store-debug>
-    
-  </p:group>
+      </p:output>
+      <p:variable name="image-stripped-outpath" 
+                  select="replace(/c:result/@os-path,
+                          '^[a-z]:/cygwin[\d]*(.+)$',
+                          '$1', 'i')">
+        <p:pipe port="result" step="outfile-path"/>
+      </p:variable>
+      <p:variable name="arg-separator" select="' '"/>
+      
+      <cx:message name="msg2">
+        <p:with-option name="message" select="'[info] ', /c:result/@os-path">
+          <p:pipe port="result" step="outfile-path"/>
+        </p:with-option>
+      </cx:message>
+      
+      <p:exec name="exec" wrap-error-lines="true" wrap-result-lines="true" 
+              result-is-xml="false" failure-threshold="0" cx:depends-on="imagemagick-path">
+        <p:with-option name="command" select="/c:result/@os-path">
+          <p:pipe port="result" step="imagemagick-path"/>
+        </p:with-option>
+        <p:with-option name="arg-separator" select="$arg-separator"/>
+        <p:with-option name="args" 
+                       select="string-join(('-verbose -format',
+                                            $format,
+                                            $imagemagick-options,
+                                            /c:result/@os-path, 
+                                            $image-stripped-outpath
+                                            ), 
+                                            $arg-separator)">
+          <p:pipe port="result" step="file-path"/>
+        </p:with-option>
+        <p:input port="source">
+          <p:empty/>
+        </p:input>
+      </p:exec>
+      
+      <p:wrap-sequence wrapper="imagemagick" name="wrap-imagemagick-output-for-debugging">
+        <p:input port="source">
+          <p:pipe port="result" step="exec"/>
+          <p:pipe port="errors" step="exec"/>
+          <p:pipe port="exit-status" step="exec"/>
+        </p:input>
+      </p:wrap-sequence>
+      
+      <tr:store-debug name="debug-output-ok">
+        <p:with-option name="pipeline-step" select="concat('imagemagick/', $basename, '/conversion-log')"/>
+        <p:with-option name="active" select="$debug"/>
+        <p:with-option name="base-uri" select="$debug-dir-uri"/>
+      </tr:store-debug>
+      
+      <p:sink/>
+      
+      <p:identity>
+        <p:input port="source">
+          <p:pipe port="result" step="outfile-path"/>
+        </p:input>
+      </p:identity>
+      
+      <p:add-attribute attribute-name="status" attribute-value="ok" match="/c:result"/>
+      
+    </p:group>
+    <p:catch name="catch">
+      <p:output port="result" primary="true"/>
+      
+      <p:output port="report" primary="false" sequence="true">
+        <p:pipe port="result" step="attach-href"/>
+      </p:output>
+            
+      <p:identity name="forward-error">
+        <p:input port="source">
+          <p:pipe port="error" step="catch"/>
+        </p:input>
+      </p:identity>
+      
+      <cx:message>
+        <p:with-option name="message" select="'[ERROR] conversion failed for: ', $href"/>
+      </cx:message>
+      
+      <tr:store-debug name="debug-output-error">
+        <p:with-option name="pipeline-step" select="concat('imagemagick/', $basename, '/conversion-log')"/>
+        <p:with-option name="active" select="$debug"/>
+        <p:with-option name="base-uri" select="$debug-dir-uri"/>
+      </tr:store-debug>
+      
+      <p:add-attribute match="/c:errors" attribute-name="file" name="attach-href">
+        <p:with-option name="attribute-value" select="$href"/>
+      </p:add-attribute>
+      
+      <p:sink/>
+      
+      <p:identity>
+        <p:input port="source">
+          <p:pipe port="result" step="outfile-path"/>
+        </p:input>
+      </p:identity>
+      
+      <p:add-attribute attribute-name="status" attribute-value="failed" match="/c:result"/>
+      
+    </p:catch>
+  </p:try>
   
-  <p:sink/>
-  
+  <tr:store-debug name="debug-output">
+    <p:with-option name="pipeline-step" select="concat('imagemagick/', $basename, '/output')"/>
+    <p:with-option name="active" select="$debug"/>
+    <p:with-option name="base-uri" select="$debug-dir-uri"/>
+  </tr:store-debug>
+    
 </p:declare-step>
