@@ -134,7 +134,7 @@
                        select="string-join(('-verbose -format',
                                             $format,
                                             $imagemagick-options,
-                                            /c:result/@os-path, 
+                                            /c:result/@rel-path, 
                                             $image-stripped-outpath
                                             ), 
                                             $arg-separator)">
