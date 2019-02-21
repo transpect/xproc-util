@@ -580,22 +580,7 @@
 
   <p:xslt name="add-rel-path">
     <p:input port="stylesheet">
-      <p:inline>
-        <xsl:stylesheet version="2.0">
-          
-          <xsl:import href="http://transpect.io/xslt-util/uri-to-relative-path/xsl/uri-to-relative-path.xsl"/>
-          
-          <xsl:template match="*">
-            <xsl:copy>
-              <xsl:if test="self::c:result">
-                <xsl:attribute name="rel-path" select="tr:uri-to-relative-path(concat('file:/', @cwd, '/'), @local-href)"/>
-              </xsl:if>
-              <xsl:copy-of select="@*, node()"/>
-            </xsl:copy>
-          </xsl:template>
-          
-        </xsl:stylesheet>
-      </p:inline>
+      <p:document href="../xsl/attach-relative-path.xsl"/>
     </p:input>
     <p:input port="parameters">
       <p:empty/>
