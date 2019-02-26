@@ -14,7 +14,7 @@
     <xsl:analyze-string select="." regex="url\((.+?)\)">
       <xsl:matching-substring>
         <xsl:variable name="href" select="resolve-uri(replace(regex-group(1), '''|&quot;', ''), $base-uri)" as="xs:anyURI"/>
-        <xsl:variable name="mime-type" as="xs:string" select="tr:fileext-to-mime-type($href)"/>
+        <xsl:variable name="mime-type" as="xs:string" select="tr:fileref-to-mime-type($href)"/>
         <xsl:choose>
           <xsl:when test="starts-with($mime-type, 'image') and $suppress-image"><!-- don’t embed images -->
             <xsl:value-of select="."/>
