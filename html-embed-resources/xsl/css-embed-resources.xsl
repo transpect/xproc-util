@@ -21,7 +21,7 @@
           </xsl:when>
           <xsl:otherwise>
             <xsl:text>url('</xsl:text>
-            <tr:data-uri href="{$href}" mime-type="{tr:fileext-to-mime-type($href)}">tobereplaced</tr:data-uri>
+            <tr:data-uri href="{$href}" mime-type="{tr:fileref-to-mime-type($href)}">tobereplaced</tr:data-uri>
             <xsl:text>')</xsl:text>
           </xsl:otherwise>
         </xsl:choose>
