@@ -76,7 +76,7 @@
     </depends-on>
   </p:pipeinfo>
 
-  <p:option name="filename">
+  <p:option name="filename" required="true">
     <p:documentation>A URI or an OS-specific identifier. Relative paths will be resolved against the static-base-uri(). A future
       improvement might use the XSLT-based catalog resolver in order to detect whether a given http: URL will actually resolve
       to a local file.</p:documentation>
@@ -88,7 +88,7 @@
     <p:documentation>Whether to fetch files referenced by URIs matching '^https?:'.</p:documentation>
   </p:option>
   <p:option name="check-http" required="false" select="'true'">
-    <p:documentation>Whether to check that the HTTP status of '^https?:' URIs matches '2\d\d'.
+    <p:documentation>Whether to check that the HTTP status of '^https?:' URIs matches '[23]\d\d'.
     check-http and fetch-http should be made mutually exclusive. For the time being, if both are
     given, fetch-http has precedence. With the given default values, this means that you need to specify
     both check-http=true and fetch-http=false if you only want to check.</p:documentation>
@@ -160,7 +160,6 @@
       <p:pipe port="catalog" step="file-uri"/>
     </p:input>
     <p:with-param name="uri" select="if (/*/@file-separator = '\') then replace($filename, '\\', '/') else $filename"/>
-    
     <p:with-param name="cat:missing-next-catalogs-warning" select="'no'"/>
   </p:xslt>
 
@@ -186,6 +185,25 @@
       <p:pipe port="result" step="info"/>
     </p:with-option>
   </p:add-attribute>
+  
+  <p:choose name="cwd-uri">
+    <p:when test="$filename = /c:result/@cwd">
+      <p:output port="result" primary="true"/>
+      <p:identity/>
+    </p:when>
+    <p:otherwise>
+      <p:output port="result" primary="true"/>
+      <tr:file-uri>
+        <p:with-option name="filename" select="/c:result/@cwd"/>
+      </tr:file-uri>
+    </p:otherwise>
+  </p:choose>
+  
+  <!--<tr:file-uri name="cwd-uri">
+    <p:with-option name="filename" select="/c:result/@cwd"/>
+  </tr:file-uri>-->
+  
+  <p:sink name="sink1"/>
 
   <p:set-attributes name="add-orig-href" match="/c:result">
     <p:documentation xmlns="http://www.w3.org/1999/xhtml">
@@ -194,6 +212,9 @@
       <p>Please note that despite its name, the @href attribute doesn’t necessarily contain a URI. If $filename is an OS path,
         @href will contain this path.</p>
     </p:documentation>
+    <p:input port="source">
+      <p:pipe port="result" step="empty-result"/>
+    </p:input>
     <p:input port="attributes">
       <p:pipe port="result" step="catalog-resolve"/>
     </p:input>
@@ -557,13 +578,10 @@
       <p:otherwise>
         <p:documentation>Other protocol or relative filename. We don’t support other protocols/notations, so we assume it to be
           a relative path.</p:documentation>
-        <tr:file-uri name="cwd-uri">
-          <p:with-option name="filename" select="concat(/c:result/@cwd, '/')">
-            <p:pipe port="result" step="info"/>
-          </p:with-option>
-        </tr:file-uri>
         <tr:file-uri name="resolved-uri">
-          <p:with-option name="filename" select="resolve-uri($catalog-resolved-uri, /c:result/@local-href)"/>
+          <p:with-option name="filename" select="resolve-uri($catalog-resolved-uri, /c:result/@local-href)">
+            <p:pipe port="result" step="cwd-uri"/>
+          </p:with-option>
         </tr:file-uri>
         <tr:unescape-uri attribute-names="os-path"/>
       </p:otherwise>
@@ -585,6 +603,9 @@
     <p:input port="parameters">
       <p:empty/>
     </p:input>
+    <p:with-param name="cwd-uri" select="/c:result/@local-href">
+      <p:pipe port="result" step="cwd-uri"/>
+    </p:with-param>
   </p:xslt>
 
 </p:declare-step>
