@@ -14,6 +14,10 @@
     <xsl:analyze-string select="." regex="url\((.+?)\)">
       <xsl:matching-substring>
         <xsl:variable name="href" select="resolve-uri(replace(regex-group(1), '''|&quot;', ''), $base-uri)" as="xs:anyURI"/>
+        <xsl:if test="not(normalize-space($href))">
+          <xsl:message select="'Unexpected empty href in xproc-util/html-embed-resources/xsl/css-embed-resources.xsl.
+            Diagnostics: ', regex-group(1), ' :: ', $base-uri"/>
+        </xsl:if>
         <xsl:variable name="mime-type" as="xs:string" select="tr:fileref-to-mime-type($href)"/>
         <xsl:choose>
           <xsl:when test="starts-with($mime-type, 'image') and $suppress-image"><!-- don’t embed images -->
