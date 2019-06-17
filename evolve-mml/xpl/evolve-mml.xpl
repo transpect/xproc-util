@@ -27,6 +27,8 @@
     </p:documentation>
   </p:input>
   
+  <p:input port="paths" primary="true" sequence="true" kind="parameter"/>
+  
   <p:option name="output-dir" required="true">
     <p:documentation>The folder where to save .tex and .mml files when option 'img' is used.</p:documentation>
   </p:option>
@@ -66,7 +68,16 @@
   <p:import href="http://transpect.io/xproc-util/store-debug/xpl/store-debug.xpl"/>
   <p:import href="http://transpect.io/mml2tex/xpl/mml2tex.xpl"/>
   
+   <p:parameters name="paths">
+    <p:input port="parameters">
+      <p:pipe port="paths" step="evolve-mml"/>
+    </p:input>
+  </p:parameters>
+  
   <p:xslt name="cnt-math">
+    <p:input port="source">
+      <p:pipe port="source" step="evolve-mml"/>
+    </p:input>
     <p:input port="stylesheet">
       <p:inline>
         <xsl:stylesheet version="2.0" xmlns="http://docbook.org/ns/docbook"
@@ -119,6 +130,9 @@
     <mml2tex:convert>
       <p:input port="conf">
         <p:pipe port="conf" step="evolve-mml"/>
+      </p:input>
+      <p:input port="paths">
+        <p:pipe port="result" step="paths"/>
       </p:input>
       <p:with-option name="texmap-uri" select="$texmap"/>
       <p:with-option name="texmap-upgreek-uri" select="$texmap-upgreek"/>
