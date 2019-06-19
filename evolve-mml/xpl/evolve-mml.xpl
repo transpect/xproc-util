@@ -61,7 +61,8 @@
   <p:option name="debug-dir-uri" select="'debug'"/>
   <p:option name="texmap" select="'http://transpect.io/mml2tex/texmap/texmap.xml'"/>
   <p:option name="texmap-upgreek" select="'http://transpect.io/mml2tex/texmap/texmap-upgreek.xml'"/>
-
+  <p:option name="context" select="false()" required="false"/>
+  
   <p:output port="result" primary="true"/>
   
   <p:import href="http://xmlcalabash.com/extension/steps/library-1.0.xpl"/>
@@ -82,10 +83,48 @@
       <p:inline>
         <xsl:stylesheet version="2.0" xmlns="http://docbook.org/ns/docbook"
           xmlns:mml="http://www.w3.org/1998/Math/MathML">
+          <xsl:param name="context"/>
           <xsl:template match="mml:math">
+            <xsl:message select="$context"/>
             <xsl:copy>
               <xsl:apply-templates mode="#current" select="@*"/>
               <xsl:attribute name="position" select="count(preceding::mml:math) + 1"/>
+              <xsl:if test="$context">
+                <xsl:choose>
+                  <xsl:when test="ancestor::*:thead">
+                    <xsl:attribute name="mode" select="'table_head'"/>
+                  </xsl:when>
+                  <xsl:when test="ancestor::*:tbody">
+                    <xsl:attribute name="mode" select="'table_body'"/>
+                  </xsl:when>
+                  <xsl:when test="ancestor::*:blockquote">
+                    <xsl:attribute name="mode" select="'box'"/>
+                  </xsl:when>
+                  <xsl:when test="ancestor::*:title[ancestor::*:figure or ancestor::*:table]">
+                    <xsl:attribute name="mode" select="'caption'"/>
+                  </xsl:when>
+                  <xsl:otherwise/>
+                </xsl:choose>
+              </xsl:if>
+              <xsl:message>
+                <xsl:if test="$context">
+                <xsl:choose>
+                  <xsl:when test="ancestor::*:thead">
+                    <xsl:attribute name="mode" select="'table_head'"/>
+                  </xsl:when>
+                  <xsl:when test="ancestor::*:tbody">
+                    <xsl:attribute name="mode" select="'table_body'"/>
+                  </xsl:when>
+                  <xsl:when test="ancestor::*:blockquote">
+                    <xsl:attribute name="mode" select="'box'"/>
+                  </xsl:when>
+                  <xsl:when test="ancestor::*:title[ancestor::*:figure or ancestor::*:table]">
+                    <xsl:attribute name="mode" select="'caption'"/>
+                  </xsl:when>
+                  <xsl:otherwise/>
+                </xsl:choose>
+              </xsl:if>
+              </xsl:message>
               <xsl:if test="parent::hub:inlineequation">
                 <xsl:attribute name="inline" select="true()"/>
               </xsl:if>
@@ -106,6 +145,7 @@
     <p:input port="parameters">
       <p:empty/>
     </p:input>
+    <p:with-param name="context" select="$context"/>
   </p:xslt>
   
   <tr:store-debug pipeline-step="evolve-mml/mml-position"> 
