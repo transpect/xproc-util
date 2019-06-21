@@ -28,6 +28,7 @@
   <p:option name="prefix" required="false" select="'default'"/>
   <p:option name="msg" required="false" select="'no'"/>
   <p:option name="debug" required="false" select="'no'"/>
+  <p:option name="indent" required="false" select="'true'"/>
   <p:option name="debug-dir-uri" required="true"/>
   <p:option name="debug-indent" required="false" select="'true'"/>
   <p:option name="status-dir-uri" select="concat(replace($debug-dir-uri, '^(.+)\?.*$', '$1'), '/status')"/>
@@ -163,7 +164,8 @@
             <p:iteration-source>
               <p:pipe step="xslt" port="secondary"/>
             </p:iteration-source>
-            <p:store indent="true" omit-xml-declaration="false">
+            <p:store omit-xml-declaration="false">
+              <p:with-option name="indent" select="$indent"/>
               <p:with-option name="href" select="base-uri()"/>
             </p:store>
           </p:for-each>    
