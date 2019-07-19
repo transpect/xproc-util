@@ -31,7 +31,7 @@
         </xsl:choose>
       </xsl:matching-substring>
       <xsl:non-matching-substring>
-        <xsl:value-of select="."/>
+        <xsl:value-of select="replace(.,'&#xD;','')"/>
       </xsl:non-matching-substring>
     </xsl:analyze-string>
 
