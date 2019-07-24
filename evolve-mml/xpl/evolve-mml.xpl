@@ -11,7 +11,7 @@
   type="tr:evolve-mml">
   
   <p:documentation>
-    This step converts mml to tex. (via https://github.com/transpect/mml2tex)
+     This step converts mml to tex. (via https://github.com/transpect/mml2tex)
     The mml2tex module must be available on URI http://transpect.io/mml2tex regardless of the value of the option 'type'.
   </p:documentation>
   
@@ -62,6 +62,7 @@
   <p:option name="texmap" select="'http://transpect.io/mml2tex/texmap/texmap.xml'"/>
   <p:option name="texmap-upgreek" select="'http://transpect.io/mml2tex/texmap/texmap-upgreek.xml'"/>
   <p:option name="context" select="false()" required="false"/>
+  <p:option name="display-equation-table-role" select="'equation-table'" required="false"/>
   
   <p:output port="result" primary="true"/>
   
@@ -84,17 +85,18 @@
         <xsl:stylesheet version="2.0" xmlns="http://docbook.org/ns/docbook"
           xmlns:mml="http://www.w3.org/1998/Math/MathML">
           <xsl:param name="context"/>
+          <xsl:param name="display-equation-table-role"/>
           <xsl:template match="mml:math">
-            <xsl:message select="$context"/>
             <xsl:copy>
               <xsl:apply-templates mode="#current" select="@*"/>
               <xsl:attribute name="position" select="count(preceding::mml:math) + 1"/>
+              <xsl:message select="$context, $display-equation-table-role"></xsl:message>
               <xsl:if test="$context">
                 <xsl:choose>
                   <xsl:when test="ancestor::*:thead">
                     <xsl:attribute name="mode" select="'table_head'"/>
                   </xsl:when>
-                  <xsl:when test="ancestor::*:tbody">
+                  <xsl:when test="ancestor::*:tbody[not(ancestor::*[self::*:informaltable or self::*:table][@role=$display-equation-table-role])]">
                     <xsl:attribute name="mode" select="'table_body'"/>
                   </xsl:when>
                   <xsl:when test="ancestor::*:blockquote">
@@ -106,25 +108,6 @@
                   <xsl:otherwise/>
                 </xsl:choose>
               </xsl:if>
-              <xsl:message>
-                <xsl:if test="$context">
-                <xsl:choose>
-                  <xsl:when test="ancestor::*:thead">
-                    <xsl:attribute name="mode" select="'table_head'"/>
-                  </xsl:when>
-                  <xsl:when test="ancestor::*:tbody">
-                    <xsl:attribute name="mode" select="'table_body'"/>
-                  </xsl:when>
-                  <xsl:when test="ancestor::*:blockquote">
-                    <xsl:attribute name="mode" select="'box'"/>
-                  </xsl:when>
-                  <xsl:when test="ancestor::*:title[ancestor::*:figure or ancestor::*:table]">
-                    <xsl:attribute name="mode" select="'caption'"/>
-                  </xsl:when>
-                  <xsl:otherwise/>
-                </xsl:choose>
-              </xsl:if>
-              </xsl:message>
               <xsl:if test="parent::hub:inlineequation">
                 <xsl:attribute name="inline" select="true()"/>
               </xsl:if>
@@ -146,6 +129,7 @@
       <p:empty/>
     </p:input>
     <p:with-param name="context" select="$context"/>
+    <p:with-param name="display-equation-table-role" select="$display-equation-table-role"/>
   </p:xslt>
   
   <tr:store-debug pipeline-step="evolve-mml/mml-position"> 
