@@ -43,7 +43,8 @@
   </p:option>  
   
   <p:option name="debug" select="'no'"/>
-  <p:option name="debug-dir-uri" select="'debug'"/>  
+  <p:option name="debug-dir-uri" select="'debug'"/>
+  <p:option name="fail-on-error" select="'true'"/>
   
   <p:import href="http://xmlcalabash.com/extension/steps/library-1.0.xpl"/>
   <p:import href="http://transpect.io/xproc-util/file-uri/xpl/file-uri.xpl"/>
@@ -91,8 +92,9 @@
     <p:with-option name="base-uri" select="$debug-dir-uri"/>
   </tr:store-debug>
   
-  <cxf:mkdir fail-on-error="true" name="mkdir">
+  <cxf:mkdir name="mkdir">
     <p:with-option name="href" select="replace(/c:result/@href, '^(.+)/.+$', '$1')"/>
+    <p:with-option name="fail-on-error" select="$fail-on-error"/>
   </cxf:mkdir>
   
   <tr:store-debug name="debug-sourcefile-path">
@@ -125,7 +127,7 @@
       </cx:message>
       
       <p:exec name="exec" wrap-error-lines="true" wrap-result-lines="true" 
-              result-is-xml="false" failure-threshold="0" cx:depends-on="imagemagick-path">
+              result-is-xml="false" cx:depends-on="imagemagick-path">
         <p:with-option name="command" select="/c:result/@os-path">
           <p:pipe port="result" step="imagemagick-path"/>
         </p:with-option>
@@ -140,6 +142,7 @@
                                             $arg-separator)">
           <p:pipe port="result" step="file-path"/>
         </p:with-option>
+	<p:with-option name="failure-threshold" select="if($fail-on-error eq 'true') then 0 else 9999"/>
         <p:input port="source">
           <p:empty/>
         </p:input>
