@@ -14,7 +14,9 @@
   <p:option name="default-uri" required="false" select="resolve-uri('debug')"/>
   <p:option name="base-uri" required="false" select="''"/>
   <p:option name="extension" required="false" select="'xml'"/>
-  <p:option name="indent" required="false" select="'true'"/>
+  <p:option name="indent" required="false" select="'true'">
+    <p:documentation>Indentation may also be set by query string (indent=true|false after a question mark in $default-uri)</p:documentation>
+  </p:option>
   
   <p:import href="http://xmlcalabash.com/extension/steps/library-1.0.xpl"/>
   
