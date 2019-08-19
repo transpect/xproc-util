@@ -250,7 +250,13 @@
                 
                 <p:try name="try-extract-references-from-css">
                   <p:group>
+                    <p:identity name="id1"/>
+                    <p:sink name="sink1"/>
                     <p:xslt name="extract-references-from-css">
+                      <p:input port="source">
+                        <p:pipe port="result" step="id1"/>
+                        <p:pipe port="catalog" step="html-embed-resources"/>
+                      </p:input>
                       <p:with-param name="base-uri" select="$href"/>
                       <p:input port="stylesheet">
                         <p:document href="../xsl/css-embed-resources.xsl"/>
