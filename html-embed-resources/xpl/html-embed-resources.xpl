@@ -81,6 +81,64 @@
   <p:import href="http://xmlcalabash.com/extension/steps/library-1.0.xpl"/>
   <p:import href="http://transpect.io/xproc-util/file-uri/xpl/file-uri.xpl"/>
   
+  <p:declare-step version="1.0" 
+    name="tr-get-data-uri" 
+    type="tr:get-data-uri">
+    
+    <p:documentation>
+      This step performs a simple p:http-request and 
+      checks whether the result exceeds the limit
+      of the base64 encoded size. If this check fails,
+      the original fileref markup is reproduced.
+    </p:documentation>
+    
+    <p:input port="source" primary="true">
+      <p:documentation>
+        Expects a c:request as input to perform 
+        a basic p:http-request
+      </p:documentation>
+    </p:input>
+    <p:input port="fileref" primary="false" sequence="true">
+      <p:documentation>
+        Markup of the file reference. Will be replicated if 
+        base64 encoded size of the file reference exceeds limit.
+      </p:documentation>
+    </p:input>
+    
+    <p:output port="result"/>
+    
+    <p:option name="max-base64-encoded-size-kb" select="'1000'"/>
+    
+    <p:http-request name="http-request"/>
+    
+    <p:choose name="test-for-max-file-size">
+      <p:variable name="base64-str-size" select="string-length(//c:body[1]) * 4 div 3 div 1000"/>
+      <p:when test="xs:float($base64-str-size) &gt; xs:float($max-base64-encoded-size-kb)">
+        
+        <cx:message>
+          <p:with-option name="message" select="'[WARNING] File not embedded. Base64 encoded string size (', 
+            round-half-to-even($base64-str-size, 2) , 
+            ') exceeds limit of ', $max-base64-encoded-size-kb, ' KB: ', $href"/>
+        </cx:message>
+        
+        <p:sink/>
+        
+        <p:identity>
+          <p:input port="source">
+            <p:pipe port="fileref" step="tr-get-data-uri"/>
+          </p:input>
+        </p:identity>
+        
+      </p:when>
+      <p:otherwise>
+        
+        <p:identity/>
+        
+      </p:otherwise>
+    </p:choose>
+    
+  </p:declare-step>
+  
   <p:variable name="top-level-base-uri" select="( /*/@xml:base, base-uri(/*) )[1]"/>
   
   <p:variable name="suppress-video" select="tokenize($exclude, '\s+')[. = ('#all', 'video')]"/>
@@ -168,33 +226,12 @@
               </p:input>
             </p:add-attribute>
             
-            <p:http-request name="http-request"/>
-            
-            <p:choose name="test-for-max-file-size">
-              <p:variable name="base64-str-size" select="string-length(//c:body[1]) * 4 div 3 div 1000"/>
-              <p:when test="xs:float($base64-str-size) &gt; xs:float($max-base64-encoded-size-kb)">
-                
-                <cx:message>
-                  <p:with-option name="message" select="'[WARNING] File not embedded. Base64 encoded string size (', 
-                                                        round-half-to-even($base64-str-size, 2) , 
-                                                        ') exceeds limit of ', $max-base64-encoded-size-kb, ' KB: ', $href"/>
-                </cx:message>
-                
-                <p:sink/>
-                
-                <p:identity>
-                  <p:input port="source">
-                    <p:pipe port="current" step="viewport"/>
-                  </p:input>
-                </p:identity>
-                
-              </p:when>
-              <p:otherwise>
-                
-                <p:identity/>
-                
-              </p:otherwise>
-            </p:choose>
+            <tr:get-data-uri name="http-request">
+              <p:input port="fileref">
+                <p:pipe port="current" step="viewport"/>
+              </p:input>
+              <p:with-option name="max-base64-encoded-size-kb" select="$max-base64-encoded-size-kb"/>
+            </tr:get-data-uri>
             
             <p:add-attribute attribute-name="xml:base" name="add-xmlbase" match="//c:body" cx:depends-on="http-request">
               <p:with-option name="attribute-value" select="$href"/>
@@ -291,7 +328,12 @@
                         </p:input>
                       </p:add-attribute>
                       
-                      <p:http-request name="http-request-css-resource" cx:depends-on="construct-http-request-css"/>
+                      <tr:get-data-uri name="http-request-css-resource" cx:depends-on="construct-http-request-css">
+                        <p:input port="fileref">
+                          <p:pipe port="current" step="viewport-data-uri"/>
+                        </p:input>
+                        <p:with-option name="max-base64-encoded-size-kb" select="$max-base64-encoded-size-kb"/>
+                      </tr:get-data-uri>
                       
                       <p:string-replace match="tr:data-uri/text()">
                         <p:input port="source">
