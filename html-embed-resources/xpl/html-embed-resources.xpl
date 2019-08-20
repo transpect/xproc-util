@@ -98,10 +98,15 @@
         a basic p:http-request
       </p:documentation>
     </p:input>
-    <p:input port="fileref" primary="false" sequence="true">
+    <p:input port="fileref" primary="false">
       <p:documentation>
         Markup of the file reference. Will be replicated if 
         base64 encoded size of the file reference exceeds limit.
+      </p:documentation>
+    </p:input>
+    <p:input port="file-uri" primary="false">
+      <p:documentation>
+        The result of tr:file-uri for the URI that should be embedded
       </p:documentation>
     </p:input>
     
@@ -113,12 +118,15 @@
     
     <p:choose name="test-for-max-file-size">
       <p:variable name="base64-str-size" select="string-length(//c:body[1]) * 4 div 3 div 1000"/>
+      <p:variable name="href" select="/*/@local-href">
+        <p:pipe port="file-uri" step="tr-get-data-uri"/>
+      </p:variable>
       <p:when test="xs:float($base64-str-size) &gt; xs:float($max-base64-encoded-size-kb)">
         
         <cx:message>
           <p:with-option name="message" select="'[WARNING] File not embedded. Base64 encoded string size (', 
             round-half-to-even($base64-str-size, 2) , 
-            ') exceeds limit of ', $max-base64-encoded-size-kb, ' KB: ', $href"/>
+            'kB) exceeds limit of ', $max-base64-encoded-size-kb, ' kB: ', $href"/>
         </cx:message>
         
         <p:sink/>
@@ -230,6 +238,9 @@
               <p:input port="fileref">
                 <p:pipe port="current" step="viewport"/>
               </p:input>
+              <p:input port="file-uri">
+                <p:pipe port="result" step="file-uri"/>
+              </p:input>
               <p:with-option name="max-base64-encoded-size-kb" select="$max-base64-encoded-size-kb"/>
             </tr:get-data-uri>
             
@@ -287,13 +298,7 @@
                 
                 <p:try name="try-extract-references-from-css">
                   <p:group>
-                    <p:identity name="id1"/>
-                    <p:sink name="sink1"/>
                     <p:xslt name="extract-references-from-css">
-                      <p:input port="source">
-                        <p:pipe port="result" step="id1"/>
-                        <p:pipe port="catalog" step="html-embed-resources"/>
-                      </p:input>
                       <p:with-param name="base-uri" select="$href"/>
                       <p:input port="stylesheet">
                         <p:document href="../xsl/css-embed-resources.xsl"/>
@@ -305,19 +310,32 @@
                       <p:variable name="data-uri" select="tr:data-uri/@href"/>
                       <p:variable name="mime-type" select="tr:data-uri/@mime-type"/>
                       
-                      <p:choose>
-                        <p:when test="$debug eq 'yes'">
+                      <tr:file-uri fetch-http="true" name="css-file-uri">
+                        <p:with-option name="filename" select="$data-uri"/>
+                        <p:input port="catalog">
+                          <p:pipe port="catalog" step="html-embed-resources"/>
+                        </p:input>
+                        <p:input port="resolver">
+                          <p:document href="http://transpect.io/xslt-util/xslt-based-catalog-resolver/xsl/resolve-uri-by-catalog.xsl"/>
+                        </p:input>
+                      </tr:file-uri>
+                      
+                      <p:choose name="foo">
+                        <p:when test="true()(:$debug eq 'yes':)">
                           <cx:message>
-                            <p:with-option name="message" select="'embed: ', $data-uri"/>
+                            <p:with-option name="message" select="'CSS embed: ', $data-uri, 
+                              if (not($data-uri = /*/@local-href)) 
+                              then (', resolved as ', /*/@local-href)
+                              else ()"/>
                           </cx:message>
                         </p:when>
                         <p:otherwise>
                           <p:identity/>
                         </p:otherwise>
                       </p:choose>
-                      
-                      <p:add-attribute attribute-name="href" match="/c:request" name="construct-http-request-css">
-                        <p:with-option name="attribute-value" select="$data-uri"/>
+
+                      <p:add-attribute attribute-name="href" match="/c:request" name="construct-http-request-css" cx:depends-on="foo">
+                        <p:with-option name="attribute-value" select="/*/@local-href"/>
                         <p:input port="source">
                           <p:documentation>We request it as application/octet-stream so that we are certain that it will be
                             base64 encoded, even if it were SVG or the like. (When reading resources from a Jar, we received
@@ -332,17 +350,34 @@
                         <p:input port="fileref">
                           <p:pipe port="current" step="viewport-data-uri"/>
                         </p:input>
+                        <p:input port="file-uri">
+                          <p:pipe port="result" step="css-file-uri"/>
+                        </p:input>
                         <p:with-option name="max-base64-encoded-size-kb" select="$max-base64-encoded-size-kb"/>
                       </tr:get-data-uri>
                       
-                      <p:string-replace match="tr:data-uri/text()">
-                        <p:input port="source">
-                          <p:pipe port="current" step="viewport-data-uri"/>
-                        </p:input>
-                        <p:with-option name="replace" select="concat('''', 'data:', $mime-type, ';', c:body/@encoding, ',', replace(c:body, '&#xa;', ''), '''')">
-                          <p:pipe port="result" step="http-request-css-resource"/>
-                        </p:with-option>
-                      </p:string-replace>
+                      <p:choose name="conditionally-replace-css-uri">
+                        <p:when test="name(/*) = 'c:body'">
+                          <p:string-replace match="tr:data-uri/text()">
+                            <p:input port="source">
+                              <p:pipe port="current" step="viewport-data-uri"/>
+                            </p:input>
+                            <p:with-option name="replace" select="concat('''', 'data:', $mime-type, ';', c:body/@encoding, ',', replace(c:body, '&#xa;', ''), '''')">
+                              <p:pipe port="result" step="http-request-css-resource"/>
+                            </p:with-option>
+                          </p:string-replace>    
+                        </p:when>
+                        <p:otherwise>
+                          <p:string-replace match="tr:data-uri/text()">
+                            <p:input port="source">
+                              <p:pipe port="current" step="viewport-data-uri"/>
+                            </p:input>
+                            <p:with-option name="replace" select="concat('''', /*/@local-href, '''')">
+                              <p:pipe port="result" step="css-file-uri"/>
+                            </p:with-option>
+                          </p:string-replace>
+                        </p:otherwise>
+                      </p:choose>
                       
                     </p:viewport>
                     

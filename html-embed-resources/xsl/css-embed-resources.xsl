@@ -2,18 +2,14 @@
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" 
   xmlns:xs="http://www.w3.org/2001/XMLSchema"
   xmlns:tr="http://transpect.io"
-  xmlns:cat="urn:oasis:names:tc:entity:xmlns:xml:catalog"
   exclude-result-prefixes="#all" 
   version="2.0">
   
   <xsl:import href="http://transpect.io/xslt-util/mime-type/xsl/mime-type.xsl"/>
-  <xsl:import href="http://transpect.io/xslt-util/xslt-based-catalog-resolver/xsl/resolve-uri-by-catalog.xsl"/>
 
   <xsl:param name="base-uri"/>
   <xsl:param name="suppress-image" as="xs:string?"/>
 
-  <xsl:variable name="catalog" as="document-node(element(cat:catalog))?" select="collection()[cat:catalog]"/>
-  
   <xsl:template match="text()">
     <xsl:analyze-string select="." regex="url\((.+?)\)">
       <xsl:matching-substring>
@@ -31,8 +27,7 @@
             <xsl:text>url('</xsl:text>
             <!-- We better try to resolve it by catalog because otherwise we end up with things like
               http://transpect.io/htmlreports/template/icons/logo-transpect.svg if image embedding is suppressed -->
-            <tr:data-uri href="{tr:resolve-uri-by-catalog($href, $catalog)}" 
-              mime-type="{tr:fileref-to-mime-type($href)}">tobereplaced</tr:data-uri>
+            <tr:data-uri href="{$href}" mime-type="{tr:fileref-to-mime-type($href)}">tobereplaced</tr:data-uri>
             <xsl:text>')</xsl:text>
           </xsl:otherwise>
         </xsl:choose>
