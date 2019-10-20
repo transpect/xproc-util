@@ -16,7 +16,9 @@
     <p:documentation>Space-separated list of URIs</p:documentation>
   </p:option>
   <p:xslt name="load-sources-xsl1" template-name="main">
-    <p:with-param name="uris" select="$uris"/>
+    <p:with-param name="uris" select="$uris">
+      <p:empty/>
+    </p:with-param>
     <p:input port="stylesheet">
       <p:inline>
         <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="2.0">
