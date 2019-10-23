@@ -149,7 +149,7 @@
           <xsl:template match="/">
             <xsl:text>&#xa;</xsl:text>
             <xsl:processing-instruction name="xml-model" 
-                select="'href=&#x22;http://www.le-tex.de/resource/schema/hub/1.1/css/cssa-rules.rng&#x22; type=&#x22;application/xml&#x22; schematypens=&#x22;http://relaxng.org/ns/structure/1.0&#x22;'"/>
+                select="'href=&#x22;http://www.le-tex.de/resource/schema/hub/1.2/css/cssa-rules.rng&#x22; type=&#x22;application/xml&#x22; schematypens=&#x22;http://relaxng.org/ns/structure/1.0&#x22;'"/>
             <xsl:text>&#xa;</xsl:text>
             <xsl:copy-of select="*"/>
           </xsl:template>
