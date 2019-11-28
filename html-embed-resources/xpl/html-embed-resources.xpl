@@ -169,12 +169,14 @@
                                                        html:link/@href, 
                                                        svg:image/@xlink:href)[1],
                                                        '\\', '/')"/>
+    <p:variable name="href-attribute-normalized" 
+                select="replace(replace(replace($href-attribute, '\[', '%5B'), '\]', '%5D'), '\s', '%20')"/>
     <p:variable name="href" 
       select="if(starts-with($href-attribute, 'data:'))  (: leave data URIs as-is :)
-              then $href-attribute
-              else resolve-uri(if(matches($href-attribute, '^(http[s]?|file)://?')) (: resolve regular URIs :) 
-                   then $href-attribute
-                   else concat(replace($local-base-uri, '^(.+/).+$', '$1'), $href-attribute),
+              then $href-attribute-normalized
+              else resolve-uri(if(matches($href-attribute-normalized, '^(http[s]?|file)://?')) (: resolve regular URIs :) 
+                   then $href-attribute-normalized
+                   else concat(replace($local-base-uri, '^(.+/).+$', '$1'), $href-attribute-normalized),
                    $local-base-uri)"/>
     
     <p:choose>
