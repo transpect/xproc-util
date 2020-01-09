@@ -67,7 +67,7 @@
   </tr:file-uri>
   
   <tr:store-debug>
-    <p:with-option name="pipeline-step" select="concat('ghostscript', $basename, '/install-path')"/>
+    <p:with-option name="pipeline-step" select="concat('ghostscript/', $basename, '/install-path')"/>
     <p:with-option name="active" select="$debug"/>
     <p:with-option name="base-uri" select="$debug-dir-uri"/>
   </tr:store-debug>
@@ -89,7 +89,7 @@
   </tr:file-uri>
   
   <tr:store-debug name="debug-outfile-path">
-    <p:with-option name="pipeline-step" select="concat('ghostscript', $basename, '/outpath')"/>
+    <p:with-option name="pipeline-step" select="concat('ghostscript/', $basename, '/outpath')"/>
     <p:with-option name="active" select="$debug"/>
     <p:with-option name="base-uri" select="$debug-dir-uri"/>
   </tr:store-debug>
@@ -103,7 +103,7 @@
     <p:input port="source">
       <p:pipe port="result" step="file-path"/>
     </p:input>
-    <p:with-option name="pipeline-step" select="concat('ghostscript', $basename, '/sourcefile')"/>
+    <p:with-option name="pipeline-step" select="concat('ghostscript/', $basename, '/sourcefile')"/>
     <p:with-option name="active" select="$debug"/>
     <p:with-option name="base-uri" select="$debug-dir-uri"/>
   </tr:store-debug>
@@ -152,7 +152,7 @@
       </p:wrap-sequence>
       
       <tr:store-debug name="debug-output-ok">
-        <p:with-option name="pipeline-step" select="concat('ghostscript', $basename, '/conversion-log')"/>
+        <p:with-option name="pipeline-step" select="concat('ghostscript/', $basename, '/conversion-log')"/>
         <p:with-option name="active" select="$debug"/>
         <p:with-option name="base-uri" select="$debug-dir-uri"/>
       </tr:store-debug>
@@ -186,7 +186,7 @@
       </cx:message>
       
       <tr:store-debug name="debug-output-error">
-        <p:with-option name="pipeline-step" select="concat('ghostscript', $basename, '/conversion-log')"/>
+        <p:with-option name="pipeline-step" select="concat('ghostscript/', $basename, '/conversion-log')"/>
         <p:with-option name="active" select="$debug"/>
         <p:with-option name="base-uri" select="$debug-dir-uri"/>
       </tr:store-debug>
@@ -209,7 +209,7 @@
   </p:try>
   
   <tr:store-debug name="debug-output">
-    <p:with-option name="pipeline-step" select="concat('ghostscript', $basename, '/output')"/>
+    <p:with-option name="pipeline-step" select="concat('ghostscript/', $basename, '/output')"/>
     <p:with-option name="active" select="$debug"/>
     <p:with-option name="base-uri" select="$debug-dir-uri"/>
   </tr:store-debug>
