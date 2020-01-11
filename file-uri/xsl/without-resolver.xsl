@@ -22,6 +22,9 @@
             <xsl:when test="matches($uri, '^/[^/]')">
               <xsl:sequence select="tr:uri-composer(concat('file:', $uri), '')"/>
             </xsl:when>
+            <xsl:when test="matches($uri, '^/$')">
+              <xsl:sequence select="'file:/'"/>
+            </xsl:when>
             <xsl:when test="matches($uri, '^//')">
               <xsl:sequence select="$uri"/>
             </xsl:when>
