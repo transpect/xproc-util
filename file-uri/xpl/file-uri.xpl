@@ -240,8 +240,8 @@
         </p:add-attribute>
       </p:when>
       
-      <p:when test="matches($catalog-resolved-uri, '^file://///[^/]')">
-        <p:documentation>Windows UNC path URI. file:///// → \\ .</p:documentation>
+      <p:when test="matches($catalog-resolved-uri, '^file://[^/]')">
+        <p:documentation>Windows UNC path URI.</p:documentation>
         <p:add-attribute attribute-name="local-href" match="/*">
           <p:with-option name="attribute-value" select="$catalog-resolved-uri"/>
           <p:input port="source">
@@ -251,7 +251,7 @@
           </p:input>
         </p:add-attribute>
         <p:add-attribute match="/*" attribute-name="os-path">
-          <p:with-option name="attribute-value" select="replace(replace($catalog-resolved-uri, '^file:///', ''), '/', '\\')"/>
+          <p:with-option name="attribute-value" select="replace($catalog-resolved-uri, '^file://', '\\')"/>
         </p:add-attribute>
         <tr:unescape-uri attribute-names="os-path"/>
       </p:when>
@@ -279,7 +279,7 @@
       <p:when test="matches($catalog-resolved-uri, '^/')">
         <p:documentation>Unix Filename</p:documentation>
         <p:add-attribute match="/*" attribute-name="local-href">
-          <p:with-option name="attribute-value" select="concat('file:', $catalog-resolved-uri)"/>
+          <p:with-option name="attribute-value" select="concat('file://', $catalog-resolved-uri)"/>
         </p:add-attribute>
         <p:add-attribute match="/*" attribute-name="os-path">
           <p:with-option name="attribute-value" select="$catalog-resolved-uri"/>
@@ -589,11 +589,11 @@
   </p:group>
 
   <p:add-attribute name="lastpath" attribute-name="lastpath" match="/*">
-    <p:with-option name="attribute-value" select="replace(/*/@local-href, '^.+/([^/]+)/*$', '$1')"/>
+    <p:with-option name="attribute-value" select="replace(/*/@local-href, '^.+/([^/]*)/*$', '$1')"/>
   </p:add-attribute>
   
   <p:add-attribute name="lastpath-os" attribute-name="lastpath-os" match="/*">
-    <p:with-option name="attribute-value" select="replace(/*/@os-path, '^.+/([^/]+)/*$', '$1')"/>
+    <p:with-option name="attribute-value" select="replace(/*/@os-path, '^.*/([^/]*)/*$', '$1')"/>
   </p:add-attribute>
 
   <p:xslt name="add-rel-path">
