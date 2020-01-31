@@ -488,23 +488,26 @@
           </p:input>
         </p:identity>
 
-        <p:add-attribute match="/c:request" attribute-name="href">
-          <p:with-option name="attribute-value" select="escape-html-uri($catalog-resolved-uri)"/>
-        </p:add-attribute>
         <p:try name="http-request-check">
           <p:group>
             <p:output port="result" primary="true"/>
+            <p:add-attribute match="/c:request" attribute-name="href">
+              <p:with-option name="attribute-value" select="escape-html-uri($catalog-resolved-uri)"/>
+            </p:add-attribute>
             <p:http-request />
           </p:group>
-          <p:catch>
+          <p:catch name="catch-http-request-check">
             <p:output port="result" primary="true"/>
-            <p:identity>
+            <p:insert match="/*" position="first-child">
               <p:input port="source">
                 <p:inline>
                   <c:response status="999"/>
                 </p:inline>
               </p:input>
-            </p:identity>
+              <p:input port="insertion">
+                <p:pipe port="error" step="catch-http-request-check"/>
+              </p:input>
+            </p:insert>
           </p:catch>
         </p:try>
 
