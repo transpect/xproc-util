@@ -188,4 +188,8 @@
     <xsl:attribute name="{name()}" select="for $i in tokenize(.,' ') return concat($srcpath-prefix, $i)"/>
   </xsl:template>
   
+  <xsl:template match="@id[count(//@id[. eq current()]) gt 1] | @linkend[count(//@id[. eq current()]) gt 1]" mode="merge-hub">
+    <xsl:attribute name="{name(.)}" select="concat(.,'_',ancestor::*[parent::cx:document]/generate-id())"/>
+  </xsl:template>
+    
 </xsl:stylesheet>
