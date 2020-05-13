@@ -28,6 +28,9 @@
               <xsl:apply-templates select="@*, node()"/>
             </xsl:copy>
           </xsl:template>
+          <xsl:template match="comment() | processing-instruction()">
+            <xsl:copy/>
+          </xsl:template>
           <xsl:template match="@xml:base"/>
         </xsl:stylesheet>
       </p:inline>
