@@ -10,6 +10,7 @@
   <xsl:param name="schematron-like-paths" select="'no'"/>
   <xsl:param name="exclude-elements"/>
   <xsl:param name="exclude-descendants"/>
+  <xsl:param name="prepend" as="xs:string?"/>
   
   <xsl:template match="@*|node()">
     <xsl:copy>
@@ -21,9 +22,12 @@
                          or ($exclude-descendants eq 'yes' 
                          and ancestor::*/name() = tokenize($exclude-elements, '\s')))]">
     <xsl:copy>
-      <xsl:attribute name="srcpath" select="if($schematron-like-paths eq 'yes')
-                                            then tr:path-to-node-with-pos-verbose(.)
-                                            else functx:path-to-node-with-pos(.)"/>
+      <xsl:attribute name="srcpath" select="string-join((
+                                              $prepend,
+                                              if($schematron-like-paths eq 'yes')
+                                              then tr:path-to-node-with-pos-verbose(.)
+                                              else functx:path-to-node-with-pos(.)
+                                            ), '')"/>
       <xsl:apply-templates select="@*, node()" mode="#current"/>
     </xsl:copy>
   </xsl:template>

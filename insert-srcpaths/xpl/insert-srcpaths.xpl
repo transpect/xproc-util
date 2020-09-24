@@ -35,11 +35,15 @@
   <p:option name="exclude-descendants" select="'yes'">
     <p:documentation>Whether the descendants of the excluded elements should be processed.</p:documentation>
   </p:option>
+  <p:option name="prepend" select="''">
+    <p:documentation>A string that will be prepended to the path, for ex. "{base-uri()}?xpath=".</p:documentation>
+  </p:option>
   
   <p:xslt>
     <p:with-param name="schematron-like-paths" select="$schematron-like-paths"/>
     <p:with-param name="exclude-elements" select="$exclude-elements"/>
     <p:with-param name="exclude-descendants" select="$exclude-descendants"/>
+    <p:with-param name="prepend" select="$prepend"/>
     <p:input port="stylesheet">
       <p:document href="../xsl/insert-srcpaths.xsl"/>
     </p:input>
