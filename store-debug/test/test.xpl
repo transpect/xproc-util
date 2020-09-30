@@ -19,9 +19,15 @@
     </p:inline>
   </p:input>
   <p:output port="result" sequence="true"/>
+  <p:option name="debug-dir-uri" required="false" select="'debug'"/>
+  <p:option name="debug" required="false" select="'yes'"/>
+  
   <p:import href="../xpl/store-debug.xpl"/>
   
-  <tr:store-debug active="yes" pipeline-step="schubi/dubi"/>
+  <tr:store-debug pipeline-step="schubi/dubi" extension="xml">
+    <p:with-option name="base-uri" select="$debug-dir-uri"><p:empty/></p:with-option>
+    <p:with-option name="active" select="$debug"><p:empty/></p:with-option>
+  </tr:store-debug>
   
   <p:xslt template-name="main">
     <p:input port="stylesheet">
