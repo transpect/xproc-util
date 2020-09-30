@@ -66,7 +66,8 @@
                               )
                             )
                           )"/>
-                <collection href="{$base}.catalog.xml">
+                <collection>
+                  <xsl:attribute name="xml:base" select="concat($base, '.catalog.xml')"/>
                   <xsl:choose>
                     <xsl:when test="count(collection()/*) = 0"/>
                     <xsl:when test="count(collection()/*) = 1">
@@ -121,7 +122,9 @@
             </p:input>
           </p:identity>
           <p:store name="store-catalog" indent="true" omit-xml-declaration="false">
-            <p:with-option name="href" select="/collection/@href"/>
+            <p:with-option name="href" select="/collection/@xml:base">
+              <p:pipe port="result" step="catalog-and-storage-uris"/>
+            </p:with-option>
           </p:store>
         </p:when>
         <p:otherwise>
