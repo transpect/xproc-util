@@ -35,9 +35,7 @@
   
   <xsl:template match="/*">
     <xsl:document>
-      <xsl:if test="exists($begin-PIs)">
-        <xsl:value-of select="$separator"/>
-      </xsl:if>
+      <xsl:value-of select="$separator"/>
       <xsl:sequence select="$begin-PIs"/>
       <xsl:copy-of select="."/>
       <xsl:if test="exists($end-PIs)">
