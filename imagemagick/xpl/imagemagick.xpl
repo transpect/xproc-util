@@ -59,7 +59,7 @@
   <tr:file-uri name="imagemagick-path" cx:depends-on="os-info">
     <p:with-option name="filename" select="if($imagemagick-path eq '')
                                            then if(matches(/c:result/@os-name, 'windows', 'i')) 
-                                                then 'C:/cygwin64/bin/convert.exe'
+                                                then 'C:/cygwin64/bin/magick.exe'
                                                 else '/usr/bin/convert'
                                            else $imagemagick-path"/>
   </tr:file-uri>
