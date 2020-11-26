@@ -56,7 +56,7 @@
           </p:input>
         </p:identity>
         <p:group>
-          <p:variable name="previous-message" select="string(/c:errors/c:error)"/>
+          <p:variable name="previous-message" select="string-join(/c:errors/c:error, ' ')"/>
           <p:string-replace match="c:error/text()">
             <p:with-option name="replace" 
               select="concat('''', $previous-message, ': Cannot open ',  /c:entry/@href, ' for zip entry ', /c:entry/@name, '''')">
