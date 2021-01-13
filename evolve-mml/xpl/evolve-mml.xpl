@@ -64,6 +64,12 @@
   <p:option name="context" select="false()" required="false"/>
   <p:option name="display-equation-table-role" select="'equation-table'" required="false"/>
   
+  <p:option name="set-math-style" select="'no'">
+    <p:documentation>
+      [yes|no] Whether to output \textstyle or \displaystyle when math/@display is set
+    </p:documentation>
+  </p:option>
+  
   <p:output port="result" primary="true"/>
   
   <p:import href="http://xmlcalabash.com/extension/steps/library-1.0.xpl"/>
@@ -164,6 +170,7 @@
       <p:with-option name="debug-dir-uri" select="$debug-uri"/>
       <p:with-option name="preprocessing" select="$preprocessing"/>
       <p:with-option name="fail-on-error" select="$fail-on-error"/>
+      <p:with-option name="set-math-style" select="$set-math-style"/>
     </mml2tex:convert>
     <p:unwrap name="tex" match="tex"/>
 
