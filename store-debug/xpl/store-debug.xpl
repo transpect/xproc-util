@@ -115,7 +115,7 @@
       </p:count>
       
       <p:choose>
-        <p:when test=". > 1">
+        <p:when test=". > 0">
           <p:identity>
             <p:input port="source">
               <p:pipe port="result" step="catalog-and-storage-uris"/>
