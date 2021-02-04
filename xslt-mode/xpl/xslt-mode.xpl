@@ -112,6 +112,24 @@
           <p:identity/>
         </p:otherwise>
       </p:choose>
+
+      <p:choose name="save-xsl-for-debugging">
+        <p:xpath-context><p:empty/></p:xpath-context>
+        <p:when test="$debug = 'yes'">
+          <tr:store-debug>
+            <p:input port="source">
+              <p:pipe port="stylesheet" step="xslt-mode"/>
+            </p:input>
+            <p:with-option name="pipeline-step" select="concat($debug-file-name, '.xsl')"/>
+            <p:with-option name="active" select="$debug"/>
+            <p:with-option name="base-uri" select="$debug-dir-uri"/>
+            <p:with-option name="indent" select="$debug-indent"/>
+          </tr:store-debug>
+        </p:when>
+        <p:otherwise>
+          <p:identity/>
+        </p:otherwise>
+      </p:choose>
       
       <p:xslt name="xslt">
         <p:with-option name="initial-mode" select="$mode">
@@ -228,6 +246,32 @@
         <p:with-option name="active" select="$debug"/>
         <p:with-option name="base-uri" select="$debug-dir-uri" />
       </tr:store-debug>
+
+      <p:choose>
+        <p:when test="    $debug = 'yes'
+                      and not(matches($debug-dir-uri, 'debug-xslt-on-error=no')
+                      and contains(/*, 'Errors were reported during stylesheet compilation')">
+          <cx:message>
+            <p:with-option name="message" 
+              select="concat('DEBUG: RUNNING XSLT FOR ', $debug-file-name)"><p:empty/></p:with-option>
+          </cx:message>
+          <p:xslt name="xslt">
+            <p:with-option name="initial-mode" select="$mode">
+              <p:pipe port="stylesheet" step="xslt-mode"/>
+            </p:with-option>
+            <p:input port="parameters">
+              <p:pipe port="result" step="consolidate-params"/>
+            </p:input>
+            <p:input port="stylesheet">
+              <p:pipe port="stylesheet" step="xslt-mode"/>
+            </p:input>
+            <p:with-param name="debug" select="$debug"><p:empty/></p:with-param>
+          </p:xslt>
+        </p:when>
+        <p:otherwise>
+          <p:identity/>
+        </p:otherwise>
+      </p:choose>
       
       <!-- if option fail-on-error is set to 'yes', the step fails with the original error code -->
       <p:choose>
