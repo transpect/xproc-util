@@ -116,7 +116,6 @@
       <p:choose name="save-xsl-for-debugging">
         <p:xpath-context><p:empty/></p:xpath-context>
         <p:when test="$debug = 'yes'">
-          <p:sink/>
           <tr:store-debug>
             <p:input port="source">
               <p:pipe port="stylesheet" step="xslt-mode"/>
