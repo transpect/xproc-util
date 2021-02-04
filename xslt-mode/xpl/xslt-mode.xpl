@@ -79,7 +79,7 @@
     </p:input>
   </p:parameters>
   
-  <p:identity>
+  <p:identity name="xslt-mode-source">
     <p:input port="source">
       <p:pipe port="source" step="xslt-mode"/>
     </p:input>
@@ -116,6 +116,7 @@
       <p:choose name="save-xsl-for-debugging">
         <p:xpath-context><p:empty/></p:xpath-context>
         <p:when test="$debug = 'yes'">
+          <p:sink/>
           <tr:store-debug>
             <p:input port="source">
               <p:pipe port="stylesheet" step="xslt-mode"/>
@@ -132,6 +133,9 @@
       </p:choose>
       
       <p:xslt name="xslt">
+        <p:input port="source">
+          <p:pipe port="result" step="xslt-mode-source"/>
+        </p:input>
         <p:with-option name="initial-mode" select="$mode">
           <p:pipe port="stylesheet" step="xslt-mode"/>
         </p:with-option>
