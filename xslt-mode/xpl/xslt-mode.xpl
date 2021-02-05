@@ -234,8 +234,7 @@
 
       <p:choose>
         <p:when test="    $debug = 'yes'
-                      and not(matches($debug-dir-uri, 'debug-xslt-on-error=no'))
-                      and contains(/*, 'Errors were reported during stylesheet compilation')">
+                      and not(matches($debug-dir-uri, 'debug-xslt-on-error=no'))">
           <cx:message>
             <p:with-option name="message" 
               select="concat('DEBUG: RUNNING XSLT FOR ', $debug-file-name)"><p:empty/></p:with-option>
