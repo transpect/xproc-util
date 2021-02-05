@@ -112,24 +112,6 @@
           <p:identity/>
         </p:otherwise>
       </p:choose>
-
-      <p:choose name="save-xsl-for-debugging">
-        <p:xpath-context><p:empty/></p:xpath-context>
-        <p:when test="$debug = 'yes'">
-          <tr:store-debug>
-            <p:input port="source">
-              <p:pipe port="stylesheet" step="xslt-mode"/>
-            </p:input>
-            <p:with-option name="pipeline-step" select="concat($debug-file-name, '.xsl')"/>
-            <p:with-option name="active" select="$debug"/>
-            <p:with-option name="base-uri" select="$debug-dir-uri"/>
-            <p:with-option name="indent" select="$debug-indent"/>
-          </tr:store-debug>
-        </p:when>
-        <p:otherwise>
-          <p:identity/>
-        </p:otherwise>
-      </p:choose>
       
       <p:xslt name="xslt">
         <p:input port="source">
@@ -267,6 +249,9 @@
             </p:input>
             <p:input port="stylesheet">
               <p:pipe port="stylesheet" step="xslt-mode"/>
+            </p:input>
+            <p:input port="source">
+              <p:pipe port="source" step="xslt-mode"/>
             </p:input>
             <p:with-param name="debug" select="$debug"><p:empty/></p:with-param>
           </p:xslt>

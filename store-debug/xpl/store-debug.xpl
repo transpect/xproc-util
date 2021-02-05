@@ -115,9 +115,7 @@
       </p:count>
       
       <p:choose>
-        <p:when test=". > 0 
-                      (: exclude files of step 'save-xsl-for-debugging' in xslt-mode.xpl :)
-                      and not(ends-with($pipeline-step, '.xsl'))">
+        <p:when test=". > 0">
           <p:identity>
             <p:input port="source">
               <p:pipe port="result" step="catalog-and-storage-uris"/>
