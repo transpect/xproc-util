@@ -44,7 +44,7 @@
   
   <p:option name="debug" select="'no'"/>
   <p:option name="debug-dir-uri" select="'debug'"/>
-  <p:option name="fail-on-error" select="'true'"/>
+  <p:option name="fail-on-error" select="'false'"/>
   
   <p:import href="http://xmlcalabash.com/extension/steps/library-1.0.xpl"/>
   <p:import href="http://transpect.io/xproc-util/file-uri/xpl/file-uri.xpl"/>
