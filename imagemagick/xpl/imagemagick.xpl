@@ -106,7 +106,7 @@
     <p:with-option name="base-uri" select="$debug-dir-uri"/>
   </tr:store-debug>
   
-  <p:try name="exec-group" cxf:depends-on="mkdir">
+  <p:try name="exec-group" cx:depends-on="mkdir">
     <p:group>
       <p:output port="result" primary="true"/>
       <p:output port="report" primary="false" sequence="true">
