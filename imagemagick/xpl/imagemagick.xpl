@@ -3,7 +3,7 @@
   xmlns:c="http://www.w3.org/ns/xproc-step" 
   xmlns:cx="http://xmlcalabash.com/ns/extensions"
   xmlns:pos="http://exproc.org/proposed/steps/os"
-  xmlns:cxf="http://xmlcalabash.com/ns/extensions/fileutils"
+  xmlns:pxf="http://exproc.org/proposed/steps/file"
   xmlns:tr="http://transpect.io"
   xmlns:xe="http://degruyter.com/xmlns/xml2epub"
   version="1.0"
@@ -92,10 +92,10 @@
     <p:with-option name="base-uri" select="$debug-dir-uri"/>
   </tr:store-debug>
   
-  <cxf:mkdir name="mkdir">
+  <pxf:mkdir name="mkdir">
     <p:with-option name="href" select="replace(/c:result/@href, '^(.+)/.+$', '$1')"/>
     <p:with-option name="fail-on-error" select="$fail-on-error"/>
-  </cxf:mkdir>
+  </pxf:mkdir>
   
   <tr:store-debug name="debug-sourcefile-path">
     <p:input port="source">
