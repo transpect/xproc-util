@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <p:declare-step xmlns:p="http://www.w3.org/ns/xproc" 
   xmlns:c="http://www.w3.org/ns/xproc-step"
+  xmlns:cx="http://xmlcalabash.com/ns/extensions" 
   xmlns:tr="http://transpect.io"
   version="1.0"
   name="load"
@@ -49,8 +50,14 @@
         * retrieve the absolute URI from the file path
         * -->
   
-  <tr:file-uri name="retrieve-absolute-file-uri-href">
+  <tr:file-uri name="retrieve-absolute-file-uri-href" fetch-http="false">
     <p:with-option name="filename" select="$href"/>
+    <p:input port="resolver">
+      <p:document href="http://transpect.io/xslt-util/xslt-based-catalog-resolver/xsl/resolve-uri-by-catalog.xsl"/>
+    </p:input>
+    <p:input port="catalog">
+      <p:document href="http://this.transpect.io/xmlcatalog/catalog.xml"/>
+    </p:input>
   </tr:file-uri>
   
   <p:group>
