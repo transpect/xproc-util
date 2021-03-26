@@ -81,13 +81,17 @@
                     <xsl:otherwise>
                       <xsl:for-each-group select="collection()[*]" group-by="(base-uri(/*), base-uri(), '')[1]">
                         <xsl:variable name="notdir" select="replace(current-grouping-key(), '^.*/', '')" as="xs:string"/>
-                        <xsl:variable name="without-ext" as="xs:string" select="replace($notdir, '^(.+)\.(.+)$', '$1')"/>
-                        <xsl:variable name="ext" as="xs:string?" 
+                        <xsl:variable name="without-ext" as="xs:string" 
+                          select="if ($notdir = '') 
+                                  then '__filename__unknown__' 
+                                  else replace($notdir, '^(.+)\.(.+)$', '$1')"/>
+                        <xsl:variable name="ext" as="xs:string" 
                           select="if (normalize-space($extension)) 
                                   then $extension 
                                   else if (matches($notdir, '^(.+)\.(.+)$')) 
                                        then replace($notdir, '^(.+)\.(.+)$', '$2')
-                                       else ()"/>
+                                       else 'xml'"/>
+  <!--<xsl:message select="'RRRRRRRRRRRRRRRRR notdir:', $notdir, ' without-ext:', $without-ext, ' ext:', $ext, ', base-uri(/*):', base-uri(/*), ' base-uri():', base-uri()"></xsl:message>-->
                         <xsl:for-each select="current-group()">
                           <xsl:variable name="href" as="xs:string"
                             select="concat($base, '/', string-join(($without-ext, position()[. gt 1], $ext), '.'))"/>
