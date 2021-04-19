@@ -25,7 +25,8 @@
     <xsl:variable name="hub-filerefs" 
       select="(//*[matches(name(), $fileref-hosting-element-name-regex)]
                   /@*[matches(name(), $fileref-attribute-name-regex)][. ne ''])" as="item()*"/>
-    <c:copy-files xml:base="{base-uri(/*)}">
+    <c:copy-files>
+      <xsl:attribute name="xml:base" select="base-uri(/*)"/>
       <xsl:for-each select="$hub-filerefs[. ne '']">
         <xsl:sort select="." order="ascending"/>
         <c:entry>
