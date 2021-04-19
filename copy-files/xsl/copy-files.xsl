@@ -12,6 +12,7 @@
   <xsl:param name="change-uri-new-subpath" select="''"/>
   <xsl:param name="target-dir-uri"/>
   <xsl:param name="fileref-attribute-name-regex" select="'^fileref$'"/>
+  <xsl:param name="fileref-attribute-value-regex" select="'^.+$'"/>
   <xsl:param name="fileref-hosting-element-name-regex" select="'^(audiodata|imagedata|textdata|videodata)$'"/>
 
   <xsl:variable name="source-dir-uri" as="xs:string"
@@ -24,7 +25,8 @@
   <xsl:template name="create-entries-from-hub">
     <xsl:variable name="hub-filerefs" 
       select="(//*[matches(name(), $fileref-hosting-element-name-regex)]
-                  /@*[matches(name(), $fileref-attribute-name-regex)][. ne ''])" as="item()*"/>
+                  /@*[matches(name(), $fileref-attribute-name-regex)]
+                     [matches(., $fileref-attribute-value-regex)])" as="item()*"/>
     <c:copy-files>
       <xsl:attribute name="xml:base" select="base-uri(/*)"/>
       <xsl:for-each select="$hub-filerefs[. ne '']">
@@ -73,7 +75,8 @@
   </xsl:function>
 
   <xsl:template match="*[matches(name(), $fileref-hosting-element-name-regex)]
-                        /@*[matches(name(), $fileref-attribute-name-regex)]" mode="change-uri">
+                        /@*[matches(name(), $fileref-attribute-name-regex)]
+                           [matches(., $fileref-attribute-value-regex)]" mode="change-uri">
     <xsl:attribute name="{name()}" select="tr:change-fileref(., '')"/>
   </xsl:template>
 

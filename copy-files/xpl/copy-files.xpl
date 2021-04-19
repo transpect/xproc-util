@@ -30,6 +30,8 @@
   <p:option name="fileref-hosting-element-name-regex" required="false" 
     select="'^(audiodata|imagedata|textdata|videodata)$'" />
 
+  <p:option name="fileref-attribute-value-regex" required="false" select="'^.+$'"/>
+
   <!-- fail-on-error: default value for basic steps cxf:mkdir and cxf:copy is true. here: false -->
   <p:option name="fail-on-error" required="false" select="'false'"/>
 
@@ -47,6 +49,7 @@
     <p:with-param name="retain-subpaths" select="$retain-subpaths"/>
     <p:with-param name="target-dir-uri" select="$target-dir-uri"/>
     <p:with-param name="fileref-attribute-name-regex" select="$fileref-attribute-name-regex"/>
+    <p:with-param name="fileref-attribute-value-regex" select="$fileref-attribute-value-regex"/>
     <p:with-param name="fileref-hosting-element-name-regex" select="$fileref-hosting-element-name-regex"/>
     <p:input port="stylesheet">
       <p:pipe port="result" step="load-stylesheet"/>
