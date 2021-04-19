@@ -41,7 +41,7 @@
   <p:import href="http://transpect.io/xproc-util/store-debug/xpl/store-debug.xpl"/>
 
   <p:load name="load-stylesheet" 
-    href="http://http://transpect.io/xproc-util/copy-files/xsl/copy-files.xsl"/>
+          href="http://transpect.io/xproc-util/copy-files/xsl/copy-files.xsl"/>
 
   <p:xslt name="generate-copy-instructions" template-name="create-entries-from-hub">
     <p:with-param name="retain-subpaths" select="$retain-subpaths"/>
