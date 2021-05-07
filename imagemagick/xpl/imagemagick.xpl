@@ -41,6 +41,9 @@
   <p:option name="imagemagick-path" select="''">
     <p:documentation>Installation path for ImageMagick</p:documentation>
   </p:option>  
+  <p:option name="prefix" select="''">
+    <p:documentation>Prefix for new created images</p:documentation>
+  </p:option>
   
   <p:option name="debug" select="'no'"/>
   <p:option name="debug-dir-uri" select="'debug'"/>
@@ -118,6 +121,12 @@
                           '$1', 'i')">
         <p:pipe port="result" step="outfile-path"/>
       </p:variable>
+      <p:variable name="image-stripped-outpath-prefix"
+                  select="replace($image-stripped-outpath,
+                          /c:result/@lastpath-os,
+                          concat($prefix,/c:result/@lastpath-os), 'i')">
+        <p:pipe port="result" step="outfile-path"/>
+      </p:variable>
       <p:variable name="arg-separator" select="' '"/>
       
       <cx:message name="msg2">
@@ -137,7 +146,7 @@
                                             $format,
                                             $imagemagick-options,
                                             concat(/c:result/@rel-path, '[0]'),
-                                            $image-stripped-outpath
+                                            $image-stripped-outpath-prefix
                                             ), 
                                             $arg-separator)">
           <p:pipe port="result" step="file-path"/>
