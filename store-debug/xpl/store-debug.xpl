@@ -83,7 +83,7 @@
                         <xsl:variable name="notdir" select="replace(current-grouping-key(), '^.*/', '')" as="xs:string"/>
                         <xsl:variable name="without-ext" as="xs:string" 
                           select="if ($notdir = '') 
-                                  then '__filename__unknown__' 
+                                  then string-join(('','filename','unknown',position()), '__') 
                                   else replace($notdir, '^(.+)\.(.+)$', '$1')"/>
                         <xsl:variable name="ext" as="xs:string" 
                           select="if (normalize-space($extension)) 
