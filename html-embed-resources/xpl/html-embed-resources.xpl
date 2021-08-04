@@ -66,6 +66,10 @@
     <p:documentation>Space-separated list of tokens. Available tokens are: image video script style audio object #all.
     (Question: support font as a category on its own?)</p:documentation>
   </p:option>
+  
+  <p:option name="include-class-only" select="''">
+    <p:documentation>Space-separated list of classnames. When image-tag has such a class, it will be embedded.</p:documentation>
+  </p:option>
 
   <p:option name="exclude-by-fileext" select="''">
     <p:documentation>Space-separated list of file extensions. Files which
@@ -184,7 +188,8 @@
                    else concat(replace($local-base-uri, '^(.+/).+$', '$1'), $href-attribute-normalized),
                    $local-base-uri)"/>
     <p:variable name="fileext" select="lower-case(replace($href, '^.+\.([a-z0-9]+)?$', '$1', 'i'))"/>
-    
+    <p:variable name="class-attribute" select="*/@class"/>
+    <p:variable name="matches-classes" select="if (not($include-class-only) or (($class-attribute) and matches($class-attribute,string-join(tokenize($include-class-only,'\s'),'|')))) then 'true' else ''"/>
     <p:choose>
       <p:when test="exists(
                         /*[local-name() = ('img'[$suppress-image],
@@ -201,11 +206,10 @@
         be specified in the p:viewport match attribute because options and variables seem to be inaccessible there.</p:documentation>
         <p:identity/>
       </p:when>
-      <p:when test="normalize-space($href-attribute) and not(starts-with($href-attribute, 'data:'))">
-        
+      
+      <p:when test="$matches-classes and (normalize-space($href-attribute) and not(starts-with($href-attribute, 'data:')))">
         <p:try>
           <p:group>
-            
             <p:choose>
               <p:when test="$debug eq 'yes'">
                 <cx:message>
