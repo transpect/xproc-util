@@ -34,6 +34,9 @@
     <p:documentation>URI where the zip is created</p:documentation>
   </p:option>
   
+  <p:import href="http://xmlcalabash.com/extension/steps/library-1.0.xpl" />
+  <p:import href="http://transpect.io/xproc-util/store-debug/xpl/store-debug.xpl" />
+  
   <p:viewport match="c:entry" name="zip-entries">
     <p:viewport-source>
       <p:pipe port="source" step="zip"/>
