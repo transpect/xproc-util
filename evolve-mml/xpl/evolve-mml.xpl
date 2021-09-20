@@ -63,6 +63,7 @@
   <p:option name="texmap-upgreek" select="'http://transpect.io/mml2tex/texmap/texmap-upgreek.xml'"/>
   <p:option name="context" select="false()" required="false"/>
   <p:option name="display-equation-table-role" select="'equation-table'" required="false"/>
+  <p:option name="store-plain-tex" select="'false'"/>
   
   <p:option name="set-math-style" select="'no'">
     <p:documentation>
@@ -178,15 +179,44 @@
 
     <p:choose>
       <p:when test="matches($type, 'img')">
-        <p:wrap match="processing-instruction()" name="tex-alt" wrapper="alt" wrapper-namespace="http://docbook.org/ns/docbook"
-          wrapper-prefix="alt">
-          <p:input port="source">
-            <p:pipe port="result" step="tex"/>
-          </p:input>
-        </p:wrap>
-        <p:store>
-          <p:with-option name="href" select="concat($output-dir, '/', $outfile, '.tex')"/>
-        </p:store>
+        <p:choose>
+          <p:when test="$store-plain-tex='true'">
+            <p:xslt>
+              <p:input port="source">
+                <p:pipe port="result" step="tex"/>
+              </p:input>
+              <p:input port="stylesheet">
+                <p:inline>
+                  <xsl:stylesheet version="2.0" xmlns:alt="http://docbook.org/ns/docbook">
+                    <xsl:template match="/">
+                      <alt:alt>
+                        <xsl:value-of select="processing-instruction()"/>
+                      </alt:alt>
+                    </xsl:template>
+                  </xsl:stylesheet>
+                </p:inline>
+              </p:input>
+              <p:input port="parameters">
+                <p:empty/>
+              </p:input>
+            </p:xslt>
+            <p:store method="text" media-type="text/plain" >
+              <p:with-option name="href" select="concat($output-dir, '/', $outfile, '.tex')"/>
+            </p:store>
+          </p:when>
+          <p:otherwise>
+            <p:wrap match="processing-instruction()" name="tex-alt" wrapper="alt" wrapper-namespace="http://docbook.org/ns/docbook"
+              wrapper-prefix="alt">
+              <p:input port="source">
+                <p:pipe port="result" step="tex"/>
+              </p:input>
+            </p:wrap>
+            <p:store>
+              <p:with-option name="href" select="concat($output-dir, '/', $outfile, '.tex')"/>
+            </p:store>   
+          </p:otherwise>
+        </p:choose>
+        
         <p:store>
           <p:input port="source">
             <p:pipe port="result" step="mml"/>
@@ -257,7 +287,7 @@
       <p:with-param name="outfile" select="$outfile, '.', $extension"/>
     </p:xslt>
     
-    <tr:store-debug name="output" pipeline-step="converted">
+    <tr:store-debug name="output" pipeline-step="evolve-mml/converted">
       <p:with-option name="active" select="$debug"/>
       <p:with-option name="base-uri" select="$debug-uri"/>
     </tr:store-debug>
