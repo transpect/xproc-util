@@ -18,7 +18,7 @@
               <xsl:attribute name="name" select="normalize-space(regex-group(1))"/>
             </xsl:matching-substring>
             <xsl:non-matching-substring>
-              <xsl:attribute name="value" select="normalize-space(replace(., '\c', ''))"/>
+              <xsl:attribute name="value" select="normalize-space(replace(., '\p{Cc}', ''))"/>
             </xsl:non-matching-substring>
           </xsl:analyze-string>
         </c:info>
