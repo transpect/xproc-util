@@ -13,6 +13,10 @@
   type="tr:extract-cssa-rules"
   >
   
+  <p:option name="only-layout-type-and-name-attributes" select="'no'">
+    <p:documentation>Wether to output all attributes
+      or only @name, @native-name and @layout-type.</p:documentation>
+  </p:option>
   <p:option name="debug" required="false" select="'no'"/>
   <p:option name="debug-dir-uri" />
   
@@ -28,7 +32,7 @@
   <p:serialization port="result" omit-xml-declaration="false" indent="true"/>
 
   <p:import href="http://xmlcalabash.com/extension/steps/library-1.0.xpl" />
-  
+
   <p:choose name="check-all-styles">
     <p:when test="not(/*/dbk:info/dbk:keywordset[@role eq 'hub']/dbk:keyword[@role eq 'used-rules-only'] = 'false')">
       <cx:message message="Please include all styles when generating Hub XML (all-styles=yes)"/>
@@ -103,6 +107,7 @@
     <p:input port="stylesheet">
       <p:inline>
         <xsl:stylesheet version="2.0">
+          <xsl:param name="only-layout-type-and-name-attributes" select="'no'"/>
           <xsl:template match="/*">
             <xsl:copy>
               <xsl:copy-of select="@*"/>
@@ -120,7 +125,8 @@
             <xsl:copy>
               <xsl:copy-of select="@name, @native-name, @layout-type"/>
               <xsl:copy-of select="$old-rule[1]/(@comment, @status)"/>
-              <xsl:copy-of select="@* except (@name, @native-name, @layout-type), *"/>
+              <xsl:copy-of select="@*[if($only-layout-type-and-name-attributes = 'no') then true() else false()] except (@name, @native-name, @layout-type)"/>
+              <xsl:copy-of select="*[if($only-layout-type-and-name-attributes = 'no') then true() else false()]"/>
             </xsl:copy>
           </xsl:template>
           <xsl:template match="css:rule" mode="removed">
@@ -140,6 +146,7 @@
         </xsl:stylesheet>
       </p:inline>
     </p:input>
+    <p:with-param name="only-layout-type-and-name-attributes" select="$only-layout-type-and-name-attributes"/>
   </p:xslt>
 
   <p:xslt name="prepend-xml-model">
