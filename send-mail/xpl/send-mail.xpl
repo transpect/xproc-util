@@ -28,8 +28,11 @@
   <p:option name="attachments" select="''">
     <p:documentation>A whitespace separated list of attachment file URIs. Each file will be treated as binary.</p:documentation>
   </p:option>
+  <p:option name="debug" select="'no'"/>
+  <p:option name="debug-dir-uri" select="'debug'"/>
   
   <p:import href="http://xmlcalabash.com/extension/steps/library-1.0.xpl"/>
+  <p:import href="http://transpect.io/xproc-util/store-debug/xpl/store-debug.xpl"/>
   
   <p:try name="try">
     <p:group>
@@ -85,6 +88,11 @@
         </p:input>
       </p:xslt>
        
+      <tr:store-debug pipeline-step="send-mail/04_mail" name="debug-mail-draft">
+        <p:with-option name="active" select="$debug"/>
+        <p:with-option name="base-uri" select="$debug-dir-uri"/>
+      </tr:store-debug>
+       
       <p:sink/>
       
       <p:xslt name="attachments-variable-to-elements" template-name="main">
@@ -130,6 +138,12 @@
           <p:pipe port="result" step="read-attachments-as-binary"/>
         </p:input>
       </cx:send-mail>
+      
+      <tr:store-debug pipeline-step="send-mail/08_result" name="debug-mail-result">
+        <p:with-option name="active" select="$debug"/>
+        <p:with-option name="base-uri" select="$debug-dir-uri"/>
+      </tr:store-debug>
+      
     </p:group>
     <p:catch name="catch">
       <p:output port="result" primary="true" sequence="true">
