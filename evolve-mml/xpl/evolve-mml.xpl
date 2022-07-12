@@ -64,6 +64,8 @@
   <p:option name="context" select="false()" required="false"/>
   <p:option name="display-equation-table-role" select="'equation-table'" required="false"/>
   <p:option name="store-plain-tex" select="'false'"/>
+  <p:option name="pad-position" select="'false'"/>
+  <p:option name="pad" select="'3'"/>
   
   <p:option name="set-math-style" select="'no'">
     <p:documentation>
@@ -149,7 +151,12 @@
   
   <p:viewport match="mml:math" name="vp">
     <p:output port="result" primary="true"/>
-    <p:variable name="outfile" select="concat($outfile-prefix, */@position)"/>
+    
+    <p:variable name="outfile" 
+                select="concat($outfile-prefix, 
+                               if ($pad-position='true') 
+                               then concat(string-join(for $i in 1 to xs:integer($pad - string-length(*/@position)) return '0'),*/@position) 
+                               else */@position)"/>
     <p:variable name="debug-uri" select="concat($debug-dir-uri, if (matches($debug-dir-uri, '/$')) then '' else '/', 'evolve-mml/formula', */@position)"></p:variable>
     
     <tr:store-debug name="mml" pipeline-step="math">
