@@ -15,14 +15,21 @@
   <p:option name="uris">
     <p:documentation>Space-separated list of URIs</p:documentation>
   </p:option>
+  <p:option name="add-xml-base" select="'false'">
+    <p:documentation>Whether to add the base URI as an xml:base attribute</p:documentation>
+  </p:option>
   <p:xslt name="load-sources-xsl1" template-name="main">
     <p:with-param name="uris" select="$uris">
+      <p:empty/>
+    </p:with-param>
+    <p:with-param name="add-xml-base" select="$add-xml-base">
       <p:empty/>
     </p:with-param>
     <p:input port="stylesheet">
       <p:inline>
         <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="2.0">
           <xsl:param name="uris" as="xs:string"/>
+          <xsl:param name="add-xml-base" as="xs:string"/>
           <xsl:template name="main">
             <xsl:for-each select="distinct-values(tokenize($uris, '\s+'))">
               <xsl:variable name="uri" as="xs:string" select="."/>
@@ -51,7 +58,9 @@
           <xsl:template match="/*" mode="add-xml-base">
             <xsl:param name="base-uri" as="xs:string" tunnel="yes"/>
             <xsl:copy>
-              <xsl:attribute name="xml:base" select="$base-uri"/>
+              <xsl:if test="$add-xml-base = 'true'">
+                <xsl:attribute name="xml:base" select="$base-uri"/>  
+              </xsl:if>
               <xsl:copy-of select="@*, node()"/>
             </xsl:copy>
           </xsl:template>
