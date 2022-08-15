@@ -31,12 +31,15 @@
                   <xsl:result-document href="{$uri}.new">
                     <xsl:sequence select="collection()[base-uri() = $uri]"/>
                   </xsl:result-document>
-                  <xsl:message>Loading <xsl:value-of select="$uri"/> from source port</xsl:message>
+                  <xsl:message terminate="yes">Loading <xsl:value-of select="$uri"/> from source port</xsl:message>
                 </xsl:when>
                 <xsl:otherwise>
                   <xsl:if test="doc-available($uri)">
                     <xsl:result-document href="{$uri}.new">
-                      <xsl:sequence select="doc($uri)"/>
+                      <xsl:apply-templates select="doc($uri)" mode="add-xml-base">
+                        <xsl:with-param name="base-uri" select="(:concat($uri, '.new'):)$uri" tunnel="yes"/>
+                      </xsl:apply-templates>
+<!--                      <xsl:sequence select="doc($uri)"/>-->
                     </xsl:result-document>
                     <xsl:message>Loading <xsl:value-of select="$uri"/> from disk</xsl:message>
                   </xsl:if>
@@ -44,6 +47,13 @@
               </xsl:choose>
             </xsl:for-each>
             <nodoc/>
+          </xsl:template>
+          <xsl:template match="/*" mode="add-xml-base">
+            <xsl:param name="base-uri" as="xs:string" tunnel="yes"/>
+            <xsl:copy>
+              <xsl:attribute name="xml:base" select="$base-uri"/>
+              <xsl:copy-of select="@*, node()"/>
+            </xsl:copy>
           </xsl:template>
         </xsl:stylesheet>
       </p:inline>
@@ -62,7 +72,7 @@
         <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="2.0">
           <xsl:template name="main">
             <xsl:for-each select="collection()">
-              <xsl:variable name="uri" as="xs:string" select="replace(base-uri(), '\.new$', '')"/>
+              <xsl:variable name="uri" as="xs:string" select="replace(base-uri(/*), '\.new$', '')"/>
               <xsl:result-document href="{$uri}">
                 <xsl:sequence select="."/>
               </xsl:result-document>
