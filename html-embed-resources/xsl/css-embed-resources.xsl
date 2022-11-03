@@ -11,26 +11,28 @@
   <xsl:param name="suppress-image" as="xs:string?"/>
 
   <xsl:template match="text()">
-    <xsl:analyze-string select="." regex="url\((.+?)\)">
+    <xsl:analyze-string select="." regex="(url\((.+?)\))|@import[^;^\(]+;">
       <xsl:matching-substring>
-        <xsl:variable name="href" select="resolve-uri(replace(regex-group(1), '''|&quot;', ''), $base-uri)" as="xs:anyURI"/>
-        <xsl:if test="not(normalize-space($href))">
-          <xsl:message select="'Unexpected empty href in xproc-util/html-embed-resources/xsl/css-embed-resources.xsl.
-            Diagnostics: ', regex-group(1), ' :: ', $base-uri"/>
+        <xsl:if test="regex-group(1)[normalize-space()]">
+          <xsl:variable name="href" select="resolve-uri(replace(regex-group(1), '''|&quot;', ''), $base-uri)" as="xs:anyURI"/>
+          <xsl:if test="not(normalize-space($href))">
+            <xsl:message select="'Unexpected empty href in xproc-util/html-embed-resources/xsl/css-embed-resources.xsl.
+              Diagnostics: ', regex-group(1), ' :: ', $base-uri"/>
+          </xsl:if>
+          <xsl:variable name="mime-type" as="xs:string" select="tr:fileref-to-mime-type($href)"/>
+          <xsl:choose>
+            <xsl:when test="starts-with($mime-type, 'image') and $suppress-image"><!-- don’t embed images -->
+              <xsl:value-of select="."/>
+            </xsl:when>
+            <xsl:otherwise>
+              <xsl:text>url('</xsl:text>
+              <!-- We better try to resolve it by catalog because otherwise we end up with things like
+                http://transpect.io/htmlreports/template/icons/logo-transpect.svg if image embedding is suppressed -->
+              <tr:data-uri href="{$href}" mime-type="{tr:fileref-to-mime-type($href)}">tobereplaced</tr:data-uri>
+              <xsl:text>')</xsl:text>
+            </xsl:otherwise>
+          </xsl:choose>
         </xsl:if>
-        <xsl:variable name="mime-type" as="xs:string" select="tr:fileref-to-mime-type($href)"/>
-        <xsl:choose>
-          <xsl:when test="starts-with($mime-type, 'image') and $suppress-image"><!-- don’t embed images -->
-            <xsl:value-of select="."/>
-          </xsl:when>
-          <xsl:otherwise>
-            <xsl:text>url('</xsl:text>
-            <!-- We better try to resolve it by catalog because otherwise we end up with things like
-              http://transpect.io/htmlreports/template/icons/logo-transpect.svg if image embedding is suppressed -->
-            <tr:data-uri href="{$href}" mime-type="{tr:fileref-to-mime-type($href)}">tobereplaced</tr:data-uri>
-            <xsl:text>')</xsl:text>
-          </xsl:otherwise>
-        </xsl:choose>
       </xsl:matching-substring>
       <xsl:non-matching-substring>
         <xsl:value-of select="replace(.,'&#xD;','')"/>
