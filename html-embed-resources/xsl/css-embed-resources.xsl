@@ -13,11 +13,11 @@
   <xsl:template match="text()">
     <xsl:analyze-string select="." regex="(url\((.+?)\))|@import[^;^\(]+;">
       <xsl:matching-substring>
-        <xsl:if test="regex-group(1)[normalize-space()]">
-          <xsl:variable name="href" select="resolve-uri(replace(regex-group(1), '''|&quot;', ''), $base-uri)" as="xs:anyURI"/>
+        <xsl:if test="regex-group(2)[normalize-space()]">
+          <xsl:variable name="href" select="resolve-uri(replace(regex-group(2), '''|&quot;', ''), $base-uri)" as="xs:anyURI"/>
           <xsl:if test="not(normalize-space($href))">
             <xsl:message select="'Unexpected empty href in xproc-util/html-embed-resources/xsl/css-embed-resources.xsl.
-              Diagnostics: ', regex-group(1), ' :: ', $base-uri"/>
+              Diagnostics: ', regex-group(2), ' :: ', $base-uri"/>
           </xsl:if>
           <xsl:variable name="mime-type" as="xs:string" select="tr:fileref-to-mime-type($href)"/>
           <xsl:choose>
