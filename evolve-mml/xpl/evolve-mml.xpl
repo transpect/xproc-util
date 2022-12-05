@@ -116,7 +116,7 @@
               <xsl:variable name="pos" select="count(preceding::mml:math) + 1"/>
               <xsl:attribute name="position" select="tr:pad-postion(count(preceding::mml:math) + 1)"/>
               <xsl:if test="$apply-unnumbered-naming">
-                <xsl:attribute name="position-numbered" select="tr:pad-postion(count(preceding::mml:math[ancestor::*:equation[*:title[node()]]]) + 1)"/>
+                <xsl:attribute name="position-numbered" select="tr:pad-postion(count(preceding::mml:math[ancestor::*:equation[*:title[node()] or *:caption[node()]]]) + 1)"/>
                 <xsl:attribute name="position-unnumbered" select="tr:pad-postion(count(preceding::mml:math[ancestor::*:equation[not(*:title) or not(*:caption)]]) + 1)"/>
               </xsl:if>
               <xsl:message select="$context, $display-equation-table-role"></xsl:message>
