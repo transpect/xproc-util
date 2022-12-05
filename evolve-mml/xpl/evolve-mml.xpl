@@ -66,6 +66,8 @@
   <p:option name="store-plain-tex" select="'false'"/>
   <p:option name="pad-position" select="'false'"/>
   <p:option name="pad" select="'3'"/>
+  <p:option name="apply-unnumbered-naming" select="'false'"/>
+  <p:option name="unnumbered-eq-outfile-prefix" select="'ltx-created-ueq-'"/>
   
   <p:option name="set-math-style" select="'no'">
     <p:documentation>
@@ -92,13 +94,31 @@
     <p:input port="stylesheet">
       <p:inline>
         <xsl:stylesheet version="2.0" xmlns="http://docbook.org/ns/docbook"
-          xmlns:mml="http://www.w3.org/1998/Math/MathML">
+          xmlns:mml="http://www.w3.org/1998/Math/MathML"  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+          xmlns:tr="http://transpect.io">
           <xsl:param name="context"/>
           <xsl:param name="display-equation-table-role"/>
+          <xsl:param name="apply-unnumbered-naming"/>
+          <xsl:param name="pad-position"/>
+          <xsl:param name="pad"/>
+          
+          <xsl:function name="tr:pad-postion">
+            <xsl:param name="pos" as="xs:integer"/>
+            <xsl:sequence select="if ($pad-position='true') 
+                                  then concat(string-join(for $i in 1 to xs:integer($pad - string-length(xs:string($pos))) return '0'),$pos)
+                                  else $pos"/>
+          </xsl:function>
+          
+          
           <xsl:template match="mml:math">
             <xsl:copy>
               <xsl:apply-templates mode="#current" select="@*"/>
-              <xsl:attribute name="position" select="count(preceding::mml:math) + 1"/>
+              <xsl:variable name="pos" select="count(preceding::mml:math) + 1"/>
+              <xsl:attribute name="position" select="tr:pad-postion(count(preceding::mml:math) + 1)"/>
+              <xsl:if test="$apply-unnumbered-naming">
+                <xsl:attribute name="position-numbered" select="tr:pad-postion(count(preceding::mml:math[ancestor::*:equation[*:title[node()]]]) + 1)"/>
+                <xsl:attribute name="position-unnumbered" select="tr:pad-postion(count(preceding::mml:math[ancestor::*:equation[not(*:title) or not(*:caption)]]) + 1)"/>
+              </xsl:if>
               <xsl:message select="$context, $display-equation-table-role"></xsl:message>
               <xsl:if test="$context">
                 <xsl:choose>
@@ -120,6 +140,9 @@
               <xsl:if test="parent::hub:inlineequation">
                 <xsl:attribute name="inline" select="true()"/>
               </xsl:if>
+              <xsl:if test="$apply-unnumbered-naming and ancestor::*:equation[not(*:title) or not(*:caption)]">
+                <xsl:attribute name="unnumbered" select="true()"/>
+              </xsl:if>
               <xsl:apply-templates mode="#current"/>
             </xsl:copy>
           </xsl:template>
@@ -139,6 +162,9 @@
     </p:input>
     <p:with-param name="context" select="$context"/>
     <p:with-param name="display-equation-table-role" select="$display-equation-table-role"/>
+    <p:with-param name="apply-unnumbered-naming" select="$apply-unnumbered-naming"/>
+    <p:with-param name="pad-position" select="$pad-position"/>
+    <p:with-param name="pad" select="$pad"/>
   </p:xslt>
   
   <tr:store-debug pipeline-step="evolve-mml/mml-position"> 
@@ -152,12 +178,12 @@
   <p:viewport match="mml:math" name="vp">
     <p:output port="result" primary="true"/>
     
+    
     <p:variable name="outfile" 
-                select="concat($outfile-prefix, 
-                               if ($pad-position='true') 
-                               then concat(string-join(for $i in 1 to xs:integer($pad - string-length(*/@position)) return '0'),*/@position) 
-                               else */@position)"/>
-    <p:variable name="debug-uri" select="concat($debug-dir-uri, if (matches($debug-dir-uri, '/$')) then '' else '/', 'evolve-mml/formula', */@position)"></p:variable>
+                select="if ($apply-unnumbered-naming and */@unnumbered) then concat($unnumbered-eq-outfile-prefix, */@position-unnumbered)
+                        else if ($apply-unnumbered-naming and not(*/@unnumbered)) then concat($outfile-prefix, */@position-numbered)
+                        else concat($outfile-prefix, */@position)"></p:variable>
+    <p:variable name="debug-uri" select="concat($debug-dir-uri, if (matches($debug-dir-uri, '/$')) then '' else '/', 'evolve-mml/formula', */@position)"/>
     
     <tr:store-debug name="mml" pipeline-step="math">
       <p:with-option name="active" select="$debug"/>
@@ -165,7 +191,7 @@
     </tr:store-debug>
 
     <p:wrap wrapper="tex" match="/"/>
-    <mml2tex:convert>
+    <mml2tex:convert name="mml2tex">
       <p:input port="conf">
         <p:pipe port="conf" step="evolve-mml"/>
       </p:input>
@@ -307,4 +333,11 @@
     <p:with-option name="active" select="$debug"/>
     <p:with-option name="base-uri" select="$debug-dir-uri"/>
   </tr:store-debug>
+  
+<!--  formellog erstellen mit allen einzelnen tex dateien und ihren ids/namen 
+  vom viewport nicht mit zusätzlichem p:output abgreifbar
+  dann am Ende hier nochmal per p:load alle vorher geschriebenen tex dateien laden und mergen? -->
+  
+  
+  
 </p:declare-step>
