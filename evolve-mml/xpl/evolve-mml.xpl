@@ -93,9 +93,12 @@
     </p:input>
     <p:input port="stylesheet">
       <p:inline>
-        <xsl:stylesheet version="2.0" xmlns="http://docbook.org/ns/docbook"
-          xmlns:mml="http://www.w3.org/1998/Math/MathML"  xmlns:xs="http://www.w3.org/2001/XMLSchema"
-          xmlns:tr="http://transpect.io">
+        <xsl:stylesheet version="2.0"
+          xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+          xmlns:mml="http://www.w3.org/1998/Math/MathML"
+          xmlns:xs="http://www.w3.org/2001/XMLSchema"
+          xmlns:tr="http://transpect.io"
+          xmlns:hub="http://transpect.io/hub">
           <xsl:param name="context"/>
           <xsl:param name="display-equation-table-role"/>
           <xsl:param name="apply-unnumbered-naming"/>
@@ -105,7 +108,7 @@
           <xsl:function name="tr:pad-postion">
             <xsl:param name="pos" as="xs:integer"/>
             <xsl:sequence select="if ($pad-position='true') 
-                                  then concat(string-join(for $i in 1 to xs:integer($pad - string-length(xs:string($pos))) return '0'),$pos)
+                                  then concat(string-join((for $i in 1 to xs:integer($pad - string-length(xs:string($pos))) return '0'),''),$pos)
                                   else $pos"/>
           </xsl:function>
           
