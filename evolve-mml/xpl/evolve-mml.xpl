@@ -165,7 +165,7 @@
     </p:input>
     <p:with-param name="context" select="$context"/>
     <p:with-param name="display-equation-table-role" select="$display-equation-table-role"/>
-    <p:with-param name="apply-unnumbered-naming" select="$apply-unnumbered-naming"/>
+    <p:with-param name="apply-unnumbered-naming" select="$apply-unnumbered-naming = 'true'"/>
     <p:with-param name="pad-position" select="$pad-position"/>
     <p:with-param name="pad" select="$pad"/>
   </p:xslt>
@@ -183,8 +183,8 @@
     
     
     <p:variable name="outfile" 
-                select="if ($apply-unnumbered-naming and */@unnumbered) then concat($unnumbered-eq-outfile-prefix, */@position-unnumbered)
-                        else if ($apply-unnumbered-naming and not(*/@unnumbered)) then concat($outfile-prefix, */@position-numbered)
+                select="if ($apply-unnumbered-naming eq 'true' and */@unnumbered) then concat($unnumbered-eq-outfile-prefix, */@position-unnumbered)
+                        else if ($apply-unnumbered-naming eq 'true' and not(*/@unnumbered)) then concat($outfile-prefix, */@position-numbered)
                         else concat($outfile-prefix, */@position)"></p:variable>
     <p:variable name="debug-uri" select="concat($debug-dir-uri, if (matches($debug-dir-uri, '/$')) then '' else '/', 'evolve-mml/formula', */@position)"/>
     
