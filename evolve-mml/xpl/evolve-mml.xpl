@@ -140,7 +140,7 @@
               <xsl:if test="parent::hub:inlineequation">
                 <xsl:attribute name="inline" select="true()"/>
               </xsl:if>
-              <xsl:if test="$apply-unnumbered-naming and ancestor::*:equation[not(*:title) or not(*:caption)]">
+              <xsl:if test="$apply-unnumbered-naming and (ancestor::*:equation[not(*:title) or not(*:caption)] or ancestor::*:inlineequation)">
                 <xsl:attribute name="unnumbered" select="true()"/>
               </xsl:if>
               <xsl:apply-templates mode="#current"/>
@@ -326,18 +326,13 @@
     </tr:store-debug>
   </p:viewport>
   
-  <p:delete match="mml:math/@position | mml:math/@inline"/>
+  <p:delete match="mml:math/@position | mml:math/@inline | mml:math/@position-numbered 
+                 | mml:math/@position-unnumbered | mml:math/@unnumbered"/>
   <p:unwrap match="hub:math-wrapper"/>
   
   <tr:store-debug pipeline-step="evolve-mml/converted">
     <p:with-option name="active" select="$debug"/>
     <p:with-option name="base-uri" select="$debug-dir-uri"/>
   </tr:store-debug>
-  
-<!--  formellog erstellen mit allen einzelnen tex dateien und ihren ids/namen 
-  vom viewport nicht mit zusätzlichem p:output abgreifbar
-  dann am Ende hier nochmal per p:load alle vorher geschriebenen tex dateien laden und mergen? -->
-  
-  
   
 </p:declare-step>
