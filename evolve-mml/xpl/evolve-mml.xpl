@@ -68,6 +68,7 @@
   <p:option name="pad" select="'3'"/>
   <p:option name="apply-unnumbered-naming" select="'false'"/>
   <p:option name="unnumbered-eq-outfile-prefix" select="'ltx-created-ueq-'"/>
+  <p:option name="inline-eq-outfile-prefix" select="'ltx-created-ieq-'"/>
   
   <p:option name="set-math-style" select="'no'">
     <p:documentation>
@@ -121,6 +122,7 @@
               <xsl:if test="$apply-unnumbered-naming">
                 <xsl:attribute name="position-numbered" select="tr:pad-postion(count(preceding::mml:math[ancestor::*:equation[*:title[node()] or *:caption[node()]]]) + 1)"/>
                 <xsl:attribute name="position-unnumbered" select="tr:pad-postion(count(preceding::mml:math[ancestor::*:equation[not(*:title) or not(*:caption)]]) + 1)"/>
+                <xsl:attribute name="position-inline" select="tr:pad-postion(count(preceding::mml:math[ancestor::*:inlineequation]) + 1)"/>
               </xsl:if>
               <xsl:message select="$context, $display-equation-table-role"></xsl:message>
               <xsl:if test="$context">
@@ -143,7 +145,7 @@
               <xsl:if test="parent::*:inlineequation">
                 <xsl:attribute name="inline" select="true()"/>
               </xsl:if>
-              <xsl:if test="$apply-unnumbered-naming and (ancestor::*:equation[not(*:title) or not(*:caption)] or ancestor::*:inlineequation)">
+              <xsl:if test="$apply-unnumbered-naming and (ancestor::*:equation[not(*:title) or not(*:caption)])">
                 <xsl:attribute name="unnumbered" select="true()"/>
               </xsl:if>
               <xsl:apply-templates mode="#current"/>
@@ -184,8 +186,9 @@
     
     <p:variable name="outfile" 
                 select="if ($apply-unnumbered-naming eq 'true' and */@unnumbered) then concat($unnumbered-eq-outfile-prefix, */@position-unnumbered)
-                        else if ($apply-unnumbered-naming eq 'true' and not(*/@unnumbered)) then concat($outfile-prefix, */@position-numbered)
-                        else concat($outfile-prefix, */@position)"></p:variable>
+                        else if ($apply-unnumbered-naming eq 'true' and */@inline) then concat($inline-eq-outfile-prefix, */@position-inline)
+                             else if ($apply-unnumbered-naming eq 'true' and not(*/@unnumbered) and not(*/@inline)) then concat($outfile-prefix, */@position-numbered)
+                                  else concat($outfile-prefix, */@position)"/>
     <p:variable name="debug-uri" select="concat($debug-dir-uri, if (matches($debug-dir-uri, '/$')) then '' else '/', 'evolve-mml/formula', */@position)"/>
     
     <tr:store-debug name="mml" pipeline-step="math">
