@@ -101,7 +101,7 @@
           xmlns:hub="http://transpect.io/hub">
           <xsl:param name="context"/>
           <xsl:param name="display-equation-table-role"/>
-          <xsl:param name="apply-unnumbered-naming"/>
+          <xsl:param name="apply-unnumbered-naming" as="xs:boolean"/>
           <xsl:param name="pad-position"/>
           <xsl:param name="pad"/>
           
@@ -140,7 +140,7 @@
                   <xsl:otherwise/>
                 </xsl:choose>
               </xsl:if>
-              <xsl:if test="parent::hub:inlineequation">
+              <xsl:if test="parent::*:inlineequation">
                 <xsl:attribute name="inline" select="true()"/>
               </xsl:if>
               <xsl:if test="$apply-unnumbered-naming and (ancestor::*:equation[not(*:title) or not(*:caption)] or ancestor::*:inlineequation)">
@@ -165,7 +165,7 @@
     </p:input>
     <p:with-param name="context" select="$context"/>
     <p:with-param name="display-equation-table-role" select="$display-equation-table-role"/>
-    <p:with-param name="apply-unnumbered-naming" select="$apply-unnumbered-naming = 'true'"/>
+    <p:with-param name="apply-unnumbered-naming" select="$apply-unnumbered-naming"/>
     <p:with-param name="pad-position" select="$pad-position"/>
     <p:with-param name="pad" select="$pad"/>
   </p:xslt>
