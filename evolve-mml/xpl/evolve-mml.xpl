@@ -142,7 +142,7 @@
                   <xsl:otherwise/>
                 </xsl:choose>
               </xsl:if>
-              <xsl:if test="parent::*:inlineequation">
+              <xsl:if test="ancestor::*:inlineequation">
                 <xsl:attribute name="inline" select="true()"/>
               </xsl:if>
               <xsl:if test="$apply-unnumbered-naming and (ancestor::*:equation[not(*:title) or not(*:caption)])">
