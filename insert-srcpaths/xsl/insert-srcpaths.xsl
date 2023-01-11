@@ -20,7 +20,8 @@
   
   <xsl:template match="*[not(name() = tokenize($exclude-elements, '\s') 
                          or ($exclude-descendants eq 'yes' 
-                         and ancestor::*/name() = tokenize($exclude-elements, '\s')))]">
+                         and ancestor::*/name() = tokenize($exclude-elements, '\s')))]
+                        [not(@srcpath)]">
     <xsl:copy>
       <xsl:attribute name="srcpath" select="string-join((
                                               $prepend,
