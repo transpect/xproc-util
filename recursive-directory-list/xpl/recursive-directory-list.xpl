@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <p:declare-step xmlns:p="http://www.w3.org/ns/xproc" version="1.0"
-  xmlns:cxf="http://xmlcalabash.com/ns/extensions/fileutils"
+  xmlns:pxf="http://exproc.org/proposed/steps/file"
   xmlns:cx="http://xmlcalabash.com/ns/extensions"
   xmlns:c="http://www.w3.org/ns/xproc-step"
   xmlns:tr="http://transpect.io"
@@ -22,15 +22,13 @@
 
   <p:import href="http://xmlcalabash.com/extension/steps/library-1.0.xpl"/>
 
-  <cxf:info fail-on-error="false">
+  <pxf:info fail-on-error="false">
     <p:with-option name="href" select="$path"/>
-  </cxf:info>
+  </pxf:info>
 
   <p:choose>
     <p:when test="/c:directory">
-<!--<cx:message>
-<p:with-option name="message" select="/*/@*"/>
-</cx:message>-->
+      
       <p:choose>
         <p:when test="not($include-filter = '')
                       and not($exclude-filter = '')">
@@ -63,43 +61,14 @@
         <p:variable name="name" select="encode-for-uri(/*/@name)"/>
         <p:choose>
           <p:when test="$depth != 0">
-            <p:choose>
-              <p:when test="not($include-filter = '')
-                            and not($exclude-filter = '')">
-                <tr:recursive-directory-list>
-                  <p:with-option name="path" select="concat($path,'/'[not(ends-with($path, '/'))],$name)"/>
-                  <p:with-option name="include-filter" select="$include-filter"/>
-                  <p:with-option name="exclude-filter" select="$exclude-filter"/>
-                  <p:with-option name="depth" select="$depth - 1"/>
-                </tr:recursive-directory-list>
-              </p:when>
-
-              <p:when test="not($include-filter = '')">
-                <tr:recursive-directory-list>
-                  <p:with-option name="path" select="concat($path,'/'[not(ends-with($path, '/'))],$name)"/>
-                  <p:with-option name="include-filter" select="$include-filter"/>
-                  <p:with-option name="depth" select="$depth - 1"/>
-                </tr:recursive-directory-list>
-              </p:when>
-
-              <p:when test="not($exclude-filter = '')">
-<!-- <cx:message> -->
-<!-- <p:with-option name="message" select="'DDDD', concat($path,'/'[not(ends-with($path, '/'))],$name)"/> -->
-<!-- </cx:message> -->
-                <tr:recursive-directory-list>
-                  <p:with-option name="path" select="concat($path,'/'[not(ends-with($path, '/'))],$name)"/>
-                  <p:with-option name="exclude-filter" select="$exclude-filter"/>
-                  <p:with-option name="depth" select="$depth - 1"/>
-                </tr:recursive-directory-list>
-              </p:when>
-
-              <p:otherwise>
-                <tr:recursive-directory-list>
-                  <p:with-option name="path" select="concat($path,'/'[not(ends-with($path, '/'))],$name)"/>
-                  <p:with-option name="depth" select="$depth - 1"/>
-                </tr:recursive-directory-list>
-              </p:otherwise>
-            </p:choose>
+            
+            <tr:recursive-directory-list>
+              <p:with-option name="path" select="concat($path,'/'[not(ends-with($path, '/'))],$name)"/>
+              <p:with-option name="include-filter" select="$include-filter"/>
+              <p:with-option name="exclude-filter" select="$exclude-filter"/>
+              <p:with-option name="depth" select="$depth - 1"/>
+            </tr:recursive-directory-list>
+            
           </p:when>
           <p:otherwise>
             <p:identity/>
