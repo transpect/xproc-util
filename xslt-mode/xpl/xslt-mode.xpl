@@ -34,6 +34,7 @@
   <p:option name="status-dir-uri" select="concat(replace($debug-dir-uri, '^(.+)\?.*$', '$1'), '/status')"/>
   <p:option name="fail-on-error" select="'no'"/>
   <p:option name="store-secondary" select="'yes'"/>
+  <p:option name="secondary-serialization-method" select="''"/>
   <p:option name="adjust-doc-base-uri" select="'yes'">
     <p:documentation>Whether to set the output base uri to what’s set as base-uri(/*) via @xml:base attribute.
     Otherwise, the output base uri will be taken from the input. This was the defaul behavior before
@@ -168,6 +169,18 @@
               <p:pipe step="xslt" port="secondary"/>
             </p:iteration-source>
             <p:store omit-xml-declaration="false">
+              <p:documentation>In order to store text without XML-escaped angle brackets,
+              you need to create an XML document on the secondary port. The document’s 
+              textual content is the text that you want to serialize. It doesn’t matter
+              whether you use method="text" or method="xml" on xsl:result-document. 
+              The only thing that matters is that you wrap the text in an element.
+              Also the setting of -X allow-text-results for XML Calabash seems to be 
+              of no importance.</p:documentation>
+              <p:with-option name="method" 
+                select="if (normalize-space($secondary-serialization-method))
+                        then $secondary-serialization-method
+                        else if (ends-with(base-uri(), '.txt')) then 'text'
+                             else 'xml'"/>
               <p:with-option name="indent" select="$indent"/>
               <p:with-option name="href" select="base-uri()"/>
             </p:store>
