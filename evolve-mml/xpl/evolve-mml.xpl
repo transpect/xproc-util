@@ -217,7 +217,7 @@
     <p:sink/>
 
     <p:choose>
-      <p:when test="matches($type, 'img')">
+      <p:when test="matches($type, 'img|tex')">
         <p:choose>
           <p:when test="$store-plain-tex='true'">
             <p:xslt>
