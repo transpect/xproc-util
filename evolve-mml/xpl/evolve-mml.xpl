@@ -27,6 +27,10 @@
     </p:documentation>
   </p:input>
   
+  <p:input port="stylesheet">
+    <p:document href="../xsl/evolve-mml.xsl"/>
+  </p:input>
+  
   <p:input port="paths" primary="true" sequence="true" kind="parameter"/>
   
   <p:option name="output-dir" required="true">
@@ -66,9 +70,9 @@
   <p:option name="store-plain-tex" select="'false'"/>
   <p:option name="pad-position" select="'false'"/>
   <p:option name="pad" select="'3'"/>
-  <p:option name="apply-unnumbered-naming" select="'false'"/>
-  <p:option name="unnumbered-eq-outfile-prefix" select="'ltx-created-ueq-'"/>
-  <p:option name="inline-eq-outfile-prefix" select="'ltx-created-ieq-'"/>
+<!--  <p:option name="apply-unnumbered-naming" select="'false'"/>-->
+<!--  <p:option name="unnumbered-eq-outfile-prefix" select="'ltx-created-ueq-'"/>-->
+<!--  <p:option name="inline-eq-outfile-prefix" select="'ltx-created-ieq-'"/>-->
   
   <p:option name="set-math-style" select="'no'">
     <p:documentation>
@@ -93,81 +97,12 @@
       <p:pipe port="source" step="evolve-mml"/>
     </p:input>
     <p:input port="stylesheet">
-      <p:inline>
-        <xsl:stylesheet version="2.0"
-          xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
-          xmlns:mml="http://www.w3.org/1998/Math/MathML"
-          xmlns:xs="http://www.w3.org/2001/XMLSchema"
-          xmlns:tr="http://transpect.io"
-          xmlns:hub="http://transpect.io/hub">
-          <xsl:param name="context"/>
-          <xsl:param name="display-equation-table-role"/>
-          <xsl:param name="apply-unnumbered-naming" as="xs:boolean"/>
-          <xsl:param name="pad-position"/>
-          <xsl:param name="pad"/>
-          
-          <xsl:function name="tr:pad-postion">
-            <xsl:param name="pos" as="xs:integer"/>
-            <xsl:sequence select="if ($pad-position='true') 
-                                  then concat(string-join((for $i in 1 to xs:integer($pad - string-length(xs:string($pos))) return '0'),''),$pos)
-                                  else $pos"/>
-          </xsl:function>
-          
-          
-          <xsl:template match="mml:math">
-            <xsl:copy>
-              <xsl:apply-templates mode="#current" select="@*"/>
-              <xsl:variable name="pos" select="count(preceding::mml:math) + 1"/>
-              <xsl:attribute name="position" select="tr:pad-postion(count(preceding::mml:math) + 1)"/>
-              <xsl:if test="$apply-unnumbered-naming">
-                <xsl:attribute name="position-numbered" select="tr:pad-postion(count(preceding::mml:math[not(ancestor::*:inlineequation)][ancestor::*:equation[*:title[node()] or *:caption[node()]]]) + 1)"/>
-                <xsl:attribute name="position-unnumbered" select="tr:pad-postion(count(preceding::mml:math[not(ancestor::*:inlineequation)][ancestor::*:equation[1][not(*:title) or not(*:caption)]]) + 1)"/>
-                <xsl:attribute name="position-inline" select="tr:pad-postion(count(preceding::mml:math[ancestor::*:inlineequation]) + 1)"/>
-              </xsl:if>
-              <xsl:message select="$context, $display-equation-table-role"></xsl:message>
-              <xsl:if test="$context">
-                <xsl:choose>
-                  <xsl:when test="ancestor::*:thead">
-                    <xsl:attribute name="mode" select="'table_head'"/>
-                  </xsl:when>
-                  <xsl:when test="ancestor::*:tbody[not(ancestor::*[self::*:informaltable or self::*:table][@role=$display-equation-table-role])]">
-                    <xsl:attribute name="mode" select="'table_body'"/>
-                  </xsl:when>
-                  <xsl:when test="ancestor::*:blockquote">
-                    <xsl:attribute name="mode" select="'box'"/>
-                  </xsl:when>
-                  <xsl:when test="ancestor::*:title[ancestor::*:figure or ancestor::*:table]">
-                    <xsl:attribute name="mode" select="'caption'"/>
-                  </xsl:when>
-                  <xsl:otherwise/>
-                </xsl:choose>
-              </xsl:if>
-              <xsl:if test="ancestor::*:inlineequation">
-                <xsl:attribute name="inline" select="true()"/>
-              </xsl:if>
-              <xsl:if test="$apply-unnumbered-naming and (ancestor::*:equation[not(*:title) or not(*:caption)])">
-                <xsl:attribute name="unnumbered" select="true()"/>
-              </xsl:if>
-              <xsl:apply-templates mode="#current"/>
-            </xsl:copy>
-          </xsl:template>
-          <xsl:template match="@* | * | processing-instruction() | comment()" mode="#all" priority="-2">
-            <xsl:copy>
-              <xsl:apply-templates mode="#current" select="@*, node()"/>
-            </xsl:copy>
-          </xsl:template>
-          <xsl:template match="text()" mode="#all" priority="-1">
-            <xsl:value-of select="."/>
-          </xsl:template>
-        </xsl:stylesheet>
-      </p:inline>
+      <p:pipe port="stylesheet" step="evolve-mml"/>
     </p:input>
     <p:input port="parameters">
       <p:empty/>
     </p:input>
-    <p:with-param name="context" select="$context"/>
-    <p:with-param name="display-equation-table-role" select="$display-equation-table-role"/>
-    <p:with-param name="apply-unnumbered-naming" select="$apply-unnumbered-naming"/>
+    <p:with-param name="outfile-prefix" select="$outfile-prefix"/>
     <p:with-param name="pad-position" select="$pad-position"/>
     <p:with-param name="pad" select="$pad"/>
   </p:xslt>
@@ -184,11 +119,7 @@
     <p:output port="result" primary="true"/>
     
     
-    <p:variable name="outfile" 
-                select="if ($apply-unnumbered-naming eq 'true' and */@unnumbered) then concat($unnumbered-eq-outfile-prefix, */@position-unnumbered)
-                        else if ($apply-unnumbered-naming eq 'true' and */@inline) then concat($inline-eq-outfile-prefix, */@position-inline)
-                             else if ($apply-unnumbered-naming eq 'true' and not(*/@unnumbered) and not(*/@inline)) then concat($outfile-prefix, */@position-numbered)
-                                  else concat($outfile-prefix, */@position)"/>
+    <p:variable name="outfile"  select="*/@filename"/>
     <p:variable name="debug-uri" select="concat($debug-dir-uri, if (matches($debug-dir-uri, '/$')) then '' else '/', 'evolve-mml/formula', */@position)"/>
     
     <tr:store-debug name="mml" pipeline-step="math">
@@ -332,8 +263,7 @@
     </tr:store-debug>
   </p:viewport>
   
-  <p:delete match="mml:math/@position | mml:math/@inline | mml:math/@position-numbered 
-                 | mml:math/@position-unnumbered | mml:math/@unnumbered"/>
+  <p:delete match="mml:math/@position | mml:math/@inline | mml:math/@filename"/>
   <p:unwrap match="hub:math-wrapper"/>
   
   <tr:store-debug pipeline-step="evolve-mml/converted">
