@@ -135,7 +135,7 @@
           
           <xsl:variable name="errors" select="collection()[/c:errors]/c:errors/*"/>
           
-          <xsl:template match="*:div[@class='BC_summary']">
+          <xsl:template match="*:div[@class='BC_summary'][not(*:div[normalize-space() =  'TeX Rendering–'])]">
             <xsl:copy>
               <xsl:apply-templates select="@*, node()"/>
               <xsl:message select="$errors ,count($errors[@code='error']) , count($errors[@name='could-not-load-text-file'])"/>
@@ -185,10 +185,13 @@
             </xsl:copy>
           </xsl:template>
           
-          <xsl:template match="*:div[@id='BC_orphans']/*:p[1]">
+          <xsl:template match="*:p[. is (//*:div[@id='BC_orphans']/*:p)[1]
+                                   or
+                                   . is (//*:body[not(//*:div[@id='BC_orphans'])]//*:p)[1]
+                                  ]">
             <xsl:copy>
               <xsl:apply-templates select="@*, node()"/>
-              <span class="BC_tooltip tex-rendering error"><span
+              <span class="BC_tooltip tex-rendering error" style="display:none"><span
                 class="btn btn-default btn-xs tex-rendering error" type="button"
                 data-toggle="collapse" data-target="#msg_BC_tex_error"
                 aria-expanded="false" aria-controls="msg_BC_tex_error">X1</span><span
@@ -213,7 +216,7 @@
                     </div>
                   </div></span>
               
-              <span class="BC_tooltip tex-rendering warning"><span
+              <span class="BC_tooltip tex-rendering warning" style="display:none"><span
                 class="btn btn-default btn-xs tex-rendering warning" type="button"
                 data-toggle="collapse" data-target="#msg_BC_tex_warning"
                 aria-expanded="false" aria-controls="msg_BC_tex_warning">Y1</span><span
