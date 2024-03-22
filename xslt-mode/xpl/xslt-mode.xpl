@@ -9,6 +9,7 @@
   xmlns:hub2tei="http://transpect.io/hub2tei"
   xmlns:tei2hub="http://transpect.io/tei2hub"
   xmlns:html2hub="http://transpect.io/html2hub"
+  xmlns:xml2tex="http://transpect.io/xml2tex"
   xmlns:ttt="http://transpect.io/tokenized-to-tree"
   xmlns:hub="http://transpect.io/hub"
   xmlns:hub2app="http://transpect.io/hub2app"
