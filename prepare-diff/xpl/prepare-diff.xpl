@@ -30,19 +30,26 @@
   
   <p:import href="http://xmlcalabash.com/extension/steps/library-1.0.xpl"/>
   
-  <p:xslt name="normalize-filerefs">
-    <p:with-param name="strip-generated" select="$strip-generated"/>
-    <p:input port="stylesheet">
-      <p:pipe port="stylesheet" step="prepare-diff"/>
-    </p:input>
-    <p:input port="parameters"><p:empty/></p:input>
-  </p:xslt>
-  <cx:message>
-    <p:with-option name="message" select="'Prepare diff: Store to ',concat($out-uri-prefix, '.', replace(base-uri(), '^.*/', ''))"></p:with-option>
-  </cx:message>
-  <p:store indent="true" omit-xml-declaration="false">
-    <p:documentation>Input base URIs for ex.: …/difftest/out-epubtools.xml, …/difftest/out-tei.xml</p:documentation>
-    <p:with-option name="href" select="concat($out-uri-prefix, '.', replace(base-uri(), '^.*/', ''))"/>
-  </p:store>
+  <p:for-each>
+    <p:variable name="out-uri-lastdir" select="tokenize($out-uri-prefix, '/')[last()]"/>
+    <p:variable name="input-filename" select="tokenize(base-uri(), '/')[last()]"/>
+    <p:variable name="non-redundant-input-filename" 
+      select="(substring-after($input-filename, $out-uri-lastdir)[normalize-space()], $input-filename)[1]"/>
+    <p:variable name="output-uri" select="concat($out-uri-prefix, '.'[not(starts-with($non-redundant-input-filename, '.'))], $non-redundant-input-filename)"/>
+    <p:xslt name="normalize-filerefs">
+      <p:with-param name="strip-generated" select="$strip-generated"><p:empty/></p:with-param>
+      <p:input port="stylesheet">
+        <p:pipe port="stylesheet" step="prepare-diff"/>
+      </p:input>
+      <p:input port="parameters"><p:empty/></p:input>
+    </p:xslt>
+    <cx:message>
+      <p:with-option name="message" select="'Prepare diff: Store to ', $output-uri"></p:with-option>
+    </cx:message>
+    <p:store indent="true" omit-xml-declaration="false">
+      <p:documentation>Input base URIs for ex.: …/difftest/out-epubtools.xml, …/difftest/out-tei.xml</p:documentation>
+      <p:with-option name="href" select="$output-uri"/>
+    </p:store>
+  </p:for-each>
 
 </p:declare-step>
