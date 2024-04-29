@@ -34,11 +34,11 @@
             <xsl:for-each select="distinct-values(tokenize($uris, '\s+'))">
               <xsl:variable name="uri" as="xs:string" select="."/>
               <xsl:choose>
-                <xsl:when test="exists(collection()[base-uri() = $uri])">
+                <xsl:when test="exists(collection()[base-uri(/*) = $uri])">
                   <xsl:result-document href="{$uri}.new">
-                    <xsl:sequence select="collection()[base-uri() = $uri]"/>
+                    <xsl:sequence select="collection()[base-uri(/*) = $uri]"/>
                   </xsl:result-document>
-                  <xsl:message terminate="yes">Loading <xsl:value-of select="$uri"/> from source port</xsl:message>
+                  <xsl:message>Loading <xsl:value-of select="$uri"/> from source port</xsl:message>
                 </xsl:when>
                 <xsl:otherwise>
                   <xsl:if test="doc-available($uri)">
