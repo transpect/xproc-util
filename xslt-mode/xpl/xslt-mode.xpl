@@ -67,6 +67,7 @@
 
   <p:import href="http://xmlcalabash.com/extension/steps/library-1.0.xpl"/>
   <p:import href="http://transpect.io/xproc-util/store-debug/xpl/store-debug.xpl" />
+  <p:import href="http://transpect.io/xproc-util/debug/xpl/xsltmode-as-saxon-command.xpl"/>
   <p:import href="http://transpect.io/xproc-util/xml-model/xpl/prepend-xml-model.xpl" />
   <p:import href="http://transpect.io/xproc-util/simple-progress-msg/xpl/simple-progress-msg.xpl"/>
   
@@ -74,7 +75,6 @@
   <p:variable name="debug-dir-uri1" select="replace($debug-dir-uri, '^(.+)\?.*$', '$1')"><p:empty/></p:variable>
   
   <!-- try wrapper to recover from errors and proceed with input -->
-  
   <p:parameters name="consolidate-params">
     <p:input port="parameters">
       <p:pipe port="parameters" step="xslt-mode"/>
@@ -112,6 +112,30 @@
         </p:when>
         <p:otherwise>
           <p:identity/>
+        </p:otherwise>
+      </p:choose>
+
+      <p:choose>
+        <p:xpath-context><p:empty/></p:xpath-context>
+        <p:when test="$debug = 'yes' and matches($debug-dir-uri, concat('xsltmode-as-saxon-command=(#all|', $mode, ')'))">
+          <p:sink/>
+          <tr:xsltmode-as-saxon-command>
+            <p:input port="source">
+              <p:pipe port="result" step="xslt-mode-source"/>
+            </p:input>
+            <p:input port="stylesheet">
+              <p:pipe port="stylesheet" step="xslt-mode"/>
+            </p:input>
+            <p:input port="xslt-params">
+              <p:pipe port="result" step="consolidate-params"/>
+            </p:input>
+            <p:with-option name="mode" select="$mode"/>
+            <p:with-option name="saxon-call-base-uri" select="concat($debug-dir-uri1, '/', replace($debug-file-name, '//+', '/'))"/>
+          </tr:xsltmode-as-saxon-command>
+          <p:sink/>
+        </p:when>
+        <p:otherwise>
+          <p:sink/>
         </p:otherwise>
       </p:choose>
       
