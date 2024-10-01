@@ -115,7 +115,7 @@
         </p:otherwise>
       </p:choose>
 
-      <p:choose>
+      <p:choose name="xsltmode-as-saxon-command">
         <p:xpath-context><p:empty/></p:xpath-context>
         <p:when test="$debug = 'yes' and matches($debug-dir-uri, concat('xsltmode-as-saxon-command=(#all|', $mode, ')'))">
           <p:sink/>
@@ -139,7 +139,7 @@
         </p:otherwise>
       </p:choose>
       
-      <p:xslt name="xslt">
+      <p:xslt name="xslt" cx:depends-on="xsltmode-as-saxon-command">
         <p:input port="source">
           <p:pipe port="result" step="xslt-mode-source"/>
         </p:input>
