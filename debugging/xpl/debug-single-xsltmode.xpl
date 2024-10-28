@@ -12,7 +12,7 @@
 		-i source=debug-directory/evolve-hub/06.hub_preprocess-hierarchy.xml \
 		-i paths=debug-directory/paths.xml \
 		-o result=result.xml \
-		xproc-util/debug/debug-single-xsltmode/debug-single-xsltmode.xpl \
+		xproc-util/debugging/debug-single-xsltmode/debug-single-xsltmode.xpl \
 		mode=hub:hierarchy \
 		load=evolve-hub/driver</code></pre>
   </p:documentation>
