@@ -131,6 +131,7 @@
             </p:input>
             <p:with-option name="mode" select="$mode"/>
             <p:with-option name="saxon-call-base-uri" select="concat($debug-dir-uri1, '/', replace($debug-file-name, '//+', '/'))"/>
+            <p:with-option name="saxon-executable" select="'./saxon/saxon.sh'"/>
           </tr:xsltmode-as-saxon-command>
           <p:sink/>
         </p:when>
