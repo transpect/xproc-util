@@ -2,6 +2,5 @@
 <catalog xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog">
   
   <rewriteURI uriStartString="http://transpect.io/xproc-util/" rewritePrefix="../"/>
-  <rewriteURI uriStartString="http://transpect.io/xproc-util/debug/" rewritePrefix="../debugging/"/>
   
 </catalog>

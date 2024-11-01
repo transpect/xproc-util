@@ -67,7 +67,7 @@
 
   <p:import href="http://xmlcalabash.com/extension/steps/library-1.0.xpl"/>
   <p:import href="http://transpect.io/xproc-util/store-debug/xpl/store-debug.xpl" />
-  <p:import href="http://transpect.io/xproc-util/debug/xpl/xsltmode-as-saxon-command.xpl"/>
+  <p:import href="http://transpect.io/xproc-util/debugging/xpl/xsltmode-as-saxon-command.xpl"/>
   <p:import href="http://transpect.io/xproc-util/xml-model/xpl/prepend-xml-model.xpl" />
   <p:import href="http://transpect.io/xproc-util/simple-progress-msg/xpl/simple-progress-msg.xpl"/>
   
