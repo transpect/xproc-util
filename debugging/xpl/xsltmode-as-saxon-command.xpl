@@ -38,8 +38,8 @@
     <p:documentation>The XSLT file.</p:documentation>
   </p:input>
   
-  <p:input port="xslt-params" sequence="false">
-    <p:documentation>A consodilated file of all XSLT parameters (c:param-set) for the stylesheet.</p:documentation>
+  <p:input port="xslt-params" sequence="true">
+    <p:documentation>A (consodilated) file of all XSLT parameters (c:param-set) for the stylesheet.</p:documentation>
   </p:input>
   
   <p:output port="result" primary="true">
@@ -51,9 +51,13 @@
   <p:wrap-sequence name="source-wrapper" wrapper="source-wrapper"/>
   <p:sink/>
   
+  <p:variable name="xsl-base-uri-abspath" select="replace(base-uri(/*), 'file:/+', '/')">
+    <p:pipe port="stylesheet" step="xsltmode-as-saxon-command"/>
+  </p:variable>
+  
   <cx:message>
     <p:with-option name="message" 
-      select="concat('Mode: ', $mode, concat('  executable: ''bash ', concat(replace($saxon-call-base-uri, '^file:/+', '/'), '.sh'), ''''))"/>
+      select="concat('Mode: ', ($mode, '#default')[not(. = '')][1], concat('  executable: ''bash ', concat(replace($saxon-call-base-uri, '^file:/+', '/'), '.sh'), ''''))"/>
     <p:input port="source"><p:empty/></p:input>
   </cx:message>
   <p:sink/>
@@ -85,6 +89,19 @@
   
   <p:wrap-sequence name="source-base-uris" wrapper="collection"/>
   <p:sink/>
+  
+  <p:choose name="write-input-xslt-to-disc-when-in-received-in-memory">
+    <p:when test="not(ends-with($xsl-base-uri-abspath, '.xsl'))">
+      <p:store omit-xml-declaration="false">
+        <p:input port="source">
+          <p:pipe port="stylesheet" step="xsltmode-as-saxon-command"/>
+        </p:input>
+        <p:with-option name="method" select="'xml'"/>
+        <p:with-option name="indent" select="'false'"/>
+        <p:with-option name="href" select="concat($saxon-call-base-uri, '.from-memory.xslt')"/>
+      </p:store>
+    </p:when>
+  </p:choose>
   
   <p:identity>
     <p:input port="source">
@@ -177,7 +194,9 @@
             <xsl:variable name="cmd" as="node()*">
               <processor><xsl:value-of select="$saxon-executable"/></processor>
               <stylesheet>&#x20;-xsl:<file><xsl:value-of select="$xsl-base-uri-abspath"/></file></stylesheet>
-              <initial-mode>&#x20;-im:<xsl:sequence select="$clark-mode-qname"/></initial-mode>
+              <xsl:if test="not($mode = '')">
+                <initial-mode>&#x20;-im:<xsl:sequence select="$clark-mode-qname"/></initial-mode>
+              </xsl:if>
               <source>&#x20;-s:<file><xsl:value-of select="$saxon-call-base-abspath, '.input'" separator=""/></file></source>
               <output>&#x20;-o:<file><xsl:value-of select="$saxon-call-base-abspath, '.output'" separator=""/></file></output>
               <xsl:if test="$source-count ne '1'">
@@ -210,9 +229,9 @@
     </p:input>
     <p:with-param name="mode" select="$mode"/>
     <p:with-param name="saxon-call-base-uri" select="$saxon-call-base-uri"/>
-    <p:with-param name="xsl-base-uri-abspath" select="replace(base-uri(/*), 'file:/+', '/')">
-      <p:pipe port="stylesheet" step="xsltmode-as-saxon-command"/>
-    </p:with-param>
+    <p:with-param name="xsl-base-uri-abspath" select="if(not(ends-with($xsl-base-uri-abspath, '.xsl'))) 
+                                                      then concat($saxon-call-base-uri, '.from-memory.xslt') 
+                                                      else $xsl-base-uri-abspath"/>
     <p:with-param name="source-count" select="count(/*/*)">
       <p:pipe port="result" step="source-wrapper"/>
     </p:with-param>
