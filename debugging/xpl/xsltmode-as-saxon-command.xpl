@@ -88,9 +88,8 @@
   </p:for-each>
   
   <p:wrap-sequence name="source-base-uris" wrapper="collection"/>
-  <p:sink/>
   
-  <p:choose name="write-input-xslt-to-disc-when-in-received-in-memory">
+  <p:choose name="write-input-xslt-to-disc-when-received-in-memory">
     <p:when test="not(ends-with($xsl-base-uri-abspath, '.xsl'))">
       <p:store omit-xml-declaration="false">
         <p:input port="source">
@@ -100,8 +99,17 @@
         <p:with-option name="indent" select="'false'"/>
         <p:with-option name="href" select="concat($saxon-call-base-uri, '.from-memory.xslt')"/>
       </p:store>
+      <p:identity>
+        <p:input port="source">
+          <p:empty/>
+        </p:input>
+      </p:identity>
     </p:when>
+    <p:otherwise>
+      <p:identity/>
+    </p:otherwise>
   </p:choose>
+  <p:sink/>
   
   <p:identity>
     <p:input port="source">
