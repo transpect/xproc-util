@@ -28,7 +28,13 @@
     </p:documentation>
   </p:option>
   
-  <p:option name="saxon-executable" required="false" select="'saxon'"/>
+  <p:option name="saxon-executable" required="false" select="'saxon'">
+    <p:documentation>Path to saxon executable file. For example 'saxon' or 'saxon/saxon.sh'.</p:documentation>
+  </p:option>
+  
+  <p:option name="run-immediately" required="false" select="'no'">
+    <p:documentation>Execute the built saxon command with p:exec builtin step.</p:documentation>
+  </p:option>
     
   <p:input port="source" primary="true" sequence="true">
     <p:documentation>The source/input document(s) to process.</p:documentation>
@@ -246,10 +252,21 @@
     <p:with-param name="saxon-executable" select="$saxon-executable"/>
   </p:xslt>
   
-  <p:store omit-xml-declaration="false">
+  <p:store name="write-sh" omit-xml-declaration="false">
     <p:with-option name="method" select="'text'"/>
     <p:with-option name="href" select="concat($saxon-call-base-uri, '.sh')"/>
   </p:store>
+  
+  <p:choose>
+    <p:when test="$run-immediately = 'yes'">
+      <p:exec name="execute-the-built-saxon-command" cx:depends-on="write-sh" result-is-xml="false">
+        <p:input port="source"><p:empty/></p:input>
+        <p:with-option name="command" select="'bash'"/>
+        <p:with-option name="args" select="concat(replace($saxon-call-base-uri, '^file:/+', '/'), '.sh')"/>
+      </p:exec>
+    </p:when>
+  </p:choose>
+  <p:sink/>
   
   <p:identity>
     <p:input port="source">
