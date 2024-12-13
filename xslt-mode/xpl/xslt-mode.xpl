@@ -276,23 +276,24 @@
                       and not(matches($debug-dir-uri, 'debug-xslt-on-error=no'))">
           <cx:message>
             <p:with-option name="message" 
-              select="concat('DEBUG: RUNNING XSLT FOR ', $debug-file-name)"><p:empty/></p:with-option>
+              select="concat('DEBUG: RUNNING XSLT WITH SAXON FOR ', $debug-file-name)"><p:empty/></p:with-option>
           </cx:message>
-          <p:xslt name="xslt">
-            <p:with-option name="initial-mode" select="$mode">
-              <p:pipe port="stylesheet" step="xslt-mode"/>
-            </p:with-option>
-            <p:input port="parameters">
-              <p:pipe port="result" step="consolidate-params"/>
+          
+          <tr:xsltmode-as-saxon-command>
+            <p:input port="source">
+              <p:pipe port="result" step="xslt-mode-source"/>
             </p:input>
             <p:input port="stylesheet">
               <p:pipe port="stylesheet" step="xslt-mode"/>
             </p:input>
-            <p:input port="source">
-              <p:pipe port="source" step="xslt-mode"/>
+            <p:input port="xslt-params">
+              <p:pipe port="result" step="consolidate-params"/>
             </p:input>
-            <p:with-param name="debug" select="$debug"><p:empty/></p:with-param>
-          </p:xslt>
+            <p:with-option name="mode" select="$mode"/>
+            <p:with-option name="saxon-call-base-uri" select="concat($debug-dir-uri1, '/', replace($debug-file-name, '//+', '/'))"/>
+            <p:with-option name="saxon-executable" select="concat(replace(base-uri(/*), '^file:/+|/xproc-util/.+$', '/'), 'saxon/saxon.sh')"/>
+            <p:with-option name="run-immediately" select="'yes'"/>
+          </tr:xsltmode-as-saxon-command>
         </p:when>
         <p:otherwise>
           <p:identity/>
