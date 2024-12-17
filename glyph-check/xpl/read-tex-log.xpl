@@ -138,7 +138,6 @@
           <xsl:template match="*:div[@class='BC_summary'][not(*:div[normalize-space() =  'TeX Rendering–'])]">
             <xsl:copy>
               <xsl:apply-templates select="@*, node()"/>
-              <xsl:message select="$errors ,count($errors[@code='error']) , count($errors[@name='could-not-load-text-file'])"/>
               <div class="BC_family-label panel-heading">TeX Rendering<a
                   class="pull-right btn btn-default btn-xs BC_family-label-collapse" role="button"
                   data-toggle="collapse" href="#fam_tex" aria-expanded="false"
