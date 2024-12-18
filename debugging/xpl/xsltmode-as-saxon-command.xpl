@@ -49,6 +49,7 @@
   </p:input>
   
   <p:output port="result" primary="true">
+    <p:pipe port="result" step="saxon-call"/>
     <p:documentation>The saxon call as XML for reuse.</p:documentation>
   </p:output>
   
@@ -265,13 +266,12 @@
         <p:with-option name="args" select="concat(replace($saxon-call-base-uri, '^file:/+', '/'), '.sh')"/>
       </p:exec>
     </p:when>
+    <p:otherwise>
+      <p:identity>
+        <p:input port="source"><p:empty/></p:input>
+      </p:identity>
+    </p:otherwise>
   </p:choose>
   <p:sink/>
-  
-  <p:identity>
-    <p:input port="source">
-      <p:pipe port="result" step="saxon-call"/>
-    </p:input>
-  </p:identity>
   
 </p:declare-step>
