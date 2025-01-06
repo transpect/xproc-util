@@ -5,8 +5,6 @@
   xmlns:functx="http://www.functx.com"
   version="2.0">
   
-  <xsl:import href="http://transpect.io/xslt-util/functx/xsl/functx.xsl"/>
-  
   <xsl:param name="schematron-like-paths" select="'no'"/>
   <xsl:param name="exclude-elements"/>
   <xsl:param name="exclude-descendants"/>
@@ -14,37 +12,49 @@
   
   <xsl:template match="@*|node()">
     <xsl:copy>
-      <xsl:apply-templates select="@*|node()"/>
+      <xsl:apply-templates select="@*, node()"/>
     </xsl:copy>
   </xsl:template>
   
-  <xsl:template match="*[not(name() = tokenize($exclude-elements, '\s') 
-                         or ($exclude-descendants eq 'yes' 
-                         and ancestor::*/name() = tokenize($exclude-elements, '\s')))]
-                        [not(@srcpath)]">
+  <xsl:template match="*[not(@srcpath)]">
+    <xsl:param name="ancestor-srcpath" select="''" tunnel="no"/>
+    <xsl:variable name="srcpath"
+      select="tr:create-srcpath(., $ancestor-srcpath)"/>
     <xsl:copy>
-      <xsl:attribute name="srcpath" select="string-join((
-                                              $prepend,
-                                              if($schematron-like-paths eq 'yes')
-                                              then tr:path-to-node-with-pos-verbose(.)
-                                              else functx:path-to-node-with-pos(.)
-                                            ), '')"/>
-      <xsl:apply-templates select="@*, node()" mode="#current"/>
+      <xsl:attribute name="srcpath" select="$srcpath"/>
+      <xsl:apply-templates select="@*, node()" mode="#current">
+        <xsl:with-param name="ancestor-srcpath" select="$srcpath" tunnel="no"/>
+      </xsl:apply-templates>
     </xsl:copy>
   </xsl:template>
   
-  <xsl:function name="tr:path-to-node-with-pos-verbose" as="xs:string">
-    <xsl:param name="node" as="node()?"/> 
-    <xsl:variable name="names" as="xs:string*">
-      <xsl:for-each select="$node/ancestor-or-self::*">
-        <xsl:variable name="ancestor" select="."/>
-        <xsl:variable name="sibsOfSameName" select="$ancestor/../*[name() = name($ancestor)]"/>
-        <xsl:sequence select="concat('*:', local-name($ancestor),
-          '[namespace-uri()=''', namespace-uri(), ''']',
-          '[',functx:index-of-node($sibsOfSameName,$ancestor),']')"/>
-      </xsl:for-each>
-    </xsl:variable>
-    <xsl:sequence select="concat('/', string-join($names,'/'))"/>
+  <xsl:template match="*[name() = tokenize($exclude-elements, '\s')]" priority="2">
+    <xsl:param name="ancestor-srcpath" select="''" tunnel="no"/>
+    <xsl:copy>
+      <xsl:apply-templates select="@*, node()">
+        <xsl:with-param name="ancestor-srcpath" select="tr:create-srcpath(., $ancestor-srcpath)" tunnel="no"/>
+      </xsl:apply-templates>
+    </xsl:copy>
+  </xsl:template>
+  
+  <xsl:template match="*[name() = tokenize($exclude-elements, '\s')][$exclude-descendants eq 'yes']" priority="3">
+    <xsl:sequence select="."/>
+  </xsl:template>
+  
+  <xsl:function name="tr:create-srcpath" as="xs:string">
+    <xsl:param name="node" as="element()"/>
+    <xsl:param name="ancestor-srcpath" as="xs:string?"/>
+    <xsl:variable name="node-name" select="name($node)"/>
+    <xsl:sequence 
+      select="string-join((
+                            $prepend,
+                            $ancestor-srcpath,
+                            '/',
+                            if($schematron-like-paths eq 'yes')
+                              then concat('*:', local-name($node), '[namespace-uri()=''', namespace-uri($node), ''']')
+                              else name($node),
+                            '[', count($node/preceding-sibling::*[name() = $node-name]) + 1, ']'
+                          ), '')"/>
   </xsl:function>
   
 </xsl:stylesheet>
