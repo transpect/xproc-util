@@ -22,7 +22,7 @@
     
   <p:option name="mode" required="true">
     <p:documentation>Please be aware that, as per the spec, the initial mode option of
-    p:xslt must be a QName. You cannot invoke the #default mode here.
+    p:xslt must be a QName. You can use the #default and #unnamed (XSLT 3.0) mode here.
     And if you’re using namespace-prefixed modes, you’ll have to declare the namespaces
     here in this .xpl file. This is admittedly unfortunate.</p:documentation>
   </p:option>
@@ -71,7 +71,7 @@
   <p:import href="http://transpect.io/xproc-util/xml-model/xpl/prepend-xml-model.xpl" />
   <p:import href="http://transpect.io/xproc-util/simple-progress-msg/xpl/simple-progress-msg.xpl"/>
   
-  <p:variable name="mode-internal-name" select="replace($mode, '#default', '_default')"><p:empty/></p:variable>
+  <p:variable name="mode-internal-name" select="replace($mode, '#(default|unnamed)', '_$1')"><p:empty/></p:variable>
   <p:variable name="debug-file-name" select="concat($prefix, '.', replace($mode-internal-name, ':', '_'))"><p:empty/></p:variable>
   <p:variable name="debug-dir-uri1" select="replace($debug-dir-uri, '^(.+)\?.*$', '$1')"><p:empty/></p:variable>
   
@@ -143,7 +143,7 @@
       
       <p:choose name="run-xslt" cx:depends-on="xsltmode-as-saxon-command">
         <!-- choose: wether to set option 'initial-mode' on p:xslt -->
-        <p:when test="$mode ='#default'">
+        <p:when test="$mode = ('#default', '#unnamed')">
           <p:output port="secondary" primary="false" sequence="true">
             <p:pipe port="secondary" step="xslt-without-initial-mode"/>
           </p:output>
