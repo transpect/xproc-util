@@ -96,7 +96,7 @@
       </p:output>
       <p:output port="report" primary="false" sequence="true"/>
       <p:output port="secondary" primary="false" sequence="true">
-        <p:pipe port="secondary" step="xslt-choose-initial-mode-option"/>
+        <p:pipe port="secondary" step="run-xslt"/>
       </p:output>
       
       <p:choose>
@@ -141,13 +141,14 @@
         </p:otherwise>
       </p:choose>
       
-      <p:choose name="xslt-choose-initial-mode-option">
+      <p:choose name="run-xslt" cx:depends-on="xsltmode-as-saxon-command">
+        <!-- choose: wether to set option 'initial-mode' on p:xslt -->
         <p:when test="$mode ='#default'">
           <p:output port="secondary" primary="false" sequence="true">
             <p:pipe port="secondary" step="xslt-without-initial-mode"/>
           </p:output>
           <p:output port="result" primary="true"/>
-          <p:xslt name="xslt-without-initial-mode" cx:depends-on="xsltmode-as-saxon-command">
+          <p:xslt name="xslt-without-initial-mode">
             <p:input port="source">
               <p:pipe port="result" step="xslt-mode-source"/>
             </p:input>
@@ -165,7 +166,7 @@
             <p:pipe port="secondary" step="xslt-with-initial-mode"/>
           </p:output>
           <p:output port="result" primary="true"/>
-          <p:xslt name="xslt-with-initial-mode" cx:depends-on="xsltmode-as-saxon-command">
+          <p:xslt name="xslt-with-initial-mode">
             <p:input port="source">
               <p:pipe port="result" step="xslt-mode-source"/>
             </p:input>
@@ -219,7 +220,7 @@
         <p:when test="$store-secondary = ('yes', 'true')">
           <p:for-each>
             <p:iteration-source>
-              <p:pipe step="xslt-choose-initial-mode-option" port="secondary"/>
+              <p:pipe step="run-xslt" port="secondary"/>
             </p:iteration-source>
             <p:store omit-xml-declaration="false">
               <p:documentation>In order to store text without XML-escaped angle brackets,
