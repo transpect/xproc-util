@@ -71,7 +71,8 @@
   <p:import href="http://transpect.io/xproc-util/xml-model/xpl/prepend-xml-model.xpl" />
   <p:import href="http://transpect.io/xproc-util/simple-progress-msg/xpl/simple-progress-msg.xpl"/>
   
-  <p:variable name="debug-file-name" select="concat($prefix, '.', replace($mode, ':', '_'))"><p:empty/></p:variable>
+  <p:variable name="mode-internal-name" select="replace($mode, '#default', '_default')"><p:empty/></p:variable>
+  <p:variable name="debug-file-name" select="concat($prefix, '.', replace($mode-internal-name, ':', '_'))"><p:empty/></p:variable>
   <p:variable name="debug-dir-uri1" select="replace($debug-dir-uri, '^(.+)\?.*$', '$1')"><p:empty/></p:variable>
   
   <!-- try wrapper to recover from errors and proceed with input -->
@@ -95,7 +96,7 @@
       </p:output>
       <p:output port="report" primary="false" sequence="true"/>
       <p:output port="secondary" primary="false" sequence="true">
-        <p:pipe port="secondary" step="xslt"/>
+        <p:pipe port="secondary" step="xslt-choose-initial-mode-option"/>
       </p:output>
       
       <p:choose>
@@ -140,21 +141,47 @@
         </p:otherwise>
       </p:choose>
       
-      <p:xslt name="xslt" cx:depends-on="xsltmode-as-saxon-command">
-        <p:input port="source">
-          <p:pipe port="result" step="xslt-mode-source"/>
-        </p:input>
-        <p:with-option name="initial-mode" select="$mode">
-          <p:pipe port="stylesheet" step="xslt-mode"/>
-        </p:with-option>
-        <p:input port="parameters">
-          <p:pipe port="result" step="consolidate-params"/>
-        </p:input>
-        <p:input port="stylesheet">
-          <p:pipe port="stylesheet" step="xslt-mode"/>
-        </p:input>
-        <p:with-param name="debug" select="$debug"><p:empty/></p:with-param>
-      </p:xslt>
+      <p:choose name="xslt-choose-initial-mode-option">
+        <p:when test="$mode ='#default'">
+          <p:output port="secondary" primary="false" sequence="true">
+            <p:pipe port="secondary" step="xslt-without-initial-mode"/>
+          </p:output>
+          <p:output port="result" primary="true"/>
+          <p:xslt name="xslt-without-initial-mode" cx:depends-on="xsltmode-as-saxon-command">
+            <p:input port="source">
+              <p:pipe port="result" step="xslt-mode-source"/>
+            </p:input>
+            <p:input port="parameters">
+              <p:pipe port="result" step="consolidate-params"/>
+            </p:input>
+            <p:input port="stylesheet">
+              <p:pipe port="stylesheet" step="xslt-mode"/>
+            </p:input>
+            <p:with-param name="debug" select="$debug"><p:empty/></p:with-param>
+          </p:xslt>
+        </p:when>
+        <p:otherwise>
+          <p:output port="secondary" primary="false" sequence="true">
+            <p:pipe port="secondary" step="xslt-with-initial-mode"/>
+          </p:output>
+          <p:output port="result" primary="true"/>
+          <p:xslt name="xslt-with-initial-mode" cx:depends-on="xsltmode-as-saxon-command">
+            <p:input port="source">
+              <p:pipe port="result" step="xslt-mode-source"/>
+            </p:input>
+            <p:with-option name="initial-mode" select="$mode">
+              <p:pipe port="stylesheet" step="xslt-mode"/>
+            </p:with-option>
+            <p:input port="parameters">
+              <p:pipe port="result" step="consolidate-params"/>
+            </p:input>
+            <p:input port="stylesheet">
+              <p:pipe port="stylesheet" step="xslt-mode"/>
+            </p:input>
+            <p:with-param name="debug" select="$debug"><p:empty/></p:with-param>
+          </p:xslt>
+        </p:otherwise>
+      </p:choose>
 
       <p:choose name="adjust-doc-base-uri">
         <p:when test="$adjust-doc-base-uri = 'yes'">
@@ -192,7 +219,7 @@
         <p:when test="$store-secondary = ('yes', 'true')">
           <p:for-each>
             <p:iteration-source>
-              <p:pipe step="xslt" port="secondary"/>
+              <p:pipe step="xslt-choose-initial-mode-option" port="secondary"/>
             </p:iteration-source>
             <p:store omit-xml-declaration="false">
               <p:documentation>In order to store text without XML-escaped angle brackets,
@@ -254,7 +281,7 @@
         <p:input port="source">
           <p:pipe port="error" step="catch"/>
         </p:input>
-        <p:with-option name="code" select="replace($mode, ':', '_')">
+        <p:with-option name="code" select="replace($mode-internal-name, ':', '_')">
           <p:empty/>
         </p:with-option>
         <p:with-option name="msg-file" select="concat($debug-file-name, '.error.txt')">
@@ -276,7 +303,7 @@
                       and not(matches($debug-dir-uri, 'debug-xslt-on-error=no'))">
           <cx:message>
             <p:with-option name="message" 
-              select="concat('DEBUG: RUNNING XSLT WITH SAXON FOR ', $debug-file-name)"><p:empty/></p:with-option>
+              select="concat('DEBUG: RUNNING XSLT WITH SAXON FOR ', $debug-file-name, ' (xslt-mode: ', $mode, ')')"><p:empty/></p:with-option>
           </cx:message>
           
           <tr:xsltmode-as-saxon-command>
@@ -315,7 +342,7 @@
           </cx:message>
           
           <p:error>
-            <p:with-option name="code" select="concat('xslt-mode-', replace($mode, ':', '_'))"/>
+            <p:with-option name="code" select="concat('xslt-mode-', replace($mode-internal-name, ':', '_'))"/>
             <p:input port="source">
               <p:pipe port="error" step="catch"/>
             </p:input>
