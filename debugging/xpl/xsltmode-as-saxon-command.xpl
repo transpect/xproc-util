@@ -209,7 +209,7 @@
             <xsl:variable name="cmd" as="node()*">
               <processor><xsl:value-of select="$saxon-executable"/></processor>
               <stylesheet>&#x20;-xsl:<file><xsl:value-of select="$xsl-base-uri-abspath"/></file></stylesheet>
-              <xsl:if test="not($mode = '')">
+              <xsl:if test="not($mode = '') and not($mode = '#default')">
                 <initial-mode>&#x20;-im:<xsl:sequence select="$clark-mode-qname"/></initial-mode>
               </xsl:if>
               <source>&#x20;-s:<file><xsl:value-of select="$saxon-call-base-abspath, '.input'" separator=""/></file></source>
