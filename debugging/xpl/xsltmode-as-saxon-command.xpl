@@ -231,9 +231,11 @@
               </params>
             </xsl:variable>
             <c:result>
-              <echo>
-                <xsl:sequence select="'echo', string-join($cmd/descendant::text(), ''), '&#xa;'"/>
-              </echo>
+              <bash-execution>
+                <xsl:sequence select="'#!/bin/bash&#xa;cmd=$(cat &lt;&lt;EOF&#xa;', 
+                                      string-join($cmd/descendant::text(), ''), 
+                                      '&#xa;EOF&#xa;) &amp;&amp; echo $cmd &amp;&amp; eval $cmd'"/>
+              </bash-execution>
               <xml text-usable-as-invocation="yes">
                 <xsl:sequence select="$cmd"/>
               </xml>
@@ -252,6 +254,8 @@
     </p:with-param>
     <p:with-param name="saxon-executable" select="$saxon-executable"/>
   </p:xslt>
+  
+  <p:delete match="c:result/xml" name="remove-redundant-invocation-call"/>
   
   <p:store name="write-sh" omit-xml-declaration="false">
     <p:with-option name="method" select="'text'"/>
