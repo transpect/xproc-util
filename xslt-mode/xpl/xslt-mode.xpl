@@ -94,9 +94,7 @@
         <p:documentation>Although p:xslt produces exactly one result document, sequence must be true so that each branch 
           has the same signature.</p:documentation>
       </p:output>
-      <p:output port="report" primary="false" sequence="true">
-        <p:pipe port="result" step="ok-report"/>
-      </p:output>
+      <p:output port="report" primary="false" sequence="true"/>
       <p:output port="secondary" primary="false" sequence="true">
         <p:pipe port="secondary" step="run-xslt"/>
       </p:output>
@@ -142,14 +140,6 @@
           <p:sink/>
         </p:otherwise>
       </p:choose>
-      
-      <p:identity name="ok-report">
-        <p:input port="source">
-          <p:inline>
-            <c:result>ok</c:result>
-          </p:inline>
-        </p:input>
-      </p:identity>
       
       <p:choose name="run-xslt" cx:depends-on="xsltmode-as-saxon-command">
         <!-- choose: wether to set option 'initial-mode' on p:xslt -->
