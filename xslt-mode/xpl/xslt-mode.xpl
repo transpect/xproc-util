@@ -36,7 +36,7 @@
   <p:option name="fail-on-error" select="'no'"/>
   <p:option name="store-secondary" select="'yes'"/>
   <p:option name="secondary-serialization-method" select="''"/>
-  <p:option name="adjust-doc-base-uri" select="'yes'">
+  <p:option name="adjust-doc-base-uri" select="'no'">
     <p:documentation>Whether to set the output base uri to what’s set as base-uri(/*) via @xml:base attribute.
     Otherwise, the output base uri will be taken from the input. This was the defaul behavior before
     this change that was introduced on 2016-08-24. Reason for this option: If people add /*/@xml:base attributes,
