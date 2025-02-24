@@ -6,6 +6,7 @@
   version="2.0">
   
   <xsl:param name="schematron-like-paths" select="'no'"/>
+  <xsl:param name="override-existing-srcpaths" select="'no'"/>
   <xsl:param name="exclude-elements"/>
   <xsl:param name="exclude-descendants"/>
   <xsl:param name="prepend" as="xs:string?"/>
@@ -16,12 +17,14 @@
     </xsl:copy>
   </xsl:template>
   
-  <xsl:template match="*[not(@srcpath)]">
+  <xsl:template match="*" priority="0.5">
     <xsl:param name="ancestor-srcpath" select="''" tunnel="no"/>
     <xsl:variable name="srcpath"
       select="tr:create-srcpath(., $ancestor-srcpath)"/>
     <xsl:copy>
-      <xsl:attribute name="srcpath" select="$srcpath"/>
+      <xsl:if test="not(@srcpath) or $override-existing-srcpaths = 'yes'">
+        <xsl:attribute name="srcpath" select="$srcpath"/>
+      </xsl:if>
       <xsl:apply-templates select="@*, node()" mode="#current">
         <xsl:with-param name="ancestor-srcpath" select="$srcpath" tunnel="no"/>
       </xsl:apply-templates>
