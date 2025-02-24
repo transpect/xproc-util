@@ -29,6 +29,9 @@
       This is necessary for htmlreports, if you want to use Schematron without adding srcpath spans. 
     </p:documentation>
   </p:option>
+  <p:option name="override-existing-srcpaths" select="'no'">
+    <p:documentation>Recreate and overwrite existing srcpath attributes?</p:documentation>
+  </p:option>
   <p:option name="exclude-elements" select="''">
     <p:documentation>White-space separated list of element names.</p:documentation>
   </p:option>  
@@ -41,6 +44,7 @@
   
   <p:xslt>
     <p:with-param name="schematron-like-paths" select="$schematron-like-paths"/>
+    <p:with-param name="override-existing-srcpaths" select="$override-existing-srcpaths"/>
     <p:with-param name="exclude-elements" select="$exclude-elements"/>
     <p:with-param name="exclude-descendants" select="$exclude-descendants"/>
     <p:with-param name="prepend" select="$prepend"/>
