@@ -187,10 +187,13 @@
           </p:otherwise>
         </p:choose>
         
-        <p:store>
+        <p:delete match="@position | @filename | @inline">
           <p:input port="source">
             <p:pipe port="result" step="mml"/>
           </p:input>
+        </p:delete>
+        
+        <p:store>
           <p:with-option name="href" select="concat($output-dir, '/', $outfile, '.mml')"/>
         </p:store>
       </p:when>
