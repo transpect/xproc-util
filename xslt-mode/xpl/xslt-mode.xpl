@@ -304,6 +304,8 @@
       <p:choose>
         <p:when test="    $debug = 'yes'
                       and not(matches($debug-dir-uri, 'debug-xslt-on-error=no'))">
+          <p:variable name="project-base-uri"
+            select="replace(base-uri(/*), '^file:/+|/xproc-util/.+$', '/')"/>
           <cx:message>
             <p:with-option name="message" 
               select="concat('DEBUG: RUNNING XSLT WITH SAXON FOR ', $debug-file-name, ' (xslt-mode: ', $mode, ')')"><p:empty/></p:with-option>
@@ -321,7 +323,9 @@
             </p:input>
             <p:with-option name="mode" select="$mode"/>
             <p:with-option name="saxon-call-base-uri" select="concat($debug-dir-uri1, '/', replace($debug-file-name, '//+', '/'))"/>
-            <p:with-option name="saxon-executable" select="concat(replace(base-uri(/*), '^file:/+|/xproc-util/.+$', '/'), 'saxon/saxon.sh')"/>
+            <p:with-option name="saxon-executable" select="(/c:param-set/c:param[@name = 'saxon-executable']/@value, concat($project-base-uri, 'saxon/saxon.sh'))[1]">
+              <p:pipe port="result" step="consolidate-params"/>
+            </p:with-option>
             <p:with-option name="run-immediately" select="'yes'"/>
           </tr:xsltmode-as-saxon-command>
         </p:when>
