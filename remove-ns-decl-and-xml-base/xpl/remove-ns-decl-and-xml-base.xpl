@@ -92,7 +92,7 @@
               <xsl:apply-templates select="@*, node()"/>
             </xsl:copy>
           </xsl:template>
-          <xsl:template match="*[$remove-ns-decl = 'no'] | @*[$remove-ns-decl = 'no']">
+          <xsl:template match="* | @*">
             <xsl:copy>
               <xsl:apply-templates select="@*, node()"/>
             </xsl:copy>
