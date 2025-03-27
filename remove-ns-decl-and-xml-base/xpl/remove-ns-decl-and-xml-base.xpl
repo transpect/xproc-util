@@ -58,28 +58,42 @@
                - root (only remove /*/@xml:base)
                - none, no (do not remove any @xml:base) -->
           <xsl:param name="remove-ns-decl" select="'yes'"/>
-          <xsl:template match="/*">
+          <xsl:template match="/*" priority="2">
             <xsl:variable name="context" select="."/>
+            <xsl:choose>
+              <xsl:when test="$remove-ns-decl = 'yes'">
+                <xsl:copy copy-namespaces="no">
+                  <xsl:for-each select="distinct-values(
+                                          ($context//namespace::*/namespace-uri(), 
+                                           $context//*[contains(name(), ':')]/namespace-uri())
+                                        )">
+                    <xsl:variable name="ns" select="."/>
+                    <xsl:variable name="el" select="($context//*[namespace-uri()=$ns])[1]"/>
+                    <xsl:variable name="name" select="name($el)"/>
+                    <xsl:variable name="prefix" select="if(contains($name, ':')) 
+                                                        then substring-before($name, ':') 
+                                                        else ''"/>
+                    <xsl:if test="$prefix ne ''">
+                      <xsl:namespace name="{$prefix}" select="$ns"/>
+                    </xsl:if>
+                  </xsl:for-each>
+                  <xsl:apply-templates select="@*, node()"/>
+                </xsl:copy>
+              </xsl:when>
+              <xsl:otherwise>
+                <xsl:copy>
+                  <xsl:apply-templates select="@*, node()"/>
+                </xsl:copy>
+              </xsl:otherwise>
+            </xsl:choose>
+          </xsl:template>
+          <xsl:template match="*[$remove-ns-decl = 'yes'] | @*[$remove-ns-decl = 'yes']" priority="1">
             <xsl:copy copy-namespaces="no">
-              <xsl:for-each select="distinct-values(
-                                      ($context//namespace::*/namespace-uri(), 
-                                       $context//*[contains(name(), ':')]/namespace-uri())
-                                    )">
-                <xsl:variable name="ns" select="."/>
-                <xsl:variable name="el" select="($context//*[namespace-uri()=$ns])[1]"/>
-                <xsl:variable name="name" select="name($el)"/>
-                <xsl:variable name="prefix" select="if(contains($name, ':')) 
-                                                    then substring-before($name, ':') 
-                                                    else ''"/>
-                <xsl:if test="$prefix ne ''">
-                  <xsl:namespace name="{$prefix}" select="$ns"/>
-                </xsl:if>
-              </xsl:for-each>
               <xsl:apply-templates select="@*, node()"/>
             </xsl:copy>
           </xsl:template>
-          <xsl:template match="* | @*">
-            <xsl:copy copy-namespaces="no">
+          <xsl:template match="*[$remove-ns-decl = 'no'] | @*[$remove-ns-decl = 'no']">
+            <xsl:copy>
               <xsl:apply-templates select="@*, node()"/>
             </xsl:copy>
           </xsl:template>
