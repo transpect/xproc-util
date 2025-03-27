@@ -22,8 +22,6 @@
   </p:output>
   
   <p:option name="remove-ns-decl" select="'yes'">
-    <!-- param remove-ns-decl, valid values:
-                -->
     <p:documentation xmlns="http://www.w3.org/1999/xhtml">
       <p>Valid values:</p>
       <ul>
