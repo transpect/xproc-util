@@ -14,6 +14,7 @@
   </xsl:template>
   
   <xsl:template match="/">
+    <xsl:sequence select="preceding-sibling::processing-instruction()[name() != 'xml-model']"/>
     <xsl:variable name="hub-models" as="element(c:model)*">
       <xsl:if test="$hub-version != ''">
         <c:model
@@ -33,7 +34,7 @@
               </xsl:processing-instruction>
       <xsl:text>&#xa;</xsl:text>
     </xsl:for-each-group>
-    <xsl:copy-of select="*"/>
+    <xsl:sequence select="node(), following-sibling::processing-instruction()"/>
   </xsl:template>
   
 </xsl:stylesheet>
