@@ -4,6 +4,7 @@
   version="2.0">
   
   <xsl:param name="hub-version" as="xs:string"/>
+  <xsl:param name="remove-other-xml-model" as="xs:string" select="'yes'"/>
   
   <xsl:template match="c:model/@*">
     <xsl:text xml:space="preserve"> </xsl:text>
@@ -14,7 +15,7 @@
   </xsl:template>
   
   <xsl:template match="/">
-    <xsl:sequence select="preceding-sibling::processing-instruction()[name() != 'xml-model']"/>
+    
     <xsl:variable name="hub-models" as="element(c:model)*">
       <xsl:if test="$hub-version != ''">
         <c:model
@@ -34,7 +35,7 @@
               </xsl:processing-instruction>
       <xsl:text>&#xa;</xsl:text>
     </xsl:for-each-group>
-    <xsl:sequence select="node(), following-sibling::processing-instruction()"/>
+    <xsl:sequence select="node() except processing-instruction()[name() = 'xml-model' and $remove-other-xml-model = 'yes']"/>
   </xsl:template>
   
 </xsl:stylesheet>

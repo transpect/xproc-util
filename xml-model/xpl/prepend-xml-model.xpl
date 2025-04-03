@@ -26,6 +26,7 @@
   <p:output port="result" primary="true" sequence="true"/>
 
   <p:option name="hub-version" required="false" select="''"/>
+  <p:option name="remove-other-xml-model" required="false" select="'yes'"/>
   
   <p:for-each name="no-op-if-empty-source">
     <p:iteration-source>
@@ -41,6 +42,7 @@
         <p:pipe port="models" step="prepend-xml-model"/>
       </p:input>
       <p:with-param name="hub-version" select="$hub-version"/>
+      <p:with-param name="remove-other-xml-model" select="$remove-other-xml-model"/>
       <p:input port="stylesheet">
         <!-- inlining caused problems-->
         <p:document href="../xsl/prepend-xml-model.xsl"/>
