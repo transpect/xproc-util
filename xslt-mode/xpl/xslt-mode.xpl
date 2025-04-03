@@ -203,9 +203,9 @@
               <p:inline>
                 <xsl:stylesheet version="2.0">
                   <xsl:template match="/">
-                    <xsl:sequence select="preceding-sibling::processing-instruction()"/>
+                    <xsl:sequence select="/*/preceding-sibling::processing-instruction()"/>
                     <xsl:sequence select="."/>
-                    <xsl:sequence select="following-sibling::processing-instruction()"/>
+                    <xsl:sequence select="/*/following-sibling::processing-instruction()"/>
                   </xsl:template>
                 </xsl:stylesheet>
               </p:inline>
