@@ -15,7 +15,6 @@
   </xsl:template>
   
   <xsl:template match="/">
-    
     <xsl:variable name="hub-models" as="element(c:model)*">
       <xsl:if test="$hub-version != ''">
         <c:model
@@ -35,7 +34,7 @@
               </xsl:processing-instruction>
       <xsl:text>&#xa;</xsl:text>
     </xsl:for-each-group>
-    <xsl:sequence select="node() except processing-instruction()[name() = 'xml-model' and $remove-other-xml-model = 'yes']"/>
+    <xsl:sequence select="node()[self::* or self::processing-instruction()[not(name() = 'xml-model' and $remove-other-xml-model = 'yes')]]"/>
   </xsl:template>
   
 </xsl:stylesheet>
