@@ -109,6 +109,12 @@
     <p:with-option name="base-uri" select="$debug-dir-uri"/>
   </tr:store-debug>
   
+  <cx:message name="msg11">
+    <p:with-option name="message" select="'[info] ', /c:result/@rel-path">
+      <p:pipe port="result" step="file-path"/>
+    </p:with-option>
+  </cx:message>
+  
   <p:try name="exec-group" cx:depends-on="mkdir">
     <p:group>
       <p:output port="result" primary="true"/>
@@ -157,8 +163,42 @@
         </p:input>
       </p:exec>
       
+      <cx:message name="imagemagick-call">
+        <p:with-option name="message" select="string-join(('-verbose -format',
+                                            $format,
+                                            $imagemagick-options,
+                                            concat(/c:result/@rel-path, '[0]'),
+                                            $image-stripped-outpath-prefix
+                                            ), 
+                                            $arg-separator)">
+          <p:pipe port="result" step="file-path"/>
+        </p:with-option>
+      </cx:message>
+      
+      <p:string-replace name="magick-call" match="c:line">
+        <p:with-option name="replace" select="concat('''',string-join(('-verbose -format',
+                                          $format,
+                                          $imagemagick-options,
+                                          concat(/c:result/@rel-path, '[0]'),
+                                          $image-stripped-outpath-prefix
+                                          ), 
+                                          $arg-separator),  '''')">
+           <p:pipe port="result" step="file-path"/>
+         </p:with-option>
+        <p:input port="source">
+          <p:inline>
+            <c:result>
+              <c:line/>
+            </c:result>
+          </p:inline>
+        </p:input>
+      </p:string-replace>
+      
+      <p:sink/>
+      
       <p:wrap-sequence wrapper="imagemagick" name="wrap-imagemagick-output-for-debugging">
         <p:input port="source">
+          <p:pipe port="result" step="magick-call"/>
           <p:pipe port="result" step="exec"/>
           <p:pipe port="errors" step="exec"/>
           <p:pipe port="exit-status" step="exec"/>
