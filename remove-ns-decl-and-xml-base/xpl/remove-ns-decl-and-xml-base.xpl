@@ -100,12 +100,12 @@
           <xsl:template match="comment() | processing-instruction()">
             <xsl:copy/>
           </xsl:template>
-          <xsl:template match="@xml:base[$remove-xml-base = ('all', 'yes')]"/>
-          <xsl:template match="@xml:base[$remove-xml-base = 'root' and .. is /*]"/>
+          <xsl:template match="@xml:base[$remove-xml-base = ('all', 'yes')]" priority="2"/>
+          <xsl:template match="@xml:base[$remove-xml-base = 'root' and .. is /*]" priority="2"/>
         </xsl:stylesheet>
       </p:inline>
     </p:input>
-    <p:with-param name="remove-ns-decl" select="'yes'"/>
-    <p:with-param name="remove-xml-base" select="'yes'"/>
+    <p:with-param name="remove-ns-decl" select="$remove-ns-decl"/>
+    <p:with-param name="remove-xml-base" select="$remove-xml-base"/>
   </p:xslt> 
 </p:declare-step>
