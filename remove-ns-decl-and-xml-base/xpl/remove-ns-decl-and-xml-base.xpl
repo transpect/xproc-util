@@ -42,6 +42,8 @@
     </p:documentation>
   </p:option>
   
+  <p:option name="debug" select="'no'"/>
+  
   <p:xslt>
     <p:input port="parameters">
       <p:empty/>
@@ -58,6 +60,7 @@
                - root (only remove /*/@xml:base)
                - none, no (do not remove any @xml:base) -->
           <xsl:param name="remove-ns-decl" select="'yes'"/>
+          <xsl:param name="debug" select="'no'"/>
           <xsl:template match="/*" priority="2">
             <xsl:variable name="context" select="."/>
             <xsl:choose>
@@ -75,6 +78,9 @@
                                                         else ''"/>
                     <xsl:if test="$prefix ne ''">
                       <xsl:namespace name="{$prefix}" select="$ns"/>
+                      <xsl:if test="$debug = 'yes'">
+                        <xsl:message select="concat('… move namespace-uri ''', $ns, ''' (prefix: ', $prefix, ') to root ', name($context))"/>
+                      </xsl:if>
                     </xsl:if>
                   </xsl:for-each>
                   <xsl:apply-templates select="@*, node()"/>
@@ -107,5 +113,6 @@
     </p:input>
     <p:with-param name="remove-ns-decl" select="$remove-ns-decl"/>
     <p:with-param name="remove-xml-base" select="$remove-xml-base"/>
+    <p:with-param name="debug" select="$debug"/>
   </p:xslt> 
 </p:declare-step>
