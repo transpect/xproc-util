@@ -25,8 +25,12 @@
     <p:documentation xmlns="http://www.w3.org/1999/xhtml">
       <p>Valid values:</p>
       <ul>
-        <li>yes: pull all namespace declarations to root-el</li> 
-        <li>no: do not change local namespace declarations</li>
+        <li>'yes': pull all namespace declarations to root-el</li> 
+        <li>'yes-with-no-root-ns ns1 ns2 ns…':<br/>
+          a whitespace separated list of namespace URIs that should not be pulled to root element. Let declarations stay as defined on elements in source input (first occurence).<br/>
+          Good in contexts, where applications with xml parsers can't or don't want to look at root element for xmlns declarations at first.
+          Example value: 'yes-with-no-root-ns http://www.aiim.org/pdfa/ns/extension/ http://www.w3.org/1999/02/22-rdf-syntax-ns#'</li>
+        <li>'no': do not change local namespace declarations</li>
       </ul>
     </p:documentation>
   </p:option>
@@ -53,22 +57,23 @@
         <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="2.0">
           <xsl:param name="remove-xml-base" select="'all'"/>
           <!-- param remove-ns-decl, valid values:
-               - yes: pull all namespace declarations to root-el 
-               - no : do not change local namespace declarations -->
+               - 'yes': pull all namespace declarations to root-el 
+               - 'yes-with-no-root-ns ns1 ns2 ns…': a whitespace separated list of namespace URIs that should not be pulled to root element
+               - 'no': do not change local namespace declarations -->
           <!-- param remove-xml-base, valid values:
-               - all, yes  (default, remove all xml:base attributes)
-               - root (only remove /*/@xml:base)
-               - none, no (do not remove any @xml:base) -->
+               - 'all', 'yes'  (default, remove all xml:base attributes)
+               - 'root' (only remove /*/@xml:base)
+               - 'none', 'no' (do not remove any @xml:base) -->
           <xsl:param name="remove-ns-decl" select="'yes'"/>
           <xsl:param name="debug" select="'no'"/>
           <xsl:template match="/*" priority="2">
             <xsl:variable name="context" select="."/>
             <xsl:choose>
-              <xsl:when test="$remove-ns-decl = 'yes'">
+              <xsl:when test="starts-with($remove-ns-decl, 'yes')">
                 <xsl:copy copy-namespaces="no">
                   <xsl:for-each select="distinct-values(
-                                          ($context//namespace::*/namespace-uri(), 
-                                           $context//*[contains(name(), ':')]/namespace-uri())
+                                          ($context//namespace::*/namespace-uri()[not(. = tokenize($remove-ns-decl, ' ')[position() != 1])], 
+                                           $context//*[contains(name(), ':')]/namespace-uri()[not(. = tokenize($remove-ns-decl, ' ')[position() != 1])])
                                         )">
                     <xsl:variable name="ns" select="."/>
                     <xsl:variable name="el" select="($context//*[namespace-uri()=$ns])[1]"/>
@@ -93,7 +98,7 @@
               </xsl:otherwise>
             </xsl:choose>
           </xsl:template>
-          <xsl:template match="*[$remove-ns-decl = 'yes'] | @*[$remove-ns-decl = 'yes']" priority="1">
+          <xsl:template match="*[starts-with($remove-ns-decl, 'yes')] | @*[starts-with($remove-ns-decl, 'yes')]" priority="1">
             <xsl:copy copy-namespaces="no">
               <xsl:apply-templates select="@*, node()"/>
             </xsl:copy>
