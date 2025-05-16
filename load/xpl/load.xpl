@@ -44,6 +44,14 @@
     </p:documentation>
   </p:output>
   
+  <p:output port="paths">
+    <p:documentation xmlns="http://www.w3.org/1999/xhtml">
+      <h3>Output port: <code>paths</code></h3>
+      <p>The output is paths document .</p>
+    </p:documentation>
+    <p:pipe port="result" step="retrieve-absolute-file-uri-href"/>
+  </p:output>
+  
   <p:import href="http://transpect.io/xproc-util/file-uri/xpl/file-uri.xpl"/>
   
   <!--  *
