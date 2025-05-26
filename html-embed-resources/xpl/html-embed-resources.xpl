@@ -171,7 +171,7 @@
                      |svg:image[@xlink:href]" 
               name="viewport">
     
-    <p:variable name="local-base-uri" select="(base-uri(.), $top-level-base-uri)[1]"/>
+    <p:variable name="local-base-uri" select="(base-uri(.)[normalize-space()], $top-level-base-uri)[1]"/>
     <p:variable name="href-attribute" select="replace(
                                                       (*[local-name() = ('img', 'audio', 'video', 'script')]/@src, 
                                                        html:object/@data, 
