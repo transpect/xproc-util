@@ -15,6 +15,10 @@
   
   <p:option name="debug" required="false" select="'yes'"/>
   <p:option name="debug-dir-uri" select="'debug'"/>
+  <p:option name="regex_warnings" select="'^LaTeX Warning.+$'"/>
+  <p:option name="regex_errors" select="'^!.+$'"/>
+  <p:option name="regex_missingchar" select="'Missing character[^\]]+'"/>
+  <p:option name="regex_exclude-lines" select="''"/>
   <p:output port="errors" >
     <p:pipe port="result" step="generate-errors"/>
   </p:output>
@@ -37,6 +41,10 @@
     <p:input port="stylesheet">
       <p:inline>
         <xsl:stylesheet version="2.0">
+          <xsl:param name="regex_errors" select="'^!.+$'"/>
+          <xsl:param name="regex_warnings" select="'^LaTeX Warning.+$'"/>
+          <xsl:param name="regex_missingchar" select="'Missing character[^\]]+'"/>
+          <xsl:param name="regex_exclude-lines" select="''"/>
           <xsl:template match="/*">
             <c:errors>
               <xsl:choose>
@@ -64,8 +72,8 @@
           <xsl:function name="tr:parse-lines" as="element(c:error)*">
             <xsl:param name="lines" as="xs:string*"/>
 <!--            <xsl:param name="sep" as="xs:string"/>-->
-            <xsl:for-each select="$lines">
-              <xsl:analyze-string select="normalize-space(.)" regex="^!.+$">
+            <xsl:for-each select="$lines[if($regex_exclude-lines eq '') then true() else not(matches(., $regex_exclude-lines))]">
+              <xsl:analyze-string select="normalize-space(.)" regex="{$regex_errors}">
                 <xsl:matching-substring>
                   <c:error code="error" 
                            value="{replace(regex-group(2), '&quot;', '_')}">
@@ -73,7 +81,7 @@
                   </c:error>
                 </xsl:matching-substring>
                 <xsl:non-matching-substring>
-                  <xsl:analyze-string select="normalize-space(.)" regex="^LaTeX Warning.+$">
+                  <xsl:analyze-string select="normalize-space(.)" regex="{$regex_warnings}">
                     <xsl:matching-substring>
                       <c:error code="warning" 
                         value="{replace(regex-group(2), '&quot;', '_')}">
@@ -81,7 +89,7 @@
                       </c:error>
                     </xsl:matching-substring>
                     <xsl:non-matching-substring>
-                      <xsl:analyze-string select="normalize-space(.)" regex="Missing character[^\]]+" flags="i">
+                      <xsl:analyze-string select="normalize-space(.)" regex="{$regex_missingchar}" flags="i">
                         <xsl:matching-substring>
                           <c:error code="error" 
                             value="Missing_Character">
@@ -99,6 +107,10 @@
         </xsl:stylesheet>
       </p:inline>
     </p:input>
+    <p:with-param name="regex_errors" select="$regex_errors"/>
+    <p:with-param name="regex_warnings" select="$regex_warnings"/>
+    <p:with-param name="regex_missingchar" select="$regex_missingchar"/>
+    <p:with-param name="regex_exclude-lines" select="$regex_exclude-lines"/>
   </p:xslt>
   
   <tr:store-debug>
