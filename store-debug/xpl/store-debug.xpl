@@ -94,7 +94,7 @@
   <!--<xsl:message select="'RRRRRRRRRRRRRRRRR notdir:', $notdir, ' without-ext:', $without-ext, ' ext:', $ext, ', base-uri(/*):', base-uri(/*), ' base-uri():', base-uri()"></xsl:message>-->
                         <xsl:for-each select="current-group()">
                           <xsl:variable name="href" as="xs:string"
-                            select="concat($base, '/', string-join(($without-ext, string(position()[. gt 1]), $ext), '.'))"/>
+                            select="concat($base, '/', string-join(($without-ext, string(position()[. gt 1])[normalize-space()], $ext), '.'))"/>
                           <doc href="{$href}"/>
                           <xsl:result-document href="{$href}">
                             <xsl:sequence select="."/>
