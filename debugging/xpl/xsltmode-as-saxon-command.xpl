@@ -182,6 +182,7 @@
                   <xsl:when test="$mode-prefix = 'docx2hub'">{http://transpect.io/docx2hub}</xsl:when>
                   <xsl:when test="$mode-prefix = 's'">{http://purl.oclc.org/dsdl/schematron}</xsl:when>
                   <xsl:when test="$mode-prefix = 'idml2xml'">{http://transpect.io/idml2xml}</xsl:when>
+                  <xsl:when test="$mode-prefix = 'xml2idml'">{http://transpect.io/xml2idml}</xsl:when>
                   <xsl:when test="$mode-prefix = 'docx2hub'">{http://transpect.io/docx2hub}</xsl:when>
                   <xsl:when test="$mode-prefix = 'hub2tei'">{http://transpect.io/hub2tei}</xsl:when>
                   <xsl:when test="$mode-prefix = 'tei2hub'">{http://transpect.io/tei2hub}</xsl:when>

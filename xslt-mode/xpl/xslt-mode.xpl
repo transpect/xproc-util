@@ -5,6 +5,7 @@
   xmlns:xsl="http://www.w3.org/1999/XSL/Transform" 
   xmlns:s="http://purl.oclc.org/dsdl/schematron"
   xmlns:idml2xml="http://transpect.io/idml2xml"
+  xmlns:xml2idml="http://transpect.io/xml2idml"
   xmlns:docx2hub="http://transpect.io/docx2hub"
   xmlns:hub2tei="http://transpect.io/hub2tei"
   xmlns:tei2hub="http://transpect.io/tei2hub"
