@@ -7,13 +7,32 @@
   
   <xsl:param name="schematron-like-paths" select="'no'"/>
   <xsl:param name="override-existing-srcpaths" select="'no'"/>
-  <xsl:param name="exclude-elements"/>
-  <xsl:param name="exclude-descendants"/>
-  <xsl:param name="prepend" as="xs:string?"/>
+  <xsl:param name="exclude-elements" select="''"/>
+  <xsl:param name="exclude-descendants" select="'no'"/>
+  <xsl:param name="prepend" as="xs:string?" select="''"/>
+  <xsl:param name="insert-predicate-to-root" select="'yes'"/>
   
   <xsl:template match="@*|node()">
     <xsl:copy>
       <xsl:apply-templates select="@*, node()"/>
+    </xsl:copy>
+  </xsl:template>
+  
+  <xsl:template match="/*" priority="1">
+    <xsl:param name="ancestor-srcpath" select="''" tunnel="no"/>
+    <xsl:variable name="srcpath"
+      select="tr:create-srcpath(., $ancestor-srcpath)"/>
+    <xsl:variable name="root-srcpath"
+      select="if($insert-predicate-to-root = 'no')
+              then replace($srcpath, '\[1\]$', '')
+              else tr:create-srcpath(., $ancestor-srcpath)"/>
+    <xsl:copy>
+      <xsl:if test="not(@srcpath) or $override-existing-srcpaths = 'yes'">
+        <xsl:attribute name="srcpath" select="$root-srcpath"/>
+      </xsl:if>
+      <xsl:apply-templates select="@*, node()" mode="#current">
+        <xsl:with-param name="ancestor-srcpath" select="$root-srcpath" tunnel="no"/>
+      </xsl:apply-templates>
     </xsl:copy>
   </xsl:template>
   
