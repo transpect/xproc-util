@@ -75,7 +75,7 @@
                             if($schematron-like-paths eq 'yes')
                               then concat('*:', local-name($node), '[namespace-uri()=''', namespace-uri($node), ''']')
                               else $node-name,
-                            '[', count($node/preceding-sibling::*[name() = $node-name]) + 1, ']'
+                            '[', xs:string(count($node/preceding-sibling::*[name() = $node-name]) + 1), ']'
                           ), '')"/>
   </xsl:function>
   
