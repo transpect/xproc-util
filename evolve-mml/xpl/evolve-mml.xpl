@@ -70,6 +70,7 @@
   <p:option name="store-plain-tex" select="'false'"/>
   <p:option name="pad-position" select="'false'"/>
   <p:option name="pad" select="'3'"/>
+  <p:option name="add-math-delim" select="'false'"/>
 <!--  <p:option name="apply-unnumbered-naming" select="'false'"/>-->
 <!--  <p:option name="unnumbered-eq-outfile-prefix" select="'ltx-created-ueq-'"/>-->
 <!--  <p:option name="inline-eq-outfile-prefix" select="'ltx-created-ieq-'"/>-->
@@ -158,9 +159,16 @@
               <p:input port="stylesheet">
                 <p:inline>
                   <xsl:stylesheet version="2.0" xmlns:alt="http://docbook.org/ns/docbook">
+                    <xsl:param name="add-math-delim"/>
                     <xsl:template match="/">
                       <alt:alt>
+                        <xsl:if test="$add-math-delim='true'">
+                          <xsl:text>$</xsl:text>
+                        </xsl:if>
                         <xsl:value-of select="processing-instruction()"/>
+                        <xsl:if test="$add-math-delim='true'">
+                          <xsl:text>$</xsl:text>
+                        </xsl:if>
                       </alt:alt>
                     </xsl:template>
                   </xsl:stylesheet>
@@ -169,6 +177,7 @@
               <p:input port="parameters">
                 <p:empty/>
               </p:input>
+              <p:with-param name="add-math-delim" select="$add-math-delim"/>
             </p:xslt>
             <p:store method="text" media-type="text/plain" >
               <p:with-option name="href" select="concat($output-dir, '/', $outfile, '.tex')"/>
