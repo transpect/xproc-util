@@ -17,6 +17,7 @@
   <p:option name="debug-dir-uri" select="'debug'"/>
   <p:option name="regex_warnings" select="'^LaTeX Warning.+$'"/>
   <p:option name="regex_errors" select="'^!.+$'"/>
+  <p:option name="regex_fatalerrors" select="'Fatal error occurred.+$'"/>
   <p:option name="regex_missingchar" select="'Missing character[^\]]+'"/>
   <p:option name="regex_exclude-lines" select="''"/>
   <p:output port="errors" >
@@ -42,12 +43,17 @@
       <p:inline>
         <xsl:stylesheet version="2.0">
           <xsl:param name="regex_errors" select="'^!.+$'"/>
+          <xsl:param name="regex_fatalerrors" select="'Fatal error occurred.+$'"/>
           <xsl:param name="regex_warnings" select="'^LaTeX Warning.+$'"/>
           <xsl:param name="regex_missingchar" select="'Missing character[^\]]+'"/>
           <xsl:param name="regex_exclude-lines" select="''"/>
           <xsl:template match="/*">
             <c:errors>
               <xsl:choose>
+                <xsl:when test="not(@local-href/normalize-space())">
+                  <xsl:message select="'ERROR! Missing attribute local-href on root!'"/>
+                  <c:error name="could-not-load-text-file" value="_local-href_attribute_empty_or_not_set"/>
+                </xsl:when>
                 <xsl:when test="unparsed-text-available(@local-href, 'UTF-8')">
                   <xsl:sequence select="tr:parse-textfile(@local-href, 'UTF-8')"/>
                 </xsl:when>
@@ -65,7 +71,7 @@
             <xsl:param name="href" as="xs:string"/>
             <xsl:param name="charset" as="xs:string"/>
             <xsl:variable name="lines" as="xs:string*" 
-              select="tokenize(unparsed-text($href, $charset), '(&#xa;&#xa;|&#xd;)')"/>
+              select="tokenize(unparsed-text($href, $charset), '(&#xa;&#xa;|&#xd;|!\s+==&gt;)')"/>
              <xsl:sequence select="tr:parse-lines($lines)"/>
           </xsl:function>
           
@@ -73,30 +79,39 @@
             <xsl:param name="lines" as="xs:string*"/>
 <!--            <xsl:param name="sep" as="xs:string"/>-->
             <xsl:for-each select="$lines[if($regex_exclude-lines eq '') then true() else not(matches(., $regex_exclude-lines))]">
-              <xsl:analyze-string select="normalize-space(.)" regex="{$regex_errors}">
-                <xsl:matching-substring>
-                  <c:error code="error" 
-                           value="{replace(regex-group(2), '&quot;', '_')}">
+            <xsl:analyze-string select="normalize-space(.)" regex="{$regex_fatalerrors}">
+              <xsl:matching-substring>
+                  <c:error code="fatal-error" 
+                    value="{replace(regex-group(2), '&quot;', '_')}">
                     <xsl:value-of select="."/>
                   </c:error>
                 </xsl:matching-substring>
                 <xsl:non-matching-substring>
-                  <xsl:analyze-string select="normalize-space(.)" regex="{$regex_warnings}">
+                  <xsl:analyze-string select="normalize-space(.)" regex="{$regex_errors}">
                     <xsl:matching-substring>
-                      <c:error code="warning" 
+                      <c:error code="error" 
                         value="{replace(regex-group(2), '&quot;', '_')}">
                         <xsl:value-of select="."/>
                       </c:error>
                     </xsl:matching-substring>
                     <xsl:non-matching-substring>
-                      <xsl:analyze-string select="normalize-space(.)" regex="{$regex_missingchar}" flags="i">
+                      <xsl:analyze-string select="normalize-space(.)" regex="{$regex_warnings}">
                         <xsl:matching-substring>
-                          <c:error code="error" 
-                            value="Missing_Character">
+                          <c:error code="warning" 
+                            value="{replace(regex-group(2), '&quot;', '_')}">
                             <xsl:value-of select="."/>
                           </c:error>
                         </xsl:matching-substring>
-                        
+                        <xsl:non-matching-substring>
+                          <xsl:analyze-string select="normalize-space(.)" regex="{$regex_missingchar}" flags="i">
+                            <xsl:matching-substring>
+                              <c:error code="error" 
+                                value="Missing_Character">
+                                <xsl:value-of select="."/>
+                              </c:error>
+                            </xsl:matching-substring>
+                          </xsl:analyze-string>
+                        </xsl:non-matching-substring>
                       </xsl:analyze-string>
                     </xsl:non-matching-substring>
                   </xsl:analyze-string>
@@ -107,6 +122,7 @@
         </xsl:stylesheet>
       </p:inline>
     </p:input>
+    <p:with-param name="regex_fatalerrors" select="$regex_fatalerrors"/>
     <p:with-param name="regex_errors" select="$regex_errors"/>
     <p:with-param name="regex_warnings" select="$regex_warnings"/>
     <p:with-param name="regex_missingchar" select="$regex_missingchar"/>
@@ -156,7 +172,24 @@
                   aria-controls="fam_tex">–</a></div>
               <div class="collapse in" id="fam_tex">
                 <ul class="list-group BC_family-summary">
-                  <xsl:if test="$errors[@code='error' or @name='could-not-load-text-file']">
+                  <xsl:if test="$errors[@code='fatal-error']">
+                    <li class="list-group-item BC_tooltip fatal-error"><div class="checkbox">
+                      <label class="checkbox-inline"><input type="checkbox" checked="checked"
+                          class="BC_toggle fatal-error" id="BC_toggle_found_config__fatal-error"
+                          name="found_config__fatal-error" /></label>
+                      <a href="#BC_tex_fatal-error" class="BC_link">TeX Rendering Fatal Errors<span
+                          class="BC_whitespace"> </span><span class="BC_fatal-error_count badge">
+                        <xsl:value-of select="count($errors[@code='fatal-error'])"/>
+                          </span></a>
+                      <div class="pull-right">
+                        <a href="#BC_tex_fatal-error" class="BC_link"><span type="button"
+                            class="btn btn-default btn-xs fatal-error">X<span class="BC_arrow-down"
+                              >▾</span></span></a>
+                        <span title="Formatierer fatal-error tex"
+                          class="BC_marker Formatierer fatal-error tex"></span>
+                      </div>
+                    </div></li></xsl:if>
+                  <xsl:if test="$errors[@code='error'] or @name='could-not-load-text-file'">
                     <li class="list-group-item BC_tooltip error"><div class="checkbox">
                       <label class="checkbox-inline"><input type="checkbox" checked="checked"
                           class="BC_toggle error" id="BC_toggle_found_config__error"
@@ -202,6 +235,25 @@
                                   ]">
             <xsl:copy>
               <xsl:apply-templates select="@*, node()"/>
+              <span class="BC_tooltip tex-rendering fatal-error" style="display:none"><span
+                class="btn btn-default btn-xs tex-rendering fatal-error" type="button"
+                data-toggle="collapse" data-target="#msg_BC_tex_fatal-error"
+                aria-expanded="false" aria-controls="msg_BC_tex_fatal-error">X1</span><span
+                  title="tex fatal-error tex_fatal-error" class="BC_marker tex-rendering fatal-error"
+                  id="BC_tex_fatal-error"></span><div class="collapse" id="msg_tex_fatal-error">
+                    <div class="well BC_message fatal-error">
+                      <div class="BC_message-text">TeX fatal errors
+                        <xsl:for-each select="$errors[@code='fatal-error']">
+                          <p>
+                            <span class="issue"><xsl:value-of select="current()/@value"/></span>
+                            <xsl:value-of select="current()/text()"/>
+                          </p>
+                        </xsl:for-each>
+                      </div>
+                      <p class="BC_step-name"> Conversion step: TeX Rendering</p>
+                    </div>
+                  </div></span>
+
               <span class="BC_tooltip tex-rendering error" style="display:none"><span
                 class="btn btn-default btn-xs tex-rendering error" type="button"
                 data-toggle="collapse" data-target="#msg_BC_tex_error"
