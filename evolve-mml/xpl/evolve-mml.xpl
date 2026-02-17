@@ -21,12 +21,6 @@
     </p:documentation>
   </p:input>
   
-  <p:input port="conf" primary="false">
-    <p:documentation>
-      Port for mml2tex conf.
-    </p:documentation>
-  </p:input>
-  
   <p:input port="stylesheet">
     <p:document href="../xsl/evolve-mml.xsl"/>
   </p:input>
@@ -130,9 +124,6 @@
 
     <p:wrap wrapper="tex" match="/"/>
     <mml2tex:convert name="mml2tex">
-      <p:input port="conf">
-        <p:pipe port="conf" step="evolve-mml"/>
-      </p:input>
       <p:input port="paths">
         <p:pipe port="result" step="paths"/>
       </p:input>
