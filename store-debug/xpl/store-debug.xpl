@@ -2,7 +2,7 @@
   xmlns:c="http://www.w3.org/ns/xproc-step"
   xmlns:cx="http://xmlcalabash.com/ns/extensions"
   xmlns:tr="http://transpect.io" 
-  version="1.0"
+  version="3.0"
   type="tr:store-debug" 
   name="store-debug">
   
@@ -23,8 +23,6 @@
     </p:documentation>
   </p:option>
   
-  <p:import href="http://xmlcalabash.com/extension/steps/library-1.0.xpl"/>
-
   <p:variable name="actually-active" select="if (matches($base-uri, '^.+\?.*active=(true|false).*$'))
                                              then replace($base-uri, '^.+\?.*active=(true|false).*$', '$1')
                                              else $active">
@@ -32,125 +30,67 @@
   </p:variable>  
   <p:choose>
     <p:when test="$actually-active = ('yes', 'true')">
-      <p:xpath-context><p:empty/></p:xpath-context>
       <p:variable name="actual-indent" select="if (matches($base-uri, '^.+\?.*indent=(true|false).*$'))
                                                then replace($base-uri, '^.+\?.*indent=(true|false).*$', '$1')
                                                else $indent">
         <p:empty/>
       </p:variable>
       <p:xslt name="catalog-and-storage-uris" template-name="main">
-        <p:with-param name="storage-base-uri" select="$base-uri"><p:empty/></p:with-param>
-        <p:with-param name="default-storage-base-uri" select="$default-uri"><p:empty/></p:with-param>
-        <p:with-param name="extension" select="$extension"><p:empty/></p:with-param>
-        <p:with-param name="pipeline-step" select="$pipeline-step"><p:empty/></p:with-param>
-        <p:input port="parameters"><p:empty/></p:input>
-        <p:input port="stylesheet">
-          <p:inline>
-            <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
-              xmlns:xs="http://www.w3.org/2001/XMLSchema" version="2.0">
-              <xsl:param name="pipeline-step" as="xs:string"/>
-              <xsl:param name="storage-base-uri" as="xs:string"/>
-              <xsl:param name="default-storage-base-uri" as="xs:string"/>
-              <xsl:param name="extension" as="xs:string"/>
-              <xsl:variable name="without-query" as="xs:string" select="replace($storage-base-uri, '^(.+)\?.*$', '$1')"/>
-              <xsl:template name="main">
-                <xsl:variable name="base" as="xs:string"
-                  select="string(
-                            resolve-uri(
-                              concat(
-                                replace(
-                                  ($without-query[normalize-space()], $default-storage-base-uri)[1],
-                                  '^(.*?)/+$',
-                                  '$1'
-                                ), '/', $pipeline-step
-                              )
-                            )
-                          )"/>
-                <collection>
-                  <xsl:attribute name="xml:base" select="concat($base, '.catalog.xml')"/>
-                  <xsl:choose>
-                    <xsl:when test="count(collection()/*) = 0"/>
-                    <xsl:when test="count(collection()/*) = 1">
-                      <xsl:variable name="href" as="xs:string"
-                        select="concat($base, '.', ($extension[normalize-space()], 'xml')[1])"/>
-                      <doc href="{$href}"/>
-                      <xsl:result-document href="{$href}">
-                        <xsl:sequence select="collection()"/>
-                      </xsl:result-document>
-                    </xsl:when>
-                    <xsl:otherwise>
-                      <xsl:for-each-group select="collection()[*]" group-by="(base-uri(/*), base-uri(), '')[1]">
-                        <xsl:variable name="notdir" select="replace(current-grouping-key(), '^.*/', '')" as="xs:string"/>
-                        <xsl:variable name="without-ext" as="xs:string" 
-                          select="if ($notdir = '') 
-                                  then string-join(('','filename','unknown',string(position())), '__') 
-                                  else replace($notdir, '^(.+)\.(.+)$', '$1')"/>
-                        <xsl:variable name="ext" as="xs:string" 
-                          select="if (normalize-space($extension)) 
-                                  then $extension 
-                                  else if (matches($notdir, '^(.+)\.(.+)$')) 
-                                       then replace($notdir, '^(.+)\.(.+)$', '$2')
-                                       else 'xml'"/>
-  <!--<xsl:message select="'RRRRRRRRRRRRRRRRR notdir:', $notdir, ' without-ext:', $without-ext, ' ext:', $ext, ', base-uri(/*):', base-uri(/*), ' base-uri():', base-uri()"></xsl:message>-->
-                        <xsl:for-each select="current-group()">
-                          <xsl:variable name="href" as="xs:string"
-                            select="concat($base, '/', string-join(($without-ext, string(position()[. gt 1])[normalize-space()], $ext), '.'))"/>
-                          <doc href="{$href}"/>
-                          <xsl:result-document href="{$href}">
-                            <xsl:sequence select="."/>
-                          </xsl:result-document>
-                        </xsl:for-each>
-                      </xsl:for-each-group>    
-                    </xsl:otherwise>
-                  </xsl:choose>
-                </collection>
-              </xsl:template>
-            </xsl:stylesheet>
-          </p:inline>
-        </p:input>
+        <p:with-option name="parameters"
+                   select="
+                     map{
+                       'storage-base-uri': $base-uri,
+                       'default-storage-base-uri': $default-uri,
+                       'extension': $extension,
+                       'pipeline-step': $pipeline-step
+                     }"/>
+        <p:with-input port="stylesheet" href="http://transpect.io/xproc-util/store-debug/xsl/store-debug.xsl"/>
       </p:xslt>
       
       <p:sink name="sink0"/>
       
       <p:count>
-        <p:input port="source">
+        <p:with-input port="source">
           <p:pipe port="secondary" step="catalog-and-storage-uris"/>
-        </p:input>
+        </p:with-input>
       </p:count>
+      
+      <p:message>
+        <p:with-option name="select" select="$base-uri"/>
+      </p:message>
       
       <p:choose>
         <p:when test=". > 1">
           <p:identity>
-            <p:input port="source">
+            <p:with-input port="source">
               <p:pipe port="result" step="catalog-and-storage-uris"/>
-            </p:input>
+            </p:with-input>
           </p:identity>
-          <p:store name="store-catalog" indent="true" omit-xml-declaration="false">
+          <p:store name="store-catalog" serialization="map{'omit-xml-declaration':false(), 'indent':true()}">
             <p:with-option name="href" select="/collection/@xml:base">
               <p:pipe port="result" step="catalog-and-storage-uris"/>
             </p:with-option>
           </p:store>
+          <p:sink name="sink1"/>
         </p:when>
         <p:otherwise>
-          <p:sink name="sink1"/>
+          <p:sink name="sink2"/>
         </p:otherwise>
       </p:choose>
       
       <p:for-each name="store-iteration">
-        <p:iteration-source>
+        <p:with-input>
           <p:pipe port="secondary" step="catalog-and-storage-uris"/>
-        </p:iteration-source>
-        <p:store omit-xml-declaration="false">
-          <p:with-option name="indent" select="$actual-indent"/>
+        </p:with-input>
+        <p:store serialization="map{'omit-xml-declaration':false(), 'indent': $actual-indent, 'method': if (matches(base-uri(), 'html$')) then 'xhtml' else 'xml'}">
           <p:with-option name="href" select="base-uri()"/>
-          <p:with-option name="method" select="if (matches(base-uri(), 'html$')) then 'xhtml' else 'xml'"/>
         </p:store>
       </p:for-each>
       
       <p:identity>
-        <p:input port="source">
+        <p:with-input port="source">
           <p:pipe port="source" step="store-debug"/>
-        </p:input>
+        </p:with-input>
       </p:identity>
     </p:when>
     <p:otherwise>
