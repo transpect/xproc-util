@@ -6,8 +6,9 @@
   xmlns:tr="http://transpect.io" 
   xmlns:pos="http://exproc.org/proposed/steps/os"
   xmlns:cat="urn:oasis:names:tc:entity:xmlns:xml:catalog" 
-  xmlns:xs="http://www.w3.org/2001/XMLSchema" 
-  version="1.0" 
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:map="http://www.w3.org/2005/xpath-functions/map"
+  version="3.0" 
   name="file-uri" 
   type="tr:file-uri">
 
@@ -68,6 +69,9 @@
       <dd>The same as <code>lastpath</code>, but without URL escaping.</dd>
     </dl>
   </p:documentation>
+  
+<!--  <p:import href="http://xmlcalabash.com/extension/steps/library-1.0.xpl"/>-->
+  <p:import href="unescape-for-os-path.xpl"/>
 
   <p:pipeinfo>
     <depends-on xmlns="http://transpect.io">
@@ -102,11 +106,11 @@
     https://docs.google.com/document/d/1Z5eYyjLoRhB24HYZ-d-wQKAFD3QDWZUsQH4cKHs2eiM/export?format=docx)</p:documentation>
   </p:option>
 
-  <p:input port="source" primary="true">
+  <!--<p:input port="source" primary="true">
     <p:documentation>Just to prevent that the default readable port will be connected to the catalog or resolver
       ports.</p:documentation>
     <p:empty/>
-  </p:input>
+  </p:input>-->
 
   <p:input port="catalog">
     <p:documentation>If it is a <code>&lt;catalog></code> document in the namespace
@@ -143,37 +147,36 @@
     <p:documentation>A c:result document with a local-href and an os-path attribute.</p:documentation>
   </p:output>
 
-  <p:import href="http://xmlcalabash.com/extension/steps/library-1.0.xpl"/>
-  <p:import href="unescape-for-os-path.xpl"/>
+  <p:os-info name="info"/>
+  <p:message select="'XXXXXX'{$filename}"/>
+<!--<p:message select="{serialize(/*)}"/>-->
+  <!--<p:message>
+    <p:with-option name="select" select="'pos:info ', for $a in /*/@* return concat(name($a), '=', $a, ' ')"></p:with-option>
+  </p:message>-->
 
-  <pos:info name="info"/>
-
-  <!--<cx:message>
-    <p:with-option name="message" select="'pos:info ', for $a in /*/@* return concat(name($a), '=', $a, ' ')"></p:with-option>
-  </cx:message>-->
-
-  <p:xslt name="catalog-resolve" template-name="resolve">
-    <p:input port="stylesheet">
+  <p:xslt name="catalog-resolve" template-name="resolve" cx:depends-on="info">
+    <p:with-input port="stylesheet">
       <p:pipe port="resolver" step="file-uri"/>
-    </p:input>
-    <p:input port="source">
+    </p:with-input>
+    <p:with-input port="source">
       <p:pipe port="catalog" step="file-uri"/>
-    </p:input>
-    <p:with-param name="uri" select="if (/*/@file-separator = '\') then replace($filename, '\\', '/') else $filename"/>
-    <p:with-param name="cat:missing-next-catalogs-warning" select="'no'"/>
+    </p:with-input>
+    <p:with-option name="parameters" select="map {'uri': if (/*/@file-separator = '\') then replace($filename, '\\', '/') else $filename,
+                                          'cat:missing-next-catalogs-warning': 'no' }"/>
   </p:xslt>
-
+  
+<p:message select="'CATALOG_RESOLVE'{serialize(/*)}"/>
   <!--<cx:message>
     <p:with-option name="message" select="'cr ', for $a in /*/@* return concat(name($a), '=', $a, ' ')"></p:with-option>
   </cx:message>-->
   <p:sink/>
 
   <p:add-attribute name="empty-result" attribute-name="cwd" match="/*">
-    <p:input port="source">
+    <p:with-input port="source">
       <p:inline>
         <c:result/>
       </p:inline>
-    </p:input>
+    </p:with-input>
     <p:with-option name="attribute-value" 
       select="replace(
                 if (/*/@file-separator = '\') 
@@ -185,6 +188,7 @@
       <p:pipe port="result" step="info"/>
     </p:with-option>
   </p:add-attribute>
+  <p:message select="'CWWWDDD'{serialize(/*)}"/>
   
   <p:choose name="cwd-uri">
     <p:when test="$filename = /c:result/@cwd">
@@ -199,6 +203,7 @@
     </p:otherwise>
   </p:choose>
   
+  
   <!--<tr:file-uri name="cwd-uri">
     <p:with-option name="filename" select="/c:result/@cwd"/>
   </tr:file-uri>-->
@@ -212,14 +217,17 @@
       <p>Please note that despite its name, the @href attribute doesn’t necessarily contain a URI. If $filename is an OS path,
         @href will contain this path.</p>
     </p:documentation>
-    <p:input port="source">
+    <p:with-input port="source">
       <p:pipe port="result" step="empty-result"/>
-    </p:input>
-    <p:input port="attributes">
+    </p:with-input>
+    <p:with-option name="attributes" select="map:merge((for $a in (//*/@*)[1]
+                                                         return map { $a/local-name() : $a/string() }))">
       <p:pipe port="result" step="catalog-resolve"/>
-    </p:input>
+    </p:with-option>
   </p:set-attributes>
-
+  
+  <p:message select="'DEBUGGGGGG add-orig-hrf:',{serialize(/*)}"></p:message>
+  
   <p:group>
     <p:variable name="catalog-resolved-uri" select="/c:result/@href"/>
 
@@ -229,11 +237,11 @@
         What should be the content of @os-path? We skip @os-path altogether for the time being.</p:documentation>
         <p:add-attribute attribute-name="local-href" match="/*">
           <p:with-option name="attribute-value" select="$catalog-resolved-uri"/>
-          <p:input port="source">
+          <p:with-input port="source">
             <p:inline>
               <c:result/>
             </p:inline>
-          </p:input>
+          </p:with-input>
         </p:add-attribute>
         <p:add-attribute attribute-name="href" match="/*">
           <p:with-option name="attribute-value" select="$catalog-resolved-uri"/>
@@ -244,11 +252,11 @@
         <p:documentation>Windows UNC path URI.</p:documentation>
         <p:add-attribute attribute-name="local-href" match="/*">
           <p:with-option name="attribute-value" select="$catalog-resolved-uri"/>
-          <p:input port="source">
+          <p:with-input port="source">
             <p:inline>
               <c:result/>
             </p:inline>
-          </p:input>
+          </p:with-input>
         </p:add-attribute>
         <p:add-attribute match="/*" attribute-name="os-path">
           <p:with-option name="attribute-value" select="replace($catalog-resolved-uri, '^file://', '\\')"/>
@@ -314,11 +322,11 @@
           home dir. Optionally generate a random name.</p:documentation>
 
         <p:uuid match="/*/@uuid" name="uuid">
-          <p:input port="source">
+          <p:with-input port="source">
             <p:inline>
               <doc uuid=""/>
             </p:inline>
-          </p:input>
+          </p:with-input>
         </p:uuid>
 
         <p:sink/>
@@ -330,50 +338,80 @@
         </tr:file-uri>
         
         <p:identity>
-            <p:input port="source">
+            <p:with-input port="source">
               <p:inline>
                 <c:request method="GET" detailed="true"/>
               </p:inline>
-            </p:input>
+            </p:with-input>
           </p:identity>
 
         <p:add-attribute match="/c:request" attribute-name="href">
           <p:with-option name="attribute-value" select="$catalog-resolved-uri"/>
         </p:add-attribute>
-          
-
-        <p:try name="http-request">
+<!--      following lines throw " Alternative subpipelines must have the same primary output port"    -->
+        <!--<p:try name="http-request">
           <p:group>
             <p:output port="result" primary="true"/>
-            <p:http-request />
+            <p:output port="result" primary="true" pipe="result@http-request-intern"/>
+            <p:http-request name="http-request-intern">
+              <p:with-option name="href" select="/c:request/@href"/>
+            </p:http-request>
+            <p:sink/>
+            <p:variable name="status" as="item()" select=".?status-code" pipe="report@http-request-intern"/>
+            <p:identity>
+              <p:with-input port="source">
+                <p:inline expand-text="true">
+                  <c:response name="status" value="{$status}"/>
+                </p:inline>
+              </p:with-input>
+            </p:identity>
           </p:group>
           <p:catch>
             <p:output port="result" primary="true"/>
-            <p:identity>
-              <p:input port="source">
+            <p:output port="result" primary="true" pipe="result@catch-res1"/>
+            <p:identity name="catch-res1">
+              <p:with-input port="source">
                 <p:inline>
                   <c:response status="999"/>
                 </p:inline>
-              </p:input>
+              </p:with-input>
             </p:identity>
           </p:catch>
-        </p:try>
-
+        </p:try>-->
+        
+    <!--<p:identity name="http-request">
+              <p:with-input port="source">
+                <p:inline>
+                  <c:response status="999"/>
+                </p:inline>
+              </p:with-input>
+            </p:identity>-->
+        
+        <p:http-request name="http-request">
+          <p:with-option name="href" select="/c:request/@href"/>
+        </p:http-request>
+        <p:sink/>
+        <p:variable name="status" as="item()" select=".?status-code" pipe="report@http-request"/>
+        <p:identity name="http-request-result">
+          <p:with-input port="source">
+            <p:inline expand-text="true">
+              <c:response name="status" value="{$status}"/>
+            </p:inline>
+          </p:with-input>
+        </p:identity>
+        
         <p:group>
           <p:variable name="tmp-dir-href" select="/c:result/@local-href">
             <p:pipe port="result" step="tmp-dir"/>
           </p:variable>
 
-           <p:variable name="filename" select="replace(c:response/c:header[@name='Content-Disposition']/@value,
+           <p:variable name="filename" select="replace(map:get(.?headers, 'Content-Disposition'),
                                              '^.*filename=&#34;(.*)&#34;;.*$',
-                                             '$1')">
-                  <p:pipe port="result" step="http-request"/>
-          </p:variable>
-
+                                             '$1')" as="item()" pipe="report@http-request"/>
           <p:add-attribute attribute-name="local-href" match="/*" name="local-href">
-            <p:input port="source">
+            <p:with-input port="source">
               <p:pipe port="result" step="uuid"/>
-            </p:input>
+            </p:with-input>
             <p:with-option name="attribute-value"
               select="concat(
                             $tmp-dir-href, 
@@ -395,41 +433,37 @@
           <p:sink/>
           
           <p:identity>
-            <p:input port="source">
+            <p:with-input port="source">
               <p:pipe port="result" step="http-request"/>
-            </p:input>
+            </p:with-input>
           </p:identity>
-
+          
           <p:choose name="store-http-resource">
-            <p:when test="not(starts-with(/c:response/@status, '2'))">
-              <cx:message>
-                <p:with-option name="message"
-                  select="concat('Cannot retrieve ', $catalog-resolved-uri, '. Status: ', /c:response/@status)"/>
-              </cx:message>
+            <p:when test="not(starts-with($status, '2'))">
+              <p:message>
+                <p:with-option name="select"
+                  select="concat('Cannot retrieve ', $catalog-resolved-uri, '. Status: ', $status)"/>
+              </p:message>
               <p:sink/>
               <p:add-attribute attribute-name="error-status" match="/c:result">
-                <p:with-option name="attribute-value" select="/c:response/@status">
+                <p:with-option name="attribute-value" select="$status">
                   <p:pipe port="result" step="http-request"/>
                 </p:with-option>
-                <p:input port="source">
+                <p:with-input port="source">
                   <p:inline>
                     <c:result/>
                   </p:inline>
-                </p:input>
+                </p:with-input>
               </p:add-attribute>
             </p:when>
             <p:when test="/c:response/c:body/(.[normalize-space(.)] | c:data)">
                 
               <p:add-attribute  match="/doc" attribute-name="filename" name="filename">
                 <p:with-option name="attribute-value" 
-                  select="replace(c:response/c:header[@name='Content-Disposition']/@value,
-                  '^.*filename=&#34;(.*)&#34;;.*$',
-                  '$1')">
-                  <p:pipe port="result" step="http-request"/>
-                </p:with-option>
-                <p:input port="source">
+                  select="$filename"/>
+                <p:with-input port="source">
                   <p:pipe port="result" step="local-href"/>
-                </p:input>
+                </p:with-input>
               </p:add-attribute>
               
              <!--<p:store cx:decode="true">
@@ -442,9 +476,9 @@
               </p:store>-->
 
                 <p:store cx:decode="true">
-                <p:input port="source" select="/c:response/c:body">
+                <p:with-input port="source" select="/c:response/c:body">
                   <p:pipe port="result" step="http-request"/>
-                </p:input>
+                </p:with-input>
                 <p:with-option name="href" select="/doc/@local-href">
                      <p:pipe port="result" step="filename"/>
                 </p:with-option>
@@ -456,10 +490,10 @@
               </tr:file-uri>
             </p:when>
             <p:otherwise>
-              <p:store omit-xml-declaration="false">
-                <p:input port="source" select="/c:response/c:body/*">
+              <p:store serialization="map{'omit-xml-declaration':false()}">
+                <p:with-input port="source" select="/c:response/c:body/*">
                   <p:pipe port="result" step="http-request"/>
-                </p:input>
+                </p:with-input>
                 <p:with-option name="href" select="/doc/@local-href">
                   <p:pipe port="result" step="local-href"/>
                 </p:with-option>
@@ -481,59 +515,72 @@
         <p:documentation>HTTP URL, check only return status Ok.</p:documentation>
 
         <p:identity>
-          <p:input port="source">
+          <p:with-input port="source">
             <p:inline>
               <c:request method="HEAD" detailed="true" status-only="true"/>
             </p:inline>
-          </p:input>
+          </p:with-input>
         </p:identity>
 
         <p:try name="http-request-check">
           <p:group>
-            <p:output port="result" primary="true"/>
             <p:add-attribute match="/c:request" attribute-name="href">
               <p:with-option name="attribute-value" select="escape-html-uri($catalog-resolved-uri)"/>
             </p:add-attribute>
-            <p:http-request />
+            <p:http-request name="http-request-check-intern">
+              <p:with-option name="href" select="/c:request/@href"/>
+            </p:http-request>
+            <p:variable name="status" as="item()" select=".?status-code" pipe="report@http-request-check-intern"/>
+            <p:identity name="response">
+              <p:with-input port="source">
+                <p:inline expand-text="true">
+                  <c:response name="status" value="{$status}"/>
+                </p:inline>
+              </p:with-input>
+            </p:identity>
           </p:group>
           <p:catch name="catch-http-request-check">
-            <p:output port="result" primary="true"/>
-            <p:insert match="/*" position="first-child">
-              <p:input port="source">
+            <p:insert name="insert" match="/*" position="first-child">
+              <p:with-input port="source">
                 <p:inline>
                   <c:response status="999"/>
                 </p:inline>
-              </p:input>
-              <p:input port="insertion">
+              </p:with-input>
+              <p:with-input port="insertion">
                 <p:pipe port="error" step="catch-http-request-check"/>
-              </p:input>
+              </p:with-input>
             </p:insert>
           </p:catch>
         </p:try>
+        
+        <p:identity name="result-http-request-check"/>
 
         <p:sink/>
-        
-        <p:identity>
-          <p:input port="source">
-            <p:inline>
-              <c:result/>
-            </p:inline>
-          </p:input>
-        </p:identity>
-
-        <p:choose name="attach-error-status">
-          <p:xpath-context>
-            <p:pipe port="result" step="http-request-check"/>
-          </p:xpath-context>
-          <p:when test="not(starts-with(/c:response/@status, '2'))">
+        <p:variable name="http-request-check-status" select="/c:response/@status">
+            <p:pipe port="result" step="result-http-request-check"/>
+        </p:variable>
+<!--        formerly named <choose name="attach-error-status"> -->
+        <p:choose>
+          <p:when test="not(starts-with($http-request-check-status, '2'))">
             <p:add-attribute attribute-name="error-status" match="/c:result">
+              <p:with-input port="source">
+                <p:inline>
+                  <c:result/>
+                </p:inline>
+              </p:with-input>
               <p:with-option name="attribute-value" select="/c:response/@status">
-                <p:pipe port="result" step="http-request-check"/>
+                <p:pipe port="result" step="result-http-request-check"/>
               </p:with-option>
             </p:add-attribute>
           </p:when>
           <p:otherwise>
-            <p:identity/>
+            <p:identity>
+              <p:with-input port="source">
+                <p:inline>
+                  <c:result/>
+                </p:inline>
+              </p:with-input>
+            </p:identity>
           </p:otherwise>
         </p:choose>
 
@@ -556,24 +603,24 @@
         <p:documentation>Windows UNC path. \\ → file:///// .</p:documentation>
         <p:add-attribute attribute-name="os-path" match="/*">
           <p:with-option name="attribute-value" select="$catalog-resolved-uri"/>
-          <p:input port="source">
+          <p:with-input port="source">
             <p:inline>
               <c:result/>
             </p:inline>
-          </p:input>
+          </p:with-input>
         </p:add-attribute>
         <p:add-attribute match="/*" attribute-name="local-href">
-          <p:with-option name="attribute-value" select="concat('file:///', replace($catalog-resolved-uri, '\\', '/')"/>
+          <p:with-option name="attribute-value" select="concat('file:///', replace($catalog-resolved-uri, '\\', '/'))"/>
         </p:add-attribute>
       </p:when>
 
       <p:when test="matches($catalog-resolved-uri, '^(#|mailto:|ftp:)')">
         <p:add-attribute attribute-name="href" match="/*">
-          <p:input port="source">
+          <p:with-input port="source">
             <p:inline>
               <c:result local-href="" os-path=""/> 
             </p:inline>
-          </p:input>
+          </p:with-input>
           <p:with-option name="attribute-value" select="$catalog-resolved-uri"/>
         </p:add-attribute>        
       </p:when>
@@ -600,15 +647,12 @@
   </p:add-attribute>
 
   <p:xslt name="add-rel-path">
-    <p:input port="stylesheet">
+    <p:with-input port="stylesheet">
       <p:document href="../xsl/attach-relative-path.xsl"/>
-    </p:input>
-    <p:input port="parameters">
-      <p:empty/>
-    </p:input>
-    <p:with-param name="cwd-uri" select="/c:result/@local-href">
+    </p:with-input>
+    <p:with-option name="parameters" select="map {'cwd-uri': /c:result/@local-href}">
       <p:pipe port="result" step="cwd-uri"/>
-    </p:with-param>
+    </p:with-option>
   </p:xslt>
 
 </p:declare-step>
