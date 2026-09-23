@@ -8,7 +8,7 @@
   xmlns:cat="urn:oasis:names:tc:entity:xmlns:xml:catalog" 
   xmlns:xs="http://www.w3.org/2001/XMLSchema"
   xmlns:map="http://www.w3.org/2005/xpath-functions/map"
-  version="3.0" 
+  version="3.1" 
   name="file-uri" 
   type="tr:file-uri">
 
@@ -80,7 +80,11 @@
     </depends-on>
   </p:pipeinfo>
 
-  <p:option name="filename" required="true">
+  <p:option name="filename" required="true" as="xs:string">
+    <!-- xs:string (as the effective XProc 1 type) so that an accidentally
+         empty sequence is rejected at binding time; an empty $filename used
+         to fall through the relative-path branch and re-invoke tr:file-uri
+         with resolve-uri(()) until the stack overflowed. -->
     <p:documentation>A URI or an OS-specific identifier. Relative paths will be resolved against the static-base-uri(). A future
       improvement might use the XSLT-based catalog resolver in order to detect whether a given http: URL will actually resolve
       to a local file.</p:documentation>
@@ -147,14 +151,36 @@
     <p:documentation>A c:result document with a local-href and an os-path attribute.</p:documentation>
   </p:output>
 
-  <p:os-info name="info"/>
-  <p:message select="'XXXXXX'{$filename}"/>
-<!--<p:message select="{serialize(/*)}"/>-->
-  <!--<p:message>
-    <p:with-option name="select" select="'pos:info ', for $a in /*/@* return concat(name($a), '=', $a, ' ')"></p:with-option>
-  </p:message>-->
+  <!-- p:os-info is not available in MorganaXProc-IIIse. The fallback provides an equivalent
+       c:os-info document: cwd is derived from the PWD environment variable when it looks
+       like an absolute POSIX path, otherwise from this library’s base URI. Caveat: some
+       processors do not expose the real environment PWD (MorganaXProc reports a value
+       based on the pipeline location), so relative filenames may resolve differently than
+       with p:os-info — prefer absolute or catalog-resolved filenames on such processors.
+       user-home is derived from USERPROFILE or HOME and may be empty. -->
+  <p:variable name="os-cwd" select="
+    if (matches(environment-variable('PWD'), '^/[a-zA-Z]/'))
+    then translate(concat(upper-case(substring(environment-variable('PWD'), 2, 1)), ':/',
+                         substring(environment-variable('PWD'), 4)), '/', '\')
+    else translate(replace(static-base-uri(), '^file:/+([a-zA-Z]:.*)/[^/]+$', '$1'), '/', '\')">
+    <p:empty/>
+  </p:variable>
+  <p:variable name="os-user-home"
+    select="translate((environment-variable('USERPROFILE'), environment-variable('HOME'), '')[1], '/', '\')">
+    <p:empty/>
+  </p:variable>
+  <p:identity name="info" use-when="not(p:step-available('p:os-info'))">
+    <p:with-input port="source">
+      <p:inline expand-text="true">
+        <c:os-info cwd="{$os-cwd}"
+                   user-home="{$os-user-home}"
+                   file-separator="{if (matches(static-base-uri(), '^file:/+[a-zA-Z]:')) then '\' else '/'}"/>
+      </p:inline>
+    </p:with-input>
+  </p:identity>
+  <p:os-info name="info" use-when="p:step-available('p:os-info')"/>
 
-  <p:xslt name="catalog-resolve" template-name="resolve" cx:depends-on="info">
+  <p:xslt name="catalog-resolve" template-name="resolve">
     <p:with-input port="stylesheet">
       <p:pipe port="resolver" step="file-uri"/>
     </p:with-input>
@@ -165,7 +191,6 @@
                                           'cat:missing-next-catalogs-warning': 'no' }"/>
   </p:xslt>
   
-<p:message select="'CATALOG_RESOLVE'{serialize(/*)}"/>
   <!--<cx:message>
     <p:with-option name="message" select="'cr ', for $a in /*/@* return concat(name($a), '=', $a, ' ')"></p:with-option>
   </cx:message>-->
@@ -188,7 +213,6 @@
       <p:pipe port="result" step="info"/>
     </p:with-option>
   </p:add-attribute>
-  <p:message select="'CWWWDDD'{serialize(/*)}"/>
   
   <p:choose name="cwd-uri">
     <p:when test="$filename = /c:result/@cwd">
@@ -225,8 +249,6 @@
       <p:pipe port="result" step="catalog-resolve"/>
     </p:with-option>
   </p:set-attributes>
-  
-  <p:message select="'DEBUGGGGGG add-orig-hrf:',{serialize(/*)}"></p:message>
   
   <p:group>
     <p:variable name="catalog-resolved-uri" select="/c:result/@href"/>
@@ -357,7 +379,7 @@
               <p:with-option name="href" select="/c:request/@href"/>
             </p:http-request>
             <p:sink/>
-            <p:variable name="status" as="item()" select=".?status-code" pipe="report@http-request-intern"/>
+            <p:variable name="status" as="xs:string" select="xs:string(.?status-code)" pipe="report@http-request-intern"/>
             <p:identity>
               <p:with-input port="source">
                 <p:inline expand-text="true">
@@ -391,11 +413,11 @@
           <p:with-option name="href" select="/c:request/@href"/>
         </p:http-request>
         <p:sink/>
-        <p:variable name="status" as="item()" select=".?status-code" pipe="report@http-request"/>
+        <p:variable name="status" as="xs:string" select="xs:string(.?status-code)" pipe="report@http-request"/>
         <p:identity name="http-request-result">
           <p:with-input port="source">
             <p:inline expand-text="true">
-              <c:response name="status" value="{$status}"/>
+              <c:response status="{$status}"/>
             </p:inline>
           </p:with-input>
         </p:identity>
@@ -530,11 +552,11 @@
             <p:http-request name="http-request-check-intern">
               <p:with-option name="href" select="/c:request/@href"/>
             </p:http-request>
-            <p:variable name="status" as="item()" select=".?status-code" pipe="report@http-request-check-intern"/>
+            <p:variable name="status" as="xs:string" select="xs:string(.?status-code)" pipe="report@http-request-check-intern"/>
             <p:identity name="response">
               <p:with-input port="source">
                 <p:inline expand-text="true">
-                  <c:response name="status" value="{$status}"/>
+                  <c:response status="{$status}"/>
                 </p:inline>
               </p:with-input>
             </p:identity>

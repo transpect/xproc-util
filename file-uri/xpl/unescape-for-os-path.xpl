@@ -4,7 +4,7 @@
   xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
   xmlns:xs="http://www.w3.org/2001/XMLSchema"
   xmlns:tr="http://transpect.io" 
-  version="3.0" 
+  version="3.1" 
   name="unescape-uri" 
   type="tr:unescape-uri">
 
