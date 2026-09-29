@@ -55,9 +55,9 @@
         </p:with-input>
       </p:count>
       
-      <p:message>
+      <!--<p:message>
         <p:with-option name="select" select="$base-uri"/>
-      </p:message>
+      </p:message>-->
       
       <p:choose>
         <p:when test=". > 1">
