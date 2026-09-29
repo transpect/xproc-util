@@ -3,7 +3,7 @@
   xmlns:xs="http://www.w3.org/2001/XMLSchema"
   xmlns:tr="http://transpect.io"
   exclude-result-prefixes="#all" 
-  version="2.0">
+  version="3.0">
   
   <xsl:import href="http://transpect.io/xslt-util/mime-type/xsl/mime-type.xsl"/>
 
@@ -11,34 +11,41 @@
   <xsl:param name="suppress-image" as="xs:string?"/>
 
   <xsl:template match="text()">
-    <xsl:analyze-string select="." regex="(url\((.+?)\))|@import[^;^\(]+;">
-      <xsl:matching-substring>
-        <xsl:if test="regex-group(2)[normalize-space()]">
-          <xsl:variable name="href" select="resolve-uri(replace(regex-group(2), '''|&quot;', ''), $base-uri)" as="xs:anyURI"/>
-          <xsl:if test="not(normalize-space($href))">
-            <xsl:message select="'Unexpected empty href in xproc-util/html-embed-resources/xsl/css-embed-resources.xsl.
-              Diagnostics: ', regex-group(2), ' :: ', $base-uri"/>
-          </xsl:if>
-          <xsl:variable name="mime-type" as="xs:string" select="tr:fileref-to-mime-type($href)"/>
-          <xsl:choose>
-            <xsl:when test="starts-with($mime-type, 'image') and $suppress-image"><!-- don’t embed images -->
-              <xsl:value-of select="."/>
-            </xsl:when>
-            <xsl:otherwise>
-              <xsl:text>url('</xsl:text>
-              <!-- We better try to resolve it by catalog because otherwise we end up with things like
+<!--    <xsl:message select="'HHHHHHHHHHHHHHHHHHHHHHHHHHHHH', matches(., '&#xD;'), matches(., '&amp;#xD;')"/>-->
+    <xsl:variable name="prelim" as="xs:string+">
+      <xsl:analyze-string select="." regex="(url\((.+?)\))|@import[^;^\(]+;">
+        <xsl:matching-substring>
+          <xsl:if test="regex-group(2)[normalize-space()]">
+            <xsl:variable name="href" select="resolve-uri(replace(regex-group(2), '''|&quot;', ''), $base-uri)" as="xs:anyURI"/>
+            <xsl:if test="not(normalize-space($href))">
+              <xsl:message select="'Unexpected empty href in xproc-util/html-embed-resources/xsl/css-embed-resources.xsl.
+                Diagnostics: ', regex-group(2), ' :: ', $base-uri"/>
+            </xsl:if>
+            <xsl:variable name="mime-type" as="xs:string" select="tr:fileref-to-mime-type($href)"/>
+            <xsl:choose>
+              <xsl:when test="starts-with($mime-type, 'image') and $suppress-image"><!-- don’t embed images -->
+                <xsl:value-of select="."/>
+              </xsl:when>
+              <xsl:otherwise>
+                <xsl:text>url('</xsl:text>
+                <!-- We better try to resolve it by catalog because otherwise we end up with things like
                 http://transpect.io/htmlreports/template/icons/logo-transpect.svg if image embedding is suppressed -->
-              <tr:data-uri href="{$href}" mime-type="{tr:fileref-to-mime-type($href)}">tobereplaced</tr:data-uri>
-              <xsl:text>')</xsl:text>
-            </xsl:otherwise>
-          </xsl:choose>
-        </xsl:if>
-      </xsl:matching-substring>
-      <xsl:non-matching-substring>
-        <xsl:value-of select="replace(.,'&#xD;','')"/>
-      </xsl:non-matching-substring>
-    </xsl:analyze-string>
-
+                <tr:data-uri href="{$href}" mime-type="{tr:fileref-to-mime-type($href)}">tobereplaced</tr:data-uri>
+                <xsl:text>')</xsl:text>
+              </xsl:otherwise>
+            </xsl:choose>
+          </xsl:if>
+        </xsl:matching-substring>
+        <xsl:non-matching-substring>
+          <xsl:value-of select="replace(.,'&#xD;','')"/>
+        </xsl:non-matching-substring>
+      </xsl:analyze-string>  
+    </xsl:variable>
+    <xsl:variable name="prelim2" as="xs:string" select="string-join($prelim)"/>
+    <!-- only with these variables and/or with string-join() were we able to get rid of literal &#xD; in the CSS.
+     This seemed to be problematic only in the XProc 3 version. --> 
+<!--    <xsl:message select="'PPPPPPPPPPPPPPP', matches($prelim2, '&#xD;'), matches($prelim2, '&amp;#xD;')"/>-->
+    <xsl:sequence select="$prelim2"/>
   </xsl:template>
 
   <xsl:template match="@*|*">
