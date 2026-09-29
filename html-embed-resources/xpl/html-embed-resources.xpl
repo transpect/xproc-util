@@ -1,17 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <p:declare-step xmlns:p="http://www.w3.org/ns/xproc"
   xmlns:c="http://www.w3.org/ns/xproc-step" 
-  xmlns:cx="http://xmlcalabash.com/ns/extensions"
   xmlns:xlink="http://www.w3.org/1999/xlink"
   xmlns:tr="http://transpect.io"
   xmlns:html="http://www.w3.org/1999/xhtml"
   xmlns:svg="http://www.w3.org/2000/svg"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
   xmlns="http://transpect.io"
-  version="1.0"
+  version="3.1"
   name="html-embed-resources"
   type="tr:html-embed-resources">
-  
-  <p:serialization port="result" method="xhtml" omit-xml-declaration="false"/>
   
   <p:documentation xmlns:html="http://www.w3.org/1999/xhtml">
     <p>This step tries to embed external resources such as images, 
@@ -39,6 +37,8 @@
   &lt;/body>
 &lt;/html></pre> 
   </p:documentation>
+
+  <p:import href="http://transpect.io/xproc-util/file-uri/xpl/file-uri.xpl"/>
   
   <p:input port="source" primary="true">
     <p:documentation xmlns:html="http://www.w3.org/1999/xhtml">
@@ -56,7 +56,8 @@
     </p:inline>
   </p:input>
   
-  <p:output port="result" primary="true">
+  <p:output port="result" primary="true"
+    serialization="map { 'method': 'xhtml', 'omit-xml-declaration': false() }">
     <p:documentation xmlns:html="http://www.w3.org/1999/xhtml">
       <p>provides the XHTML document with embedded resources</p>
     </p:documentation>
@@ -87,10 +88,7 @@
   <p:option name="debug" select="'no'"/>
   <p:option name="fail-on-error" select="'true'"/>
   
-  <p:import href="http://xmlcalabash.com/extension/steps/library-1.0.xpl"/>
-  <p:import href="http://transpect.io/xproc-util/file-uri/xpl/file-uri.xpl"/>
-  
-  <p:declare-step version="1.0" 
+  <p:declare-step version="3.1"
     name="tr-get-data-uri" 
     type="tr:get-data-uri">
     
@@ -101,12 +99,6 @@
       the original fileref markup is reproduced.
     </p:documentation>
     
-    <p:input port="source" primary="true">
-      <p:documentation>
-        Expects a c:request as input to perform 
-        a basic p:http-request
-      </p:documentation>
-    </p:input>
     <p:input port="fileref" primary="false">
       <p:documentation>
         Markup of the file reference. Will be replicated if 
@@ -121,29 +113,109 @@
     
     <p:output port="result"/>
     
+    <p:option name="href" required="true">
+      <p:documentation>The (resolved) URI to fetch</p:documentation>
+    </p:option>
+    <p:option name="force-octet-stream" select="'no'">
+      <p:documentation>Fetch as application/octet-stream so that the body is
+        guaranteed to be base64 encoded</p:documentation>
+    </p:option>
     <p:option name="max-base64-encoded-size-kb" select="'1000'"/>
     
-    <p:http-request name="http-request"/>
+    <p:choose name="fetch">
+      <p:with-input><p:empty/></p:with-input>
+      <p:when test="starts-with($href, 'http')">
+        <p:http-request name="http-fetch" method="get" href="{$href}">
+          <p:with-input port="source"><p:empty/></p:with-input>
+        </p:http-request>
+      </p:when>
+      <p:when test="$force-octet-stream eq 'yes'">
+        <p:load name="load-octet" href="{$href}" content-type="application/octet-stream"/>
+        <!-- p:xslt accepts XML documents only (binary documents must not reach its
+             source port, err:XD0038); cast the binary document to a c:data document -->
+        <p:cast-content-type name="octet-to-cdata" content-type="application/xml"/>
+      </p:when>
+      <p:otherwise>
+        <!-- Local file: XML documents pass through, binary documents become c:data.
+             Text documents cannot be cast to XML (the processor would try to parse
+             the text as markup, err:XD0049) — read them as plain text instead. -->
+        <p:try>
+          <p:group>
+            <p:load name="load-file" href="{$href}"/>
+            <p:cast-content-type name="file-to-cdata" content-type="application/xml"/>
+          </p:group>
+          <p:catch name="catch-text-cast">
+            <p:xslt name="load-file-as-text" template-name="main">
+              <p:with-input port="source">
+                <p:inline>
+                  <dummy/>
+                </p:inline>
+              </p:with-input>
+              <p:with-input port="stylesheet">
+                <p:inline expand-text="false">
+                  <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+                                  xmlns:c="http://www.w3.org/ns/xproc-step" version="3.0">
+                    <xsl:param name="href" as="xs:string"/>
+                    <xsl:template name="main">
+                      <c:body content-type="application/xml">
+                        <xsl:value-of select="unparsed-text($href)"/>
+                      </c:body>
+                    </xsl:template>
+                  </xsl:stylesheet>
+                </p:inline>
+              </p:with-input>
+              <p:with-option name="parameters" select="map { 'href': $href }"/>
+            </p:xslt>
+          </p:catch>
+        </p:try>
+      </p:otherwise>
+    </p:choose>
+
+    <p:xslt name="normalize-body">
+      <p:with-input port="stylesheet">
+        <p:inline expand-text="false">
+          <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+            xmlns:c="http://www.w3.org/ns/xproc-step" version="3.0">
+            <xsl:template match="/">
+              <xsl:choose>
+                <xsl:when test="c:data">
+                  <c:body content-type="{c:data/@content-type}" encoding="base64">
+                    <xsl:value-of select="c:data"/>
+                  </c:body>
+                </xsl:when>
+                <xsl:when test="c:body">
+                  <!-- already normalized (text fallback path) -->
+                  <xsl:sequence select="."/>
+                </xsl:when>
+                <xsl:otherwise>
+                  <c:body content-type="application/xml">
+                    <xsl:sequence select="node()"/>
+                  </c:body>
+                </xsl:otherwise>
+              </xsl:choose>
+            </xsl:template>
+          </xsl:stylesheet>
+        </p:inline>
+      </p:with-input>
+    </p:xslt>
     
     <p:choose name="test-for-max-file-size">
+      <p:with-input pipe="@normalize-body"/>
+      <p:when test="xs:float(string-length(//c:body[1]) * 4 div 3 div 1000) &gt; xs:float($max-base64-encoded-size-kb)">
+
       <p:variable name="base64-str-size" select="string-length(//c:body[1]) * 4 div 3 div 1000"/>
-      <p:variable name="href" select="/*/@local-href">
-        <p:pipe port="file-uri" step="tr-get-data-uri"/>
-      </p:variable>
-      <p:when test="xs:float($base64-str-size) &gt; xs:float($max-base64-encoded-size-kb)">
+        <p:variable name="href" select="/*/@local-href" pipe="file-uri@tr-get-data-uri"/>
         
-        <cx:message>
-          <p:with-option name="message" select="'[WARNING] File not embedded. Base64 encoded string size (', 
+        <p:message>
+          <p:with-option name="select" select="'[WARNING] File not embedded. Base64 encoded string size (',
             round-half-to-even($base64-str-size, 2) , 
             'kB) exceeds limit of ', $max-base64-encoded-size-kb, ' kB: ', $href"/>
-        </cx:message>
+        </p:message>
         
         <p:sink/>
         
         <p:identity>
-          <p:input port="source">
-            <p:pipe port="fileref" step="tr-get-data-uri"/>
-          </p:input>
+          <p:with-input port="source" pipe="fileref@tr-get-data-uri"/>
         </p:identity>
         
       </p:when>
@@ -155,6 +227,8 @@
     </p:choose>
     
   </p:declare-step>
+
+  <p:group name="main">
   
   <p:variable name="top-level-base-uri" select="( /*/@xml:base, base-uri(/*) )[1]"/>
   
@@ -212,9 +286,9 @@
           <p:group>
             <p:choose>
               <p:when test="$debug eq 'yes'">
-                <cx:message>
-                  <p:with-option name="message" select="'embed: ', $href"/>
-                </cx:message>
+                <p:message>
+                  <p:with-option name="select" select="'embed: ', $href"/>
+                </p:message>
               </p:when>
               <p:otherwise>
                 <p:identity/>
@@ -227,38 +301,30 @@
             
             <tr:file-uri fetch-http="true" name="file-uri">
               <p:with-option name="filename" select="$href"/>
-              <p:input port="catalog">
+              <p:with-input port="catalog">
                 <p:pipe port="catalog" step="html-embed-resources"/>
-              </p:input>
-              <p:input port="resolver">
+              </p:with-input>
+              <p:with-input port="resolver">
                 <p:document href="http://transpect.io/xslt-util/xslt-based-catalog-resolver/xsl/resolve-uri-by-catalog.xsl"/>
-              </p:input>
+              </p:with-input>
             </tr:file-uri>
             
             <p:sink/>
             
-            <p:add-attribute attribute-name="href" match="/c:request" name="construct-http-request">
-              <p:with-option name="attribute-value" select="/c:result/@local-href">
+            <tr:get-data-uri name="http-request">
+              <p:with-input port="fileref">
+                  <p:pipe port="current" step="viewport"/>
+              </p:with-input>
+                <p:with-input port="file-uri">
+                  <p:pipe port="result" step="file-uri"/>
+                </p:with-input>
+              <p:with-option name="href" select="/c:result/@local-href">
                 <p:pipe port="result" step="file-uri"/>
               </p:with-option>
-              <p:input port="source">
-                <p:inline>
-                  <c:request method="GET" detailed="true"/>
-                </p:inline>
-              </p:input>
-            </p:add-attribute>
-            
-            <tr:get-data-uri name="http-request">
-              <p:input port="fileref">
-                <p:pipe port="current" step="viewport"/>
-              </p:input>
-              <p:input port="file-uri">
-                <p:pipe port="result" step="file-uri"/>
-              </p:input>
               <p:with-option name="max-base64-encoded-size-kb" select="$max-base64-encoded-size-kb"/>
             </tr:get-data-uri>
             
-            <p:add-attribute attribute-name="xml:base" name="add-xmlbase" match="//c:body" cx:depends-on="http-request">
+            <p:add-attribute attribute-name="xml:base" name="add-xmlbase" match="//c:body">
               <p:with-option name="attribute-value" select="$href"/>
             </p:add-attribute>
             
@@ -267,25 +333,24 @@
                  * -->
             
             <p:choose>
-              <p:when test="html:img|html:audio|html:video|html:script|html:object|svg:image|html:picture">
-                <p:xpath-context>
-                  <p:pipe port="current" step="viewport"/>
-                </p:xpath-context>
+                <p:with-input pipe="current@viewport"/>
+              <p:when test="/html:img|html:audio|html:video|html:script|html:object|svg:image|html:picture">
                 <p:variable name="content-type" 
                   select="if(matches(//c:body[1]/@xml:base, '\.svg$', 'i'))
                           then 'image/svg+xml'
-                          else replace(//c:body[1]/@content-type, '^(.+/.+);.+$', '$1')"/>
-                <p:variable name="encoding" select="//c:body/@encoding"/>
+                            else replace(//c:body[1]/@content-type, '^(.+/.+);.+$', '$1')"
+                    pipe="result@add-xmlbase"/>
+                  <p:variable name="encoding" select="//c:body/@encoding" pipe="result@add-xmlbase"/>
                 
                 <p:string-replace match="*[local-name() = ('img', 'audio', 'video', 'script')]/@src
                                          |html:object/@data
                                          |svg:image/@xlink:href
                                          |html:video/html:source/@src
                                          |html:audio/@src
-                                         |html:picture/html:source/@srcset" cx:depends-on="add-xmlbase">
-                  <p:input port="source">
+                                         |html:picture/html:source/@srcset">
+                  <p:with-input port="source">
                     <p:pipe port="current" step="viewport"/>
-                  </p:input>
+                  </p:with-input>
                   <p:with-option name="replace" select="concat('''', 'data:', $content-type, ';', $encoding, ',', //c:body, '''')">
                     <p:pipe port="result" step="add-xmlbase"/>
                   </p:with-option>
@@ -295,15 +360,15 @@
               
               <p:otherwise>
                 
-                <p:insert match="html:style" position="first-child" name="insert-style" cx:depends-on="add-xmlbase">
-                  <p:input port="source">
+                <p:insert match="html:style" position="first-child" name="insert-style">
+                  <p:with-input port="source">
                     <p:inline>
                       <style xmlns="http://www.w3.org/1999/xhtml"></style>
                     </p:inline>
-                  </p:input>
-                  <p:input port="insertion">
+                  </p:with-input>
+                  <p:with-input port="insertion">
                     <p:pipe port="result" step="add-xmlbase"/>
-                  </p:input>
+                  </p:with-input>
                 </p:insert>
                 
                 <!--  *
@@ -313,69 +378,62 @@
                 <p:try name="try-extract-references-from-css">
                   <p:group>
                     <p:xslt name="extract-references-from-css">
-                      <p:with-param name="base-uri" select="$href"/>
-                      <p:input port="stylesheet">
+                      <p:with-input port="stylesheet">
                         <p:document href="../xsl/css-embed-resources.xsl"/>
-                      </p:input>
-                      <p:with-param name="suppress-image" select="$suppress-image"/>
+                      </p:with-input>
+                        <p:with-option name="parameters"
+                          select="map { 'base-uri': $href,
+                                        'suppress-image': $suppress-image }"/>
                     </p:xslt>
                     
-                    <p:viewport match="tr:data-uri" cx:depends-on="extract-references-from-css" name="viewport-data-uri">
+                    <p:viewport match="tr:data-uri" name="viewport-data-uri">
                       <p:variable name="data-uri" select="tr:data-uri/@href"/>
                       <p:variable name="mime-type" select="tr:data-uri/@mime-type"/>
                       
                       <tr:file-uri fetch-http="true" name="css-file-uri">
                         <p:with-option name="filename" select="$data-uri"/>
-                        <p:input port="catalog">
+                        <p:with-input port="catalog">
                           <p:pipe port="catalog" step="html-embed-resources"/>
-                        </p:input>
-                        <p:input port="resolver">
+                        </p:with-input>
+                        <p:with-input port="resolver">
                           <p:document href="http://transpect.io/xslt-util/xslt-based-catalog-resolver/xsl/resolve-uri-by-catalog.xsl"/>
-                        </p:input>
+                        </p:with-input>
                       </tr:file-uri>
                       
                       <p:choose name="foo">
                         <p:when test="true()(:$debug eq 'yes':)">
-                          <cx:message>
-                            <p:with-option name="message" select="'CSS embed: ', $data-uri, 
+                          <p:message>
+                            <p:with-option name="select" select="'CSS embed: ', $data-uri,
                               if (not($data-uri = /*/@local-href)) 
                               then (', resolved as ', /*/@local-href)
                               else ()"/>
-                          </cx:message>
+                          </p:message>
                         </p:when>
                         <p:otherwise>
                           <p:identity/>
                         </p:otherwise>
                       </p:choose>
 
-                      <p:add-attribute attribute-name="href" match="/c:request" name="construct-http-request-css" cx:depends-on="foo">
-                        <p:with-option name="attribute-value" select="/*/@local-href"/>
-                        <p:input port="source">
-                          <p:documentation>We request it as application/octet-stream so that we are certain that it will be
-                            base64 encoded, even if it were SVG or the like. (When reading resources from a Jar, we received
-                          SVG as XML here, as opposed to when reading from file system – strange.))</p:documentation>
-                          <p:inline>
-                            <c:request method="GET" detailed="true" override-content-type="application/octet-stream"/>
-                          </p:inline>
-                        </p:input>
-                      </p:add-attribute>
-                      
-                      <tr:get-data-uri name="http-request-css-resource" cx:depends-on="construct-http-request-css">
-                        <p:input port="fileref">
+                      <tr:get-data-uri name="http-request-css-resource">
+                        <p:with-input port="fileref">
                           <p:pipe port="current" step="viewport-data-uri"/>
-                        </p:input>
-                        <p:input port="file-uri">
+                        </p:with-input>
+                        <p:with-input port="file-uri">
                           <p:pipe port="result" step="css-file-uri"/>
-                        </p:input>
+                        </p:with-input>
+                          <p:with-option name="href" select="/*/@local-href">
+                            <p:pipe port="result" step="css-file-uri"/>
+                          </p:with-option>
+                          <p:with-option name="force-octet-stream" select="'yes'"/>
                         <p:with-option name="max-base64-encoded-size-kb" select="$max-base64-encoded-size-kb"/>
                       </tr:get-data-uri>
                       
                       <p:choose name="conditionally-replace-css-uri">
                         <p:when test="name(/*) = 'c:body'">
                           <p:string-replace match="tr:data-uri/text()">
-                            <p:input port="source">
+                            <p:with-input port="source">
                               <p:pipe port="current" step="viewport-data-uri"/>
-                            </p:input>
+                            </p:with-input>
                             <p:with-option name="replace" select="concat('''', 'data:', $mime-type, ';', c:body/@encoding, ',', replace(c:body, '&#xa;', ''), '''')">
                               <p:pipe port="result" step="http-request-css-resource"/>
                             </p:with-option>
@@ -383,9 +441,9 @@
                         </p:when>
                         <p:otherwise>
                           <p:string-replace match="tr:data-uri/text()">
-                            <p:input port="source">
+                            <p:with-input port="source">
                               <p:pipe port="current" step="viewport-data-uri"/>
-                            </p:input>
+                            </p:with-input>
                             <p:with-option name="replace" select="concat('''', /*/@local-href, '''')">
                               <p:pipe port="result" step="css-file-uri"/>
                             </p:with-option>
@@ -400,9 +458,9 @@
                   </p:group>
                   <p:catch>
                     <p:identity>
-                      <p:input port="source">
+                      <p:with-input port="source">
                         <p:pipe port="result" step="insert-style"/>
-                      </p:input>
+                      </p:with-input>
                     </p:identity>
                   </p:catch>
                 </p:try>
@@ -419,38 +477,33 @@
                 * the try branch failed for any™ reason. Leave the reference as is
                 * -->
           
-          <p:catch>
+          <p:catch name="catch-embed">
             
             <p:choose>
               <p:when test="$fail-on-error eq 'true'">
                 
                 <p:error code="html-resource-embed-failed">
-                  <p:input port="source">
-                    <p:inline>
-                      <c:error>Failed to embed HTML resource.</c:error>
-                    </p:inline>
-                  </p:input>
+                  <p:with-input port="source">
+                      <p:pipe port="error" step="catch-embed"/>
+                  </p:with-input>
                 </p:error>
                 
               </p:when>
               <p:otherwise>
                 
                 <p:identity>
-                  <p:input port="source">
+                  <p:with-input port="source">
                     <p:pipe port="current" step="viewport"/>
-                  </p:input>
+                  </p:with-input>
                 </p:identity>
                 
                 <p:choose>
                   <p:when test="$unavailable-resource-message eq 'yes'">
                     
                     <p:xslt name="insert-unavailable-resource-message">
-                      <p:input port="stylesheet">
+                      <p:with-input port="stylesheet">
                         <p:document href="../xsl/unavailable-resource-message.xsl"/>
-                      </p:input>
-                      <p:input port="parameters">
-                        <p:empty/>
-                      </p:input>
+                      </p:with-input>
                     </p:xslt>
                     
                   </p:when>
@@ -461,9 +514,9 @@
                   </p:otherwise>
                 </p:choose>
                 
-                <cx:message>
-                  <p:with-option name="message" select="'[WARNING] failed to embed file: ', $href"/>
-                </cx:message>
+                <p:message>
+                  <p:with-option name="select" select="'[WARNING] failed to embed file: ', $href"/>
+                </p:message>
                 
               </p:otherwise>
             </p:choose>
@@ -475,9 +528,9 @@
       <p:otherwise>
         
         <p:identity>
-          <p:input port="source">
+          <p:with-input port="source">
             <p:pipe port="current" step="viewport"/>
-          </p:input>
+          </p:with-input>
         </p:identity>
         
       </p:otherwise>
@@ -485,4 +538,6 @@
     
   </p:viewport>
   
+  </p:group>
+
 </p:declare-step>

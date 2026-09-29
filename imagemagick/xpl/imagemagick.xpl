@@ -6,9 +6,12 @@
   xmlns:pxf="http://exproc.org/proposed/steps/file"
   xmlns:tr="http://transpect.io"
   xmlns:xe="http://degruyter.com/xmlns/xml2epub"
-  version="1.0"
+  version="3.1"
   name="imagemagick"
   type="tr:imagemagick">
+  
+  <p:import href="http://transpect.io/xproc-util/file-uri/xpl/file-uri.xpl"/>
+  <p:import href="http://transpect.io/xproc-util/store-debug/xpl/store-debug.xpl"/>
   
   <p:documentation>
     This is an XProc wrapper for ImageMagick. The ImageMagick executable 
@@ -47,17 +50,15 @@
   
   <p:option name="debug" select="'no'"/>
   <p:option name="debug-dir-uri" select="'debug'"/>
-  <p:option name="fail-on-error" select="'false'"/>
-  
-  <p:import href="http://xmlcalabash.com/extension/steps/library-1.0.xpl"/>
-  <p:import href="http://transpect.io/xproc-util/file-uri/xpl/file-uri.xpl"/>
-  <p:import href="http://transpect.io/xproc-util/store-debug/xpl/store-debug.xpl"/>
+  <p:option name="fail-on-error" select="false()"/>
   
   <p:variable name="image-ext" select="replace($href, '^.+?\.([a-z]+)', '$1', 'i')"/>
   <p:variable name="basename" select="replace($href, '^.+/(.+)\.[a-z]+$', '$1', 'i')"/>
   <p:variable name="image-outpath" select="concat($outdir, '/', $basename, '.', $format)"/>
   
-  <pos:info name="os-info"/>
+  <p:os-info name="os-info"/>
+  
+  
   
   <tr:file-uri name="imagemagick-path" cx:depends-on="os-info">
     <p:with-option name="filename" select="if($imagemagick-path eq '')
@@ -73,9 +74,9 @@
     <p:with-option name="base-uri" select="$debug-dir-uri"/>
   </tr:store-debug>
   
-  <cx:message name="msg1">
-    <p:with-option name="message" select="'[info] imagemagick path: ', /c:result/@os-path"/>
-  </cx:message>
+  <p:message name="msg1">
+    <p:with-option name="select" select="'[info] imagemagick path: ', /c:result/@os-path/string(.)"/>
+  </p:message>
   
   <p:sink/>
   
@@ -95,28 +96,29 @@
     <p:with-option name="base-uri" select="$debug-dir-uri"/>
   </tr:store-debug>
   
-  <pxf:mkdir name="mkdir">
+  <p:file-mkdir name="mkdir">
     <p:with-option name="href" select="replace(/c:result/@href, '^(.+)/.+$', '$1')"/>
     <p:with-option name="fail-on-error" select="$fail-on-error"/>
-  </pxf:mkdir>
+  </p:file-mkdir>
   
   <tr:store-debug name="debug-sourcefile-path">
-    <p:input port="source">
+    <p:with-input port="source">
       <p:pipe port="result" step="file-path"/>
-    </p:input>
+    </p:with-input>
     <p:with-option name="pipeline-step" select="concat('imagemagick/', $basename, '/sourcefile')"/>
     <p:with-option name="active" select="$debug"/>
     <p:with-option name="base-uri" select="$debug-dir-uri"/>
   </tr:store-debug>
   
-  <cx:message name="msg11">
-    <p:with-option name="message" select="'[info] ', /c:result/@rel-path">
+  <p:message name="msg11">
+    <p:with-option name="select" select="'[info] ', /c:result/@rel-path/string(.)">
       <p:pipe port="result" step="file-path"/>
     </p:with-option>
-  </cx:message>
+  </p:message>
   
   <p:try name="exec-group" cx:depends-on="mkdir">
-    <p:group>
+    <p:output port="result" primary="true" pipe="result@group"/>
+    <p:group name="group">
       <p:output port="result" primary="true"/>
       <p:output port="report" primary="false" sequence="true">
         <p:empty/>
@@ -135,36 +137,30 @@
       </p:variable>
       <p:variable name="arg-separator" select="' '"/>
       
-      <cx:message name="msg2">
-        <p:with-option name="message" select="'[info] ', /c:result/@os-path">
+      <p:message name="msg2">
+        <p:with-option name="select" select="'[info] ', /c:result/@os-path/string(.)">
           <p:pipe port="result" step="outfile-path"/>
         </p:with-option>
-      </cx:message>
+      </p:message>
       
-      <p:exec name="exec" wrap-error-lines="true" wrap-result-lines="true" 
-              result-is-xml="false" cx:depends-on="imagemagick-path">
+      <p:os-exec name="exec" cx:depends-on="imagemagick-path">
         <p:with-option name="command" select="/c:result/@os-path">
           <p:pipe port="result" step="imagemagick-path"/>
         </p:with-option>
-        <p:with-option name="arg-separator" select="$arg-separator"/>
         <p:with-option name="args" 
-                       select="string-join(('-verbose -format',
+                       select="('-verbose', '-format',
                                             $format,
                                             $imagemagick-options,
                                             concat(/c:result/@rel-path, '[0]'),
                                             $image-stripped-outpath-prefix
-                                            ), 
-                                            $arg-separator)">
+                                            )">
           <p:pipe port="result" step="file-path"/>
         </p:with-option>
-	<p:with-option name="failure-threshold" select="if($fail-on-error eq 'true') then 0 else 9999"/>
-        <p:input port="source">
-          <p:empty/>
-        </p:input>
-      </p:exec>
+        <p:with-option name="failure-threshold" select="if($fail-on-error) then 0 else 9999"/>
+      </p:os-exec>
       
-      <cx:message name="imagemagick-call">
-        <p:with-option name="message" select="string-join(('-verbose -format',
+      <p:message name="imagemagick-call">
+        <p:with-option name="select" select="string-join(('-verbose -format',
                                             $format,
                                             $imagemagick-options,
                                             concat(/c:result/@rel-path, '[0]'),
@@ -173,7 +169,7 @@
                                             $arg-separator)">
           <p:pipe port="result" step="file-path"/>
         </p:with-option>
-      </cx:message>
+      </p:message>
       
       <p:string-replace name="magick-call" match="c:line">
         <p:with-option name="replace" select="concat('''',string-join(('-verbose -format',
@@ -185,24 +181,24 @@
                                           $arg-separator),  '''')">
            <p:pipe port="result" step="file-path"/>
          </p:with-option>
-        <p:input port="source">
+        <p:with-input port="source">
           <p:inline>
             <c:result>
               <c:line/>
             </c:result>
           </p:inline>
-        </p:input>
+        </p:with-input>
       </p:string-replace>
       
       <p:sink/>
       
       <p:wrap-sequence wrapper="imagemagick" name="wrap-imagemagick-output-for-debugging">
-        <p:input port="source">
+        <p:with-input port="source">
           <p:pipe port="result" step="magick-call"/>
           <p:pipe port="result" step="exec"/>
-          <p:pipe port="errors" step="exec"/>
+          <p:pipe port="error" step="exec"/>
           <p:pipe port="exit-status" step="exec"/>
-        </p:input>
+        </p:with-input>
       </p:wrap-sequence>
       
       <tr:store-debug name="debug-output-ok">
@@ -214,9 +210,9 @@
       <p:sink/>
       
       <p:identity>
-        <p:input port="source">
+        <p:with-input port="source">
           <p:pipe port="result" step="outfile-path"/>
-        </p:input>
+        </p:with-input>
       </p:identity>
       
       <p:add-attribute attribute-name="status" attribute-value="ok" match="/c:result"/>
@@ -230,14 +226,14 @@
       </p:output>
             
       <p:identity name="forward-error">
-        <p:input port="source">
+        <p:with-input port="source">
           <p:pipe port="error" step="catch"/>
-        </p:input>
+        </p:with-input>
       </p:identity>
       
-      <cx:message>
-        <p:with-option name="message" select="'[ERROR] conversion failed for: ', $href"/>
-      </cx:message>
+      <p:message>
+        <p:with-option name="select" select="$debug, $debug-dir-uri, '[ERROR] conversion failed for: ', $href"/>
+      </p:message>
       
       <tr:store-debug name="debug-output-error">
         <p:with-option name="pipeline-step" select="concat('imagemagick/', $basename, '/conversion-log')"/>
@@ -252,9 +248,9 @@
       <p:sink/>
       
       <p:identity>
-        <p:input port="source">
+        <p:with-input port="source">
           <p:pipe port="result" step="outfile-path"/>
-        </p:input>
+        </p:with-input>
       </p:identity>
       
       <p:add-attribute attribute-name="status" attribute-value="failed" match="/c:result"/>

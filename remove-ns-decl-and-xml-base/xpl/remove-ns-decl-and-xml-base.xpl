@@ -2,7 +2,7 @@
 <p:declare-step xmlns:p="http://www.w3.org/ns/xproc"
   xmlns:c="http://www.w3.org/ns/xproc-step" 
   xmlns:tr="http://transpect.io"
-  version="1.0"
+  version="3.0"
   name="remove-ns-decl-and-xml-base" 
   type="tr:remove-ns-decl-and-xml-base">
   
@@ -49,10 +49,7 @@
   <p:option name="debug" select="'no'"/>
   
   <p:xslt>
-    <p:input port="parameters">
-      <p:empty/>
-    </p:input>
-    <p:input port="stylesheet">
+    <p:with-input port="stylesheet">
       <p:inline>
         <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="2.0">
           <xsl:param name="remove-xml-base" select="'all'"/>
@@ -82,7 +79,8 @@
                                                         then substring-before($name, ':') 
                                                         else ''"/>
                     <xsl:if test="$prefix ne ''">
-                      <xsl:namespace name="{$prefix}" select="$ns"/>
+       <!--                    TODO:  excluded during xproc3 migration process. check/reimplement this.-->
+<!--                      <xsl:namespace name="{$prefix}" select="$ns"/>-->
                       <xsl:if test="$debug = 'yes'">
                         <xsl:message select="concat('… move namespace-uri ''', $ns, ''' (prefix: ', $prefix, ') to root ', name($context))"/>
                       </xsl:if>
@@ -115,9 +113,9 @@
           <xsl:template match="@xml:base[$remove-xml-base = 'root' and .. is /*]" priority="2"/>
         </xsl:stylesheet>
       </p:inline>
-    </p:input>
-    <p:with-param name="remove-ns-decl" select="$remove-ns-decl"/>
-    <p:with-param name="remove-xml-base" select="$remove-xml-base"/>
-    <p:with-param name="debug" select="$debug"/>
+    </p:with-input>
+    <p:with-option name="parameters" select="map {'remove-ns-decl': $remove-ns-decl,
+                                                  'remove-xml-base': $remove-xml-base,
+                                                  'debug': $debug}"/>
   </p:xslt> 
 </p:declare-step>

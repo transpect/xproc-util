@@ -4,7 +4,7 @@
   xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
   xmlns:xs="http://www.w3.org/2001/XMLSchema"
   xmlns:tr="http://transpect.io" 
-  version="1.0" 
+  version="3.1"
   name="escape-for-uri" 
   type="tr:escape-for-uri">
 
@@ -15,10 +15,8 @@
   </p:output>
   
   <p:xslt name="unescape" template-name="main">
-    <p:input port="source"><p:empty/></p:input>
-    <p:input port="parameters"><p:empty/></p:input>
-    <p:with-param name="path" select="$path"/>
-    <p:input port="stylesheet">
+    <p:with-input port="source"><p:empty/></p:with-input>
+    <p:with-input port="stylesheet">
       <p:inline>
         <xsl:stylesheet version="2.0">
           <xsl:import href="http://transpect.io/xslt-util/resolve-uri/xsl/resolve-uri.xsl"/>
@@ -30,7 +28,8 @@
           </xsl:template>
         </xsl:stylesheet>
       </p:inline>
-    </p:input>
+    </p:with-input>
+    <p:with-option name="parameters" select="map { 'path': $path }"/>
   </p:xslt>
   
 </p:declare-step>

@@ -2,18 +2,17 @@
 <p:declare-step xmlns:p="http://www.w3.org/ns/xproc"
   xmlns:tr="http://transpect.io"
   xmlns:c="http://www.w3.org/ns/xproc-step" 
-  version="1.0">
+  version="3.1">
   
   <p:documentation xmlns="http://www.w3.org/1999/xhtml">
     <h4>Sample results for <code class="step">tr:file-uri</code></h4>
   </p:documentation>
 
+  <p:import href="file-uri.xpl"/>
+
   <p:option name="filename" required="false" select="'http://transpect.io/xproc-util/file-uri/xpl/file-uri.xpl'"/>
   
   <p:output port="result" primary="true"/>
-  
-  <p:import href="file-uri.xpl"/>
-  
 
   <tr:file-uri name="current-dir" filename=".">
     <p:documentation xmlns="http://www.w3.org/1999/xhtml">
@@ -51,12 +50,12 @@
     </p:documentation>
     
     <p:with-option name="filename" select="$filename"/>
-    <p:input port="catalog">
+    <p:with-input port="catalog">
       <p:document href="../xmlcatalog/catalog.xml"/>
-    </p:input>
-    <p:input port="resolver">
+    </p:with-input>
+    <p:with-input port="resolver">
       <p:document href="http://rawgit.com/transpect/xslt-util/master/xslt-based-catalog-resolver/xsl/resolve-uri-by-catalog.xsl"/>
-    </p:input>
+    </p:with-input>
   </tr:file-uri>
  
   <p:sink/>
@@ -72,12 +71,12 @@
   </tr:file-uri>
   
   <p:wrap-sequence wrapper="c:results">
-    <p:input port="source">
+    <p:with-input port="source">
       <p:pipe port="result" step="current-dir"/>
       <p:pipe port="result" step="without-catalog"/>
       <p:pipe port="result" step="with-catalog"/>
       <p:pipe port="result" step="via-http-request"/>
-    </p:input>
+    </p:with-input>
   </p:wrap-sequence>
   
 </p:declare-step>

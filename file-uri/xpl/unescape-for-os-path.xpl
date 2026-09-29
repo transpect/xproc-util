@@ -4,7 +4,7 @@
   xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
   xmlns:xs="http://www.w3.org/2001/XMLSchema"
   xmlns:tr="http://transpect.io" 
-  version="1.0" 
+  version="3.1" 
   name="unescape-uri" 
   type="tr:unescape-uri">
 
@@ -21,15 +21,14 @@
   </p:output>
   
   <p:xslt name="unescape" template-name="main">
-    <p:input port="source">
+    <p:with-input port="source">
       <p:pipe port="source" step="unescape-uri"/>
-    </p:input>
-    <p:input port="parameters"><p:empty/></p:input>
-    <p:with-param name="uri" select="$uri"/>
-    <p:with-param name="attribute-names" select="$attribute-names"/>
-    <p:input port="stylesheet">
+    </p:with-input>
+    <p:with-option name="parameters" select="map {'uri': $uri,
+                                                  'attribute-names': $attribute-names}"/>
+    <p:with-input port="stylesheet">
       <p:document href="../xsl/unescape-for-os-path.xsl"/>
-    </p:input>
+    </p:with-input>
   </p:xslt>
   
 </p:declare-step>
