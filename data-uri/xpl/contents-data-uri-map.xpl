@@ -44,7 +44,7 @@
                 </file>
               </xsl:for-each-group>
             </xsl:variable>
-            <xsl:sequence select="if ($files/@duplicate)
+            <xsl:sequence select="if ($files/@duplicates)
                                   then map{}
                                   else map:merge(
                                     $files ! map:entry(string(@base-uri), string(@data-uri))
