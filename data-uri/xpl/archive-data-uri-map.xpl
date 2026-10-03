@@ -19,6 +19,10 @@
   <p:input port="manifest">
     <p:documentation>The result of p:archive-manifest</p:documentation>
   </p:input>
+  
+  <p:input port="entry-name-to-map-key">
+    <p:document href="../xsl/entry-name-to-map-key.xsl"/>
+  </p:input>
 
   <p:output port="result" primary="true" content-types="application/json" 
     serialization="map{'escape-solidus': false(), 'indent': true()}"/>
@@ -28,6 +32,7 @@
   <tr:manifest-data-uri-map>
     <p:with-input port="manifest" pipe="manifest@archive-data-uri-map"/>
     <p:with-input port="data-uris" pipe="result@contents-data-uri-map"/>
+    <p:with-input port="entry-name-to-map-key" pipe="entry-name-to-map-key@archive-data-uri-map"/>
   </tr:manifest-data-uri-map>
 
 </p:declare-step>

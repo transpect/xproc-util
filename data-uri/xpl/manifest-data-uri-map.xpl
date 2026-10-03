@@ -8,6 +8,10 @@
   <p:input port="manifest" primary="true" content-types="application/xml"/>
 
   <p:input port="data-uris" content-types="application/json"/>
+  
+  <p:input port="entry-name-to-map-key">
+    <p:document href="../xsl/entry-name-to-map-key.xsl"/>
+  </p:input>
 
   <p:output port="result" content-types="application/json" serialization="map{'escape-solidus': false()}"/>
 
@@ -26,32 +30,7 @@
 
   <p:xslt>
     <p:with-input port="source" pipe="result@inputs"/>
-    <p:with-input port="stylesheet">
-      <p:inline>
-        <xsl:stylesheet
-            xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
-            xmlns:fn="http://www.w3.org/2005/xpath-functions"
-            xmlns:c="http://www.w3.org/ns/xproc-step"
-            xmlns:map="http://www.w3.org/2005/xpath-functions/map"
-            version="3.0">
-          <xsl:output method="json"/>
-
-          <xsl:template match="/">
-            <xsl:variable name="manifest-entries" as="element(c:entry)*" select="/inputs/c:archive/c:entry"/>
-            <xsl:variable name="data-uris" as="element(fn:string)*" select="/inputs/fn:map/fn:string"/>
-
-            <xsl:sequence select="
-              map:merge(
-                for $e in $manifest-entries[@href = $data-uris/@key] return
-                map:entry(
-                  string($e/@name),
-                  string($data-uris[@key = $e/@href])
-                )
-              )"/>
-          </xsl:template>
-        </xsl:stylesheet>
-      </p:inline>
-    </p:with-input>
+    <p:with-input port="stylesheet" pipe="entry-name-to-map-key@manifest-data-uri-map"/>
   </p:xslt>
 
 </p:declare-step>
