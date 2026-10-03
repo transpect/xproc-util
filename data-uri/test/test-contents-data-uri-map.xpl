@@ -25,6 +25,8 @@
   <p:output port="result" primary="true" content-types="application/json" 
     serialization="map{'escape-solidus': false(), 'indent': true()}"/>
 
+  <p:option name="name-keys-relative-to" as="xs:string" select="'index.html'"/>
+  
   <p:unarchive name="unarchive">
     <p:with-input pipe="source@test-data-uri-map"/>
   </p:unarchive>
@@ -35,7 +37,7 @@
     <p:with-input port="source" pipe="source@test-data-uri-map"/>
   </p:archive-manifest>
   
-  <tr:manifest-data-uri-map>
+  <tr:manifest-data-uri-map name-keys-relative-to="{$name-keys-relative-to}">
     <p:with-input port="data-uris" pipe="result@contents-data-uri-map"/>
   </tr:manifest-data-uri-map>
 

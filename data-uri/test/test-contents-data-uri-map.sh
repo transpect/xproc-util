@@ -12,4 +12,4 @@
 
 CFG=none calabash/calabash.sh --explain -i:source=xproc-util/data-uri/test/dir.zip \
       -o:result=entry-name-data-uris.json -o:contents-map=entry-href-data-uris.json \
-      xproc-util/data-uri/test/test-contents-data-uri-map.xpl
+      xproc-util/data-uri/test/test-contents-data-uri-map.xpl name-keys-relative-to=index.html

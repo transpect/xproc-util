@@ -27,9 +27,13 @@
   <p:output port="result" primary="true" content-types="application/json" 
     serialization="map{'escape-solidus': false(), 'indent': true()}"/>
 
-  <tr:contents-data-uri-map name="contents-data-uri-map"/>
+  <p:option name="fail-on-error" as="xs:boolean" select="true()"/>
+
+  <p:option name="name-keys-relative-to" as="xs:string" select="'index.html'"/>
+  
+  <tr:contents-data-uri-map name="contents-data-uri-map" fail-on-error="{$fail-on-error}"/>
     
-  <tr:manifest-data-uri-map>
+  <tr:manifest-data-uri-map name-keys-relative-to="{$name-keys-relative-to}">
     <p:with-input port="manifest" pipe="manifest@archive-data-uri-map"/>
     <p:with-input port="data-uris" pipe="result@contents-data-uri-map"/>
     <p:with-input port="entry-name-to-map-key" pipe="entry-name-to-map-key@archive-data-uri-map"/>

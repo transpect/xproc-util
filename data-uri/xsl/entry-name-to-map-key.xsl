@@ -9,10 +9,15 @@
   exclude-result-prefixes="xs map c tr"
   version="3.0">
   
+  <xsl:import href="http://transpect.io/xslt-util/uri-to-relative-path/xsl/uri-to-relative-path.xsl"/>
+  
   <xsl:output method="json"/>
   
+  <xsl:param name="name-keys-relative-to" as="xs:string" select="'index.html'"/>
+  
   <xsl:template match="@name" as="xs:string" mode="tr:entry-name-to-map-key">
-    <xsl:sequence select="string(.)"/>
+    <xsl:sequence 
+      select="tr:uri-to-relative-path('file:///bogo.zip/' || $name-keys-relative-to, 'file:///bogo.zip/' || .)"/>
   </xsl:template>
   
   <xsl:function name="tr:entry-name-to-map-key" as="xs:string">

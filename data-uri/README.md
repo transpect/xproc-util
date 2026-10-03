@@ -13,3 +13,13 @@ associates it with the data URI that was associated with the archive member’s 
 
 If you already have the archive contents on one port and the archive manifest on another port, you can create the name →
 data URI map with `tr:archive-data-uri-map` that combines both mappings.
+
+The steps `tr:manifest-data-uri-map` and `tr:archive-data-uri-map` (and the test pipeline) accept the option
+`name-keys-relative-to` with a default value 'index.html'. If the name keys should match relative paths found in an HTML
+file, for example '../img/image.png' in 'html/index.html', you can supply 'html/index.html' as this option’s value. Then the keys will be calculated as '../img/image.png' instead of the default 'img/image.png'.
+    
+## To Do
+    
+ * Deal with percent escaping that may or may not be present in `img/@src` etc. attribute values.
+   This is probably not the task of this library, unless we want to duplicate map entries for unescaped and escaped
+   names.   
