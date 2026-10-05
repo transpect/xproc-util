@@ -61,10 +61,10 @@
     <p:documentation>As an extension to its previously established functionality and instead of reading files from disk,
       this step can also read files that are extracted from an archive (and possibly subsequently manipulated by other
       steps). In order to do so, the archive contents and manifest need to be preprocessed by a step like
-      <code>tr:archive-data-uri-map</code> that establishes a mapping between what is found in HTML attributes such as 
-      <code>img/@src</code>. Filling CSS <code>url(…)</code> resources using this map is yet unsupported.
-      The map entries, if present for a given HTML attribute value, will have precedence over reading files from disk or
-      via HTTP.</p:documentation>
+      <code>tr:archive-data-uri-map</code> that establishes a mapping between what is found in HTML attributes (such as 
+      <code>img/@src</code>) and the computed data URIs. 
+      Filling CSS <code>url(…)</code> resources using this map is yet unsupported. The map entries, if present for 
+      a given HTML attribute value, will have precedence over reading files from disk or via HTTP.</p:documentation>
     <p:inline content-type="application/json" expand-text="false">{}</p:inline>
   </p:input>
   
