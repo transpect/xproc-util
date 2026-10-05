@@ -12,7 +12,7 @@
   <p:import href="contents-data-uri-map.xpl"/>
   <p:import href="manifest-data-uri-map.xpl"/>
     
-  <p:input port="contents" primary="true" content-types="any">
+  <p:input port="contents" primary="true" content-types="any" sequence="true">
     <p:documentation>The result of p:unarchive</p:documentation>
   </p:input>
   

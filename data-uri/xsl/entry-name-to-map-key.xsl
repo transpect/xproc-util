@@ -32,7 +32,7 @@
                             for $e in $manifest-entries[@href = $data-uris/@key] return
                             map:entry(
                               tr:entry-name-to-map-key($e/@name),
-                              string($data-uris[@key = $e/@href])
+                              replace($data-uris[@key = $e/@href], '\s+', '')
                             )
                           )"/>
   </xsl:template>
