@@ -4,6 +4,7 @@
   xmlns:xlink="http://www.w3.org/1999/xlink"
   xmlns:tr="http://transpect.io"
   xmlns:html="http://www.w3.org/1999/xhtml"
+  xmlns:map="http://www.w3.org/2005/xpath-functions/map"
   xmlns:svg="http://www.w3.org/2000/svg"
   xmlns:xs="http://www.w3.org/2001/XMLSchema"
   xmlns="http://transpect.io"
@@ -54,6 +55,17 @@
     <p:inline>
       <nodoc/>
     </p:inline>
+  </p:input>
+  
+  <p:input port="archive-data-uri-map" content-types="application/json">
+    <p:documentation>As an extension to its previously established functionality and instead of reading files from disk,
+      this step can also read files that are extracted from an archive (and possibly subsequently manipulated by other
+      steps). In order to do so, the archive contents and manifest need to be preprocessed by a step like
+      <code>tr:archive-data-uri-map</code> that establishes a mapping between what is found in HTML attributes such as 
+      <code>img/@src</code>. Filling CSS <code>url(…)</code> resources using this map is yet unsupported.
+      The map entries, if present for a given HTML attribute value, will have precedence over reading files from disk or
+      via HTTP.</p:documentation>
+    <p:inline content-type="application/json" expand-text="false">{}</p:inline>
   </p:input>
   
   <p:output port="result" primary="true"
@@ -239,6 +251,8 @@
   <p:variable name="suppress-style" select="tokenize($exclude, '\s+')[. = ('#all', 'style')]"/>
   <p:variable name="suppress-object" select="tokenize($exclude, '\s+')[. = ('#all', 'object')]"/>
   
+  <p:variable name="archive-data-uri-map" as="map(*)" select="." pipe="archive-data-uri-map@html-embed-resources"/>
+  
   <p:viewport match="*[local-name() = ('img', 'audio', 'video', 'script')][@src]
                      |html:object[@data]
                      |html:link[@rel eq 'stylesheet'][@href]
@@ -257,10 +271,12 @@
     <p:variable name="href" 
       select="if(starts-with($href-attribute, 'data:'))  (: leave data URIs as-is :)
               then $href-attribute-normalized
-              else resolve-uri(if(matches($href-attribute-normalized, '^(http[s]?|file)://?')) (: resolve regular URIs :) 
-                   then $href-attribute-normalized
-                   else concat(replace($local-base-uri, '^(.+/).+$', '$1'), $href-attribute-normalized),
-                   $local-base-uri)"/>
+              else if(map:contains($archive-data-uri-map, $href-attribute-normalized))
+                   then map:get($archive-data-uri-map, $href-attribute-normalized)
+                   else resolve-uri(if(matches($href-attribute-normalized, '^(http[s]?|file)://?')) (: resolve regular URIs :) 
+                                    then $href-attribute-normalized
+                                    else concat(replace($local-base-uri, '^(.+/).+$', '$1'), $href-attribute-normalized),
+                                    $local-base-uri)"/>
     <p:variable name="fileext" select="lower-case(replace($href, '^.+\.([a-z0-9]+)?$', '$1', 'i'))"/>
     <p:variable name="class-attribute" select="*/@class"/>
     <p:variable name="matches-classes" select="if (not($include-class-only) or (($class-attribute) and matches($class-attribute,string-join(tokenize($include-class-only,'\s'),'|')))) then 'true' else ''"/>
@@ -281,7 +297,7 @@
         <p:identity/>
       </p:when>
       
-      <p:when test="$matches-classes and (normalize-space($href-attribute) and not(starts-with($href-attribute, 'data:')))">
+      <p:when test="$matches-classes and (normalize-space($href-attribute) and not(starts-with($href, 'data:')))">
         <p:try>
           <p:group>
             <p:choose>
