@@ -297,7 +297,15 @@
         <p:identity/>
       </p:when>
       
-      <p:when test="$matches-classes and (normalize-space($href-attribute) and not(starts-with($href, 'data:')))">
+      <p:when test="$matches-classes and (normalize-space($href-attribute) 
+                                          and not(starts-with($href-attribute, 'data:'))
+                                          and starts-with($href, 'data:'))">
+        <p:documentation>data URI that was looked up in $archive-data-uri-map</p:documentation>
+        <p:variable name="attr-name" as="xs:string" select="/*/(@src | @data | @href | @xlink:href)/name()"/>
+        <p:add-attribute attribute-name="{$attr-name}" attribute-value="{$href}"/>
+      </p:when>
+        
+      <p:when test="$matches-classes and (normalize-space($href-attribute) and not(starts-with($href-attribute, 'data:')))">
         <p:try>
           <p:group>
             <p:choose>
