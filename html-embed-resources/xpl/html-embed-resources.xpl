@@ -133,6 +133,8 @@
         guaranteed to be base64 encoded</p:documentation>
     </p:option>
     <p:option name="max-base64-encoded-size-kb" select="'1000'"/>
+    <p:option name="unavailable-resource-message"/>
+    <p:option name="fail-on-error"/>
     
     <p:choose name="fetch">
       <p:with-input><p:empty/></p:with-input>
@@ -157,27 +159,52 @@
             <p:cast-content-type name="file-to-cdata" content-type="application/xml"/>
           </p:group>
           <p:catch name="catch-text-cast">
-            <p:xslt name="load-file-as-text" template-name="main">
-              <p:with-input port="source">
-                <p:inline>
-                  <dummy/>
-                </p:inline>
-              </p:with-input>
-              <p:with-input port="stylesheet">
-                <p:inline expand-text="false">
-                  <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
-                                  xmlns:c="http://www.w3.org/ns/xproc-step" version="3.0">
-                    <xsl:param name="href" as="xs:string"/>
-                    <xsl:template name="main">
-                      <c:body content-type="application/xml">
-                        <xsl:value-of select="unparsed-text($href)"/>
-                      </c:body>
-                    </xsl:template>
-                  </xsl:stylesheet>
-                </p:inline>
-              </p:with-input>
-              <p:with-option name="parameters" select="map { 'href': $href }"/>
-            </p:xslt>
+            <p:try name="try-load-as-text">
+              <p:group>
+                <p:xslt name="load-file-as-text" template-name="main">
+                  <p:with-input port="source">
+                    <p:inline>
+                      <dummy/>
+                    </p:inline>
+                  </p:with-input>
+                  <p:with-input port="stylesheet">
+                    <p:inline expand-text="false">
+                      <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+                                      xmlns:c="http://www.w3.org/ns/xproc-step" version="3.0">
+                        <xsl:param name="href" as="xs:string"/>
+                        <xsl:template name="main">
+                          <c:body content-type="application/xml">
+                            <xsl:value-of select="unparsed-text($href)"/>
+                          </c:body>
+                        </xsl:template>
+                      </xsl:stylesheet>
+                    </p:inline>
+                  </p:with-input>
+                  <p:with-option name="parameters" select="map { 'href': $href }"/>
+                </p:xslt>
+              </p:group>
+              <p:catch name="catch-load-as-text">
+                <p:choose>
+                  <p:when test="$unavailable-resource-message eq 'yes'">
+                    <p:xslt name="insert-unavailable-resource-message2">
+                      <p:with-input port="stylesheet">
+                        <p:document href="../xsl/unavailable-resource-message.xsl"/>
+                      </p:with-input>
+                    </p:xslt>
+                  </p:when>
+                  <p:when test="$fail-on-error eq 'true'">
+                    <p:error code="html-resource-embed-failed">
+                      <p:with-input port="source">
+                        <p:pipe port="error" step="catch-load-as-text"/>
+                      </p:with-input>
+                    </p:error>
+                  </p:when>
+                  <p:otherwise>
+                    <p:identity/>
+                  </p:otherwise>
+                </p:choose>
+              </p:catch>
+            </p:try>
           </p:catch>
         </p:try>
       </p:otherwise>
@@ -335,7 +362,8 @@
             
             <p:sink/>
             
-            <tr:get-data-uri name="http-request">
+            <tr:get-data-uri name="http-request" 
+              unavailable-resource-message="{$unavailable-resource-message}" fail-on-error="{$fail-on-error}">
               <p:with-input port="fileref">
                   <p:pipe port="current" step="viewport"/>
               </p:with-input>
@@ -438,7 +466,8 @@
                         </p:otherwise>
                       </p:choose>
 
-                      <tr:get-data-uri name="http-request-css-resource">
+                      <tr:get-data-uri name="http-request-css-resource" 
+                        unavailable-resource-message="{$unavailable-resource-message}" fail-on-error="{$fail-on-error}">
                         <p:with-input port="fileref">
                           <p:pipe port="current" step="viewport-data-uri"/>
                         </p:with-input>
